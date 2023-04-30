@@ -1,0 +1,39 @@
+{
+    "name": "whenfire",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "args": {
+            "IMAGE": "python:3.10"
+        },
+        "context": ".."
+    },
+    "features": {
+        "ghcr.io/devcontainers/features/azure-cli:1": {
+            "version": "2.38"
+        },
+        "ghcr.io/devcontainers/features/node:1": {
+            "version": "16",
+            "nodeGypDependencies": false
+        }
+    },
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-azuretools.azure-dev",
+                "ms-azuretools.vscode-bicep",
+                "ms-vscode.vscode-node-azure-pack",
+                "ms-python.python",
+                "ms-azuretools.vscode-azurefunctions"
+            ]
+        }
+    },
+    "forwardPorts": [
+        8000,
+        7071
+    ],
+    "postCreateCommand": "python3 -m pip install --user -r requirements-dev.txt && pre-commit install",
+    "remoteUser": "vscode",
+    "hostRequirements": {
+        "memory": "8gb"
+    }
+}

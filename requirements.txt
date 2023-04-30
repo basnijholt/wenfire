@@ -1,0 +1,5 @@
+azure-functions>=1.12.0
+fastapi[all]
+altair
+python-dateutil
+python-multipart
