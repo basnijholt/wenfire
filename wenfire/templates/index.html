@@ -34,6 +34,19 @@
             padding: 4px 8px;
             font-size: 0.8rem;
         }
+        .scrollable-table {
+            display: block;
+            max-height: 800px; /* Adjust this value according to your desired maximum table height */
+            overflow-y: scroll;
+        }
+
+        .scrollable-table thead th {
+            position: sticky;
+            top: 0;
+            background-color: #f8f9fa; /* Adjust this value to match your table header background color */
+            z-index: 10;
+        }
+
     </style>
     <title>Retirement Calculator</title>
 </head>
@@ -173,6 +186,7 @@
     vegaEmbed("#savings-vs-spending-plot", savingsVsSpendingPlotSpec);
     </script>
 
+    <div class="scrollable-table">
     <table class="table table-striped table-bordered table-smaller-rows">
         <thead>
             <tr>
@@ -207,6 +221,7 @@
             {% endfor %}
         </tbody>
     </table>
+    </div>
 {% endif %}
 </body>
 </html>
