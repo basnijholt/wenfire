@@ -31,7 +31,7 @@
         8000,
         7071
     ],
-    "postCreateCommand": "python3 -m pip install --user -r requirements-dev.txt && pre-commit install",
+    "postCreateCommand": "python3 -m pip install --user -r requirements.txt && pre-commit install",
     "remoteUser": "vscode",
     "hostRequirements": {
         "memory": "8gb"
