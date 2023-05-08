@@ -274,10 +274,11 @@ def plot_age_vs_monthly_safe_withdraw(results: list[Results], summary: Summary):
             y=alt.Y("value:Q", title="Montly Amount"),
             color=alt.Color(
                 "key:N",
-                title="Type",
+                title="Legend",
                 scale=alt.Scale(
                     domain=["monthly_safe_withdraw", "spending"], range=["blue", "red"]
                 ),
+                legend=alt.Legend(orient="top-left"),
             ),
             tooltip=["key:N"],
         )
@@ -315,10 +316,11 @@ def plot_savings_vs_spending(results: list[Results], summary: Summary):
             y=alt.Y("value:Q", title="Amount"),
             color=alt.Color(
                 "key:N",
-                title="Type",
+                title="Legend",
                 scale=alt.Scale(
                     domain=["savings", "spending"], range=["purple", "red"]
                 ),
+                legend=alt.Legend(orient="top-left"),
             ),
             tooltip=["key:N"],
         )
