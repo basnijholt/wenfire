@@ -5,9 +5,8 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.11.6/umd/popper.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/vega@5.20.2"></script>
     <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.5.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.18.2"></script>
@@ -21,8 +20,36 @@
             <h1>WenFire ⁉️🔥</h1>
             <h2>Financial Independence Calculator</h2>
         </div>
+
+        <div class="alert alert-info" role="alert">
+            <div>
+                Welcome to the 🔥 FIRE Calculator 🔥, click on the button below to see more information about this calculator!
+            </div>
+            <button class="btn btn-sm btn-info mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#assumptionsList" aria-expanded="false" aria-controls="assumptionsList">
+                Assumptions and Limitations
+            </button>
+            <div class="collapse mt-2" id="assumptionsList">
+                Financial Independence, Retire Early (FIRE) is a movement that aims to help you achieve financial freedom and retire before the traditional retirement age.
+                Our calculator will help you visualize your journey towards financial independence.
+                But before you dive in, here are some assumptions and limitations to keep in mind:
+                <ol>
+                    <li>💹 Investment Growth: The calculator assumes a fixed annual growth rate for your investments. While historically, the stock market has had an average annual return of around 7%, it's important to remember that past performance doesn't guarantee future results. Market conditions can change, and your actual returns might be different.</li>
+                    <li>💰 Inflation: We factor in inflation as a constant rate throughout your journey. In reality, inflation rates can vary over time, affecting your spending power differently.</li>
+                    <li>📈 Salary Increases: The calculator assumes that your salary will increase at a constant rate every year. However, life can be unpredictable, and changes in your career or job market can impact your income growth.</li>
+                    <li>🛍️ Spending: Your monthly spending is assumed to be constant, adjusted for inflation. In real life, your expenses might change as your lifestyle evolves or due to unexpected events.</li>
+                    <li>💵 Safe Withdrawal Rate: We use the popular 4% rule, which assumes that you can withdraw 4% of your portfolio annually without running out of money in retirement. Keep in mind that this rule is based on historical data, and future market conditions might require adjustments to your withdrawal rate.</li>
+                </ol>
+                Remember, this calculator is a 🛠️ tool to help you get a rough estimate of your journey to financial independence. It's essential to regularly review and adjust your financial plans based on your personal situation and the ever-changing world around us. Stay curious, keep learning, and always be prepared to adapt! 😃
+
+            </div>
+        </div>
+
+
         <details>
-            Welcome to the 🔥 FIRE Calculator 🔥! Financial Independence, Retire Early (FIRE) is a movement that aims to help you achieve financial freedom and retire before the traditional retirement age. Our calculator will help you visualize your journey towards financial independence. But before you dive in, here are some assumptions and limitations to keep in mind:
+            Welcome to the 🔥 FIRE Calculator 🔥!
+            Financial Independence, Retire Early (FIRE) is a movement that aims to help you achieve financial freedom and retire before the traditional retirement age.
+            Our calculator will help you visualize your journey towards financial independence.
+            But before you dive in, here are some assumptions and limitations to keep in mind:
             <ol>
                 <li>💹 Investment Growth: The calculator assumes a fixed annual growth rate for your investments. While historically, the stock market has had an average annual return of around 7%, it's important to remember that past performance doesn't guarantee future results. Market conditions can change, and your actual returns might be different.</li>
                 <li>💰 Inflation: We factor in inflation as a constant rate throughout your journey. In reality, inflation rates can vary over time, affecting your spending power differently.</li>
