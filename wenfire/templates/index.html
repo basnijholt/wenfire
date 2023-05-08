@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -13,164 +14,169 @@
     <link href="{{ url_for('static', path='/styles.css') }}" rel="stylesheet">
     <title>Retirement Calculator</title>
 </head>
+
 <body>
-    <h1>WenFire ⁉️🔥</h1>
-    <h2>Financial Independence Calculator</h2>
+    <div class="container">
+        <div class="py-5 text-center">
+            <h1>WenFire ⁉️🔥</h1>
+            <h2>Financial Independence Calculator</h2>
+        </div>
         <details>
             Welcome to the 🔥 FIRE Calculator 🔥! Financial Independence, Retire Early (FIRE) is a movement that aims to help you achieve financial freedom and retire before the traditional retirement age. Our calculator will help you visualize your journey towards financial independence. But before you dive in, here are some assumptions and limitations to keep in mind:
             <ol>
-            <li>💹 Investment Growth: The calculator assumes a fixed annual growth rate for your investments. While historically, the stock market has had an average annual return of around 7%, it's important to remember that past performance doesn't guarantee future results. Market conditions can change, and your actual returns might be different.</li>
-            <li>💰 Inflation: We factor in inflation as a constant rate throughout your journey. In reality, inflation rates can vary over time, affecting your spending power differently.</li>
-            <li>📈 Salary Increases: The calculator assumes that your salary will increase at a constant rate every year. However, life can be unpredictable, and changes in your career or job market can impact your income growth.</li>
-            <li>🛍️ Spending: Your monthly spending is assumed to be constant, adjusted for inflation. In real life, your expenses might change as your lifestyle evolves or due to unexpected events.</li>
-            <li>💵 Safe Withdrawal Rate: We use the popular 4% rule, which assumes that you can withdraw 4% of your portfolio annually without running out of money in retirement. Keep in mind that this rule is based on historical data, and future market conditions might require adjustments to your withdrawal rate.</li>
+                <li>💹 Investment Growth: The calculator assumes a fixed annual growth rate for your investments. While historically, the stock market has had an average annual return of around 7%, it's important to remember that past performance doesn't guarantee future results. Market conditions can change, and your actual returns might be different.</li>
+                <li>💰 Inflation: We factor in inflation as a constant rate throughout your journey. In reality, inflation rates can vary over time, affecting your spending power differently.</li>
+                <li>📈 Salary Increases: The calculator assumes that your salary will increase at a constant rate every year. However, life can be unpredictable, and changes in your career or job market can impact your income growth.</li>
+                <li>🛍️ Spending: Your monthly spending is assumed to be constant, adjusted for inflation. In real life, your expenses might change as your lifestyle evolves or due to unexpected events.</li>
+                <li>💵 Safe Withdrawal Rate: We use the popular 4% rule, which assumes that you can withdraw 4% of your portfolio annually without running out of money in retirement. Keep in mind that this rule is based on historical data, and future market conditions might require adjustments to your withdrawal rate.</li>
             </ol>
             Remember, this calculator is a 🛠️ tool to help you get a rough estimate of your journey to financial independence. It's essential to regularly review and adjust your financial plans based on your personal situation and the ever-changing world around us. Stay curious, keep learning, and always be prepared to adapt! 😃
         </details>
-
-    {% macro form_field(label, name, value, field_type='number', step=None, help_text='') %}
-    <div class="col-md-6">
-        <label for="{{ name }}">{{ label }}:</label>
-        <input type="{{ field_type }}" id="{{ name }}" name="{{ name }}" value="{{ value }}" {% if step %}step="{{ step }}"{% endif %} required class="form-control">
-        {% if help_text %}
+        {% macro form_field(label, name, value, field_type='number', step=None, help_text='') %}
+        <div class="col-md-6">
+            <label for="{{ name }}">{{ label }}:</label>
+            <input type="{{ field_type }}" id="{{ name }}" name="{{ name }}" value="{{ value }}" {% if step %}step="{{ step }}" {% endif %} required class="form-control">
+            {% if help_text %}
             <small id="{{ name }}_help" class="form-text text-muted">{{ help_text }}</small>
-        {% endif %}
-    </div>
-    {% endmacro %}
-
-    <form action="/calculate" method="get">
-        <div class="row">
-            {{ form_field('Growth Rate', 'growth_rate', growth_rate, 'number', '0.1', 'Enter the expected annual growth rate for investments (e.g., 7 for 7%).') }}
-            {{ form_field('Current Net Worth', 'current_nw', current_nw, help_text='Enter your current net worth (incl. retirement plans like 401k).') }}
+            {% endif %}
         </div>
-        <div class="row">
-            {{ form_field('Annual Salary Increase', 'annual_salary_increase', annual_salary_increase, 'number', '0.1', 'Enter the expected annual salary increase percentage (e.g., 5 for 5%).') }}
-            {{ form_field('Income per Month', 'income_per_month', income_per_month, help_text='Enter your monthly income after taxes.') }}
-        </div>
-        <div class="row">
-            {{ form_field('Inflation', 'inflation', inflation, 'number', '0.1', 'Enter the expected annual inflation rate (e.g., 2 for 2%).') }}
-            {{ form_field('Spending per Month', 'spending_per_month', spending_per_month, help_text='Enter your average monthly spending.') }}
-        </div>
-        <div class="row">
-            {{ form_field('Date of Birth', 'date_of_birth', date_of_birth, 'date', help_text='Enter your date of birth.') }}
-            {{ form_field('Extra Income', 'extra_income', extra_income, help_text='Enter any extra monthly income (e.g., side job, rental income).') }}
-        </div>
-        <input type="submit" value="Calculate" class="btn btn-primary">
-    </form>
+        {% endmacro %}
 
-{% if summary %}
-<table class="table table-striped table-bordered table-smaller-rows">
-    <thead>
-        <tr>
-            <th>Which</th>
-            <th>Value</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>Current Age 👨‍💻</td>
-            <td>{{ summary.age | round(1) }} years</td>
-        </tr>
-        <tr>
-            <td>Retirement Age 📅</td>
-            <td>{{ summary.fire_age | round(1) }} years</td>
-        </tr>
-        <tr>
-            <td>Fire date 📅</td>
-            <td>{{ summary.fire_date }}</td>
-        </tr>
-        <tr>
-            <td>Years to FI 🔥🔥🔥🔥</td>
-            <td>{{ summary.years_till_fi | round(1) }} years</td>
-        </tr>
-        <tr>
-            <td>NW at FI 🔥</td>
-            <td>${{ (summary.nw_at_fi / 1e6) | round(2) }}M</td>
-        </tr>
-        <tr>
-            <td>Montly Safe Withdraw at FI 🤑</td>
-            <td>${{ (summary.safe_withdraw_at_fi / 1000) | int }}k</td>
-        </tr>
-        <tr>
-            <td>Monthly Spending at FI 💰</td>
-            <td>${{ (summary.spending_at_fi / 1000) | int }}k</td>
-        </tr>
-        {% if summary.safe_withdraw_at_35 is not none %}
-        <tr>
-            <td>Monthly Safe Withdraw at 35 👀️💰</td>
-            <td>{{ format_currency(summary.safe_withdraw_at_35) }}</td>
-        </tr>
-        {% endif %}
-        {% if summary.safe_withdraw_at_40 is not none %}
-        <tr>
-            <td>Monthly Safe Withdraw at 40 👀️💰</td>
-            <td>{{ format_currency(summary.safe_withdraw_at_40) }}</td>
-        </tr>
-        {% endif %}
-        {% if summary.safe_withdraw_at_45 is not none %}
-        <tr>
-            <td>Monthly Safe Withdraw at 45 👀️💰</td>
-            <td>{{ format_currency(summary.safe_withdraw_at_45) }}</td>
-        </tr>
-        {% endif %}
-    </tbody>
-</table>
-{% endif %}
+        <form action="/calculate" method="get">
+            <div class="row">
+                {{ form_field('Growth Rate', 'growth_rate', growth_rate, 'number', '0.1', 'Enter the expected annual growth rate for investments (e.g., 7 for 7%).') }}
+                {{ form_field('Current Net Worth', 'current_nw', current_nw, help_text='Enter your current net worth (incl. retirement plans like 401k).') }}
+            </div>
+            <div class="row">
+                {{ form_field('Annual Salary Increase', 'annual_salary_increase', annual_salary_increase, 'number', '0.1', 'Enter the expected annual salary increase percentage (e.g., 5 for 5%).') }}
+                {{ form_field('Income per Month', 'income_per_month', income_per_month, help_text='Enter your monthly income after taxes.') }}
+            </div>
+            <div class="row">
+                {{ form_field('Inflation', 'inflation', inflation, 'number', '0.1', 'Enter the expected annual inflation rate (e.g., 2 for 2%).') }}
+                {{ form_field('Spending per Month', 'spending_per_month', spending_per_month, help_text='Enter your average monthly spending.') }}
+            </div>
+            <div class="row">
+                {{ form_field('Date of Birth', 'date_of_birth', date_of_birth, 'date', help_text='Enter your date of birth.') }}
+                {{ form_field('Extra Income', 'extra_income', extra_income, help_text='Enter any extra monthly income (e.g., side job, rental income).') }}
+            </div>
+            <input type="submit" value="Calculate" class="btn btn-primary">
+        </form>
 
-
-{% if results %}
-    <!-- Create div elements to hold the plots -->
-    <div id="age-vs-net-worth-plot"></div>
-    <div id="age-vs-monthly-safe-withdraw-plot"></div>
-    <div id="savings-vs-spending-plot"></div>
-
-    <!-- Add the JavaScript code to render the plots -->
-    <script>
-    const ageVsNetWorthPlotSpec = JSON.parse({{ age_vs_net_worth_plot|tojson|safe }});
-    const ageVsMonthlySafeWithdrawPlotSpec = JSON.parse({{ age_vs_monthly_safe_withdraw_plot|tojson|safe }});
-    const savingsVsSpendingPlotSpec = JSON.parse({{ savings_vs_spending_plot|tojson|safe }});
-
-    vegaEmbed("#age-vs-net-worth-plot", ageVsNetWorthPlotSpec);
-    vegaEmbed("#age-vs-monthly-safe-withdraw-plot", ageVsMonthlySafeWithdrawPlotSpec);
-    vegaEmbed("#savings-vs-spending-plot", savingsVsSpendingPlotSpec);
-    </script>
-
-    <div class="scrollable-table">
-    <table class="table table-striped table-bordered table-smaller-rows">
-        <thead>
-            <tr>
-                <th># months</th>
-                <th># years</th>
-                <th>Age</th>
-                <th>NW</th>
-                <th>ΔNW</th>
-                <th>Saving</th>
-                <th>Income</th>
-                <th>Investment profits</th>
-                <th>Spending</th>
-                <th>Safe withdraw</th>
-                <th>Safe - spending</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for result in results %}
+        {% if summary %}
+        <table class="table table-striped table-bordered table-smaller-rows">
+            <thead>
                 <tr>
-                    <td>{{ result.months }} months</td>
-                    <td>{{ result.years | round(1) }} years</td>
-                    <td>{{ result.age | round(1) }} years</td>
-                    <td>{{ format_currency(result.nw) }}</td>
-                    <td>{{ format_currency(result.delta_nw) }}</td>
-                    <td>{{ format_currency(result.saving) }}</td>
-                    <td>{{ format_currency(result.income) }}</td>
-                    <td>{{ format_currency(result.investment_profits) }}</td>
-                    <td>{{ format_currency(result.spending) }}</td>
-                    <td>{{ format_currency(result.safe_withdraw_rule_monthly) }}</td>
-                    <td bgcolor={{ "#86af49" if result.safe_withdraw_minus_spending > 0 else "#eca1a6" }}>{{ result.safe_withdraw_minus_spending | int }}</td>
+                    <th>Which</th>
+                    <th>Value</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Current Age 👨‍💻</td>
+                    <td>{{ summary.age | round(1) }} years</td>
+                </tr>
+                <tr>
+                    <td>Retirement Age 📅</td>
+                    <td>{{ summary.fire_age | round(1) }} years</td>
+                </tr>
+                <tr>
+                    <td>Fire date 📅</td>
+                    <td>{{ summary.fire_date }}</td>
+                </tr>
+                <tr>
+                    <td>Years to FI 🔥🔥🔥🔥</td>
+                    <td>{{ summary.years_till_fi | round(1) }} years</td>
+                </tr>
+                <tr>
+                    <td>NW at FI 🔥</td>
+                    <td>${{ (summary.nw_at_fi / 1e6) | round(2) }}M</td>
+                </tr>
+                <tr>
+                    <td>Montly Safe Withdraw at FI 🤑</td>
+                    <td>${{ (summary.safe_withdraw_at_fi / 1000) | int }}k</td>
+                </tr>
+                <tr>
+                    <td>Monthly Spending at FI 💰</td>
+                    <td>${{ (summary.spending_at_fi / 1000) | int }}k</td>
+                </tr>
+                {% if summary.safe_withdraw_at_35 is not none %}
+                <tr>
+                    <td>Monthly Safe Withdraw at 35 👀️💰</td>
+                    <td>{{ format_currency(summary.safe_withdraw_at_35 / 12) }}</td>
+                </tr>
+                {% endif %}
+                {% if summary.safe_withdraw_at_40 is not none %}
+                <tr>
+                    <td>Monthly Safe Withdraw at 40 👀️💰</td>
+                    <td>{{ format_currency(summary.safe_withdraw_at_40 / 12) }}</td>
+                </tr>
+                {% endif %}
+                {% if summary.safe_withdraw_at_45 is not none %}
+                <tr>
+                    <td>Monthly Safe Withdraw at 45 👀️💰</td>
+                    <td>{{ format_currency(summary.safe_withdraw_at_45 / 12) }}</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+        {% endif %}
+
+
+        {% if results %}
+        <!-- Create div elements to hold the plots -->
+        <div id="age-vs-net-worth-plot"></div>
+        <div id="age-vs-monthly-safe-withdraw-plot"></div>
+        <div id="savings-vs-spending-plot"></div>
+
+        <!-- Add the JavaScript code to render the plots -->
+        <script>
+            const ageVsNetWorthPlotSpec = JSON.parse({{ age_vs_net_worth_plot| tojson | safe }});
+            const ageVsMonthlySafeWithdrawPlotSpec = JSON.parse({{ age_vs_monthly_safe_withdraw_plot| tojson | safe }});
+            const savingsVsSpendingPlotSpec = JSON.parse({{ savings_vs_spending_plot| tojson | safe }});
+
+            vegaEmbed("#age-vs-net-worth-plot", ageVsNetWorthPlotSpec);
+            vegaEmbed("#age-vs-monthly-safe-withdraw-plot", ageVsMonthlySafeWithdrawPlotSpec);
+            vegaEmbed("#savings-vs-spending-plot", savingsVsSpendingPlotSpec);
+        </script>
+
+        <div class="scrollable-table">
+            <table class="table table-striped table-bordered table-smaller-rows">
+                <thead>
+                    <tr>
+                        <th># months</th>
+                        <th># years</th>
+                        <th>Age</th>
+                        <th>NW</th>
+                        <th>ΔNW</th>
+                        <th>Saving</th>
+                        <th>Income</th>
+                        <th>Investment profits</th>
+                        <th>Spending</th>
+                        <th>Safe withdraw</th>
+                        <th>Safe - spending</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in results %}
+                    <tr>
+                        <td>{{ result.months }} months</td>
+                        <td>{{ result.years | round(1) }} years</td>
+                        <td>{{ result.age | round(1) }} years</td>
+                        <td>{{ format_currency(result.nw) }}</td>
+                        <td>{{ format_currency(result.delta_nw) }}</td>
+                        <td>{{ format_currency(result.saving) }}</td>
+                        <td>{{ format_currency(result.income) }}</td>
+                        <td>{{ format_currency(result.investment_profits) }}</td>
+                        <td>{{ format_currency(result.spending) }}</td>
+                        <td>{{ format_currency(result.safe_withdraw_rule_monthly) }}</td>
+                        <td bgcolor={{ "#86af49" if result.safe_withdraw_minus_spending> 0 else "#eca1a6" }}>{{ format_currency(result.safe_withdraw_minus_spending) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
     </div>
-{% endif %}
 </body>
+
 </html>
