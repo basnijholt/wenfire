@@ -1,0 +1,35 @@
+body {
+  padding: 20px;
+}
+form {
+  max-width: 500px;
+  margin-bottom: 30px;
+}
+label {
+  display: block;
+  margin-top: 10px;
+}
+input[type="submit"] {
+  margin-top: 20px;
+}
+table {
+  width: 100%;
+  margin-top: 30px;
+}
+.table-smaller-rows th,
+.table-smaller-rows td {
+  padding: 4px 8px;
+  font-size: 0.8rem;
+}
+.scrollable-table {
+  display: block;
+  max-height: 800px; /* Adjust this value according to your desired maximum table height */
+  overflow-y: scroll;
+}
+
+.scrollable-table thead th {
+  position: sticky;
+  top: 0;
+  background-color: #f8f9fa; /* Adjust this value to match your table header background color */
+  z-index: 10;
+}
