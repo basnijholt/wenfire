@@ -65,54 +65,32 @@
             Remember, this calculator is a 🛠️ tool to help you get a rough estimate of your journey to financial independence. It's essential to regularly review and adjust your financial plans based on your personal situation and the ever-changing world around us. Stay curious, keep learning, and always be prepared to adapt! 😃
         </details>
 
+    {% macro form_field(label, field_id, field_name, field_value, field_type='number', step=None, help_text='') %}
+    <div class="col-md-6">
+        <label for="{{ field_id }}">{{ label }}:</label>
+        <input type="{{ field_type }}" id="{{ field_id }}" name="{{ field_name }}" value="{{ field_value }}" {% if step %}step="{{ step }}"{% endif %} required class="form-control">
+        {% if help_text %}
+            <small id="{{ field_id }}Help" class="form-text text-muted">{{ help_text }}</small>
+        {% endif %}
+    </div>
+    {% endmacro %}
+
     <form action="/calculate" method="get">
         <div class="row">
-            <div class="col-md-6">
-                <label for="growth_rate">Growth Rate:</label>
-                <input type="number" id="growth_rate" name="growth_rate" step="0.1" value="{{ growth_rate }}" required class="form-control">
-                <small id="growthRateHelp" class="form-text text-muted">Enter the expected annual growth rate for investments (e.g., 7 for 7%).</small>
-            </div>
-            <div class="col-md-6">
-                <label for="current_nw">Current Net Worth:</label>
-                <input type="number" id="current_nw" name="current_nw" value="{{ current_nw }}" required class="form-control">
-                <small id="currentNwHelp" class="form-text text-muted">Enter your current net worth (incl retirement plans like 401k).</small>
-            </div>
+            {{ form_field('Growth Rate', 'growth_rate', 'growth_rate', growth_rate, 'number', '0.1', 'Enter the expected annual growth rate for investments (e.g., 7 for 7%).') }}
+            {{ form_field('Current Net Worth', 'current_nw', 'current_nw', current_nw, help_text='Enter your current net worth (incl retirement plans like 401k).') }}
         </div>
         <div class="row">
-            <div class="col-md-6">
-                <label for="annual_salary_increase">Annual Salary Increase:</label>
-                <input type="number" id="annual_salary_increase" name="annual_salary_increase" step="0.1" value="{{ annual_salary_increase }}" required class="form-control">
-                <small id="annualSalaryIncreaseHelp" class="form-text text-muted">Enter the expected annual salary increase percentage (e.g., 5 for 5%).</small>
-            </div>
-            <div class="col-md-6">
-                <label for="income_per_month">Income per Month:</label>
-                <input type="number" id="income_per_month" name="income_per_month" value="{{ income_per_month }}" required class="form-control">
-                <small id="incomePerMonthHelp" class="form-text text-muted">Enter your monthly income after taxes.</small>
-            </div>
+            {{ form_field('Annual Salary Increase', 'annual_salary_increase', 'annual_salary_increase', annual_salary_increase, 'number', '0.1', 'Enter the expected annual salary increase percentage (e.g., 5 for 5%).') }}
+            {{ form_field('Income per Month', 'income_per_month', 'income_per_month', income_per_month, help_text='Enter your monthly income after taxes.') }}
         </div>
         <div class="row">
-            <div class="col-md-6">
-                <label for="inflation">Inflation:</label>
-                <input type="number" id="inflation" name="inflation" step="0.1" value="{{ inflation }}" required class="form-control">
-                <small id="inflationHelp" class="form-text text-muted">Enter the expected annual inflation rate (e.g., 2 for 2%).</small>
-            </div>
-            <div class="col-md-6">
-                <label for="spending_per_month">Spending per Month:</label>
-                <input type="number" id="spending_per_month" name="spending_per_month" value="{{ spending_per_month }}" required class="form-control">
-                <small id="spendingPerMonthHelp" class="form-text text-muted">Enter your average monthly spending.</small>
-            </div>
+            {{ form_field('Inflation', 'inflation', 'inflation', inflation, 'number', '0.1', 'Enter the expected annual inflation rate (e.g., 2 for 2%).') }}
+            {{ form_field('Spending per Month', 'spending_per_month', 'spending_per_month', spending_per_month, help_text='Enter your average monthly spending.') }}
         </div>
         <div class="row">
-            <div class="col-md-6">
-                <label for="date_of_birth">Date of Birth:</label>
-                <input type="date" id="date_of_birth" name="date_of_birth" value="{{ date_of_birth }}" required class="form-control">
-                <small id="dateOfBirthHelp" class="form-text text-muted">Enter your date of birth.</small>
-            </div>
-            <div class="col-md-6">
-                <label for="extra_income">Extra Income:</label>
-                <input type="number" id="extra_income" name="extra_income" value="{{ extra_income }}" required class="form-control">
-                <small id="extraIncomeHelp" class="form-text text-muted">Enter any extra monthly income (e.g., side job, rental income).</small>
-            </div>
+            {{ form_field('Date of Birth', 'date_of_birth', 'date_of_birth', date_of_birth, 'date', help_text='Enter your date of birth.') }}
+            {{ form_field('Extra Income', 'extra_income', 'extra_income', extra_income, help_text='Enter any extra monthly income (e.g., side job, rental income).') }}
         </div>
         <input type="submit" value="Calculate" class="btn btn-primary">
     </form>
