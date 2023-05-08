@@ -1,6 +1,6 @@
 # WenFire 🔥 Financial Independence Calculator 💸
 
-Welcome to the WenFire Financial Independence Calculator GitHub repository! This web application helps users visualize their journey to financial independence and early retirement by calculating and plotting various financial metrics. The app is built using FastAPI and Bootstrap, and it's currently hosted on Azure at `https://wenfire.azurewebsites.net/`.
+Welcome to the WenFire Financial Independence Calculator GitHub repository! This web application helps users visualize their journey to financial independence and early retirement by calculating and plotting various financial metrics. The app is built using FastAPI and Bootstrap, and it's currently hosted on Azure at https://wenfire.azurewebsites.net/.
 
 ![WenFire Screenshot](./screenshot.png)
 
@@ -25,7 +25,7 @@ Always be prepared to review and adjust your financial plans based on your perso
 
 ## How to Run Locally 🚀
 
-1. Clone this repository: `git clone https://github.com/username/wenfire.git`
+1. Clone this repository: `git clone https://github.com/basnijholt/wenfire.git`
 2. Navigate to the project folder: `cd wenfire`
 3. Install the required dependencies: `pip install -r requirements.txt`
 4. Run the FastAPI server: `uvicorn main:app --reload`
