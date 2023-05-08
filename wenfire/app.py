@@ -14,6 +14,7 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from fastapi import Query
 
+_PLOT_PROPERTIES = dict(width=360, usermeta={"embedOptions": {"actions": False}})
 
 FOLDER = Path(__file__).parent.resolve()
 
@@ -251,8 +252,10 @@ def plot_age_vs_net_worth(results: list[Results], summary: Summary):
         .mark_rule(strokeDash=[5, 5], color="black")
         .encode(y="spending_at_fi:Q")
     )
-
-    return alt.layer(base_chart, vertical_line, horizontal_line).to_json()
+    chart = alt.layer(base_chart, vertical_line, horizontal_line).properties(
+        **_PLOT_PROPERTIES
+    )
+    return chart.to_json()
 
 
 def plot_age_vs_monthly_safe_withdraw(results: list[Results], summary: Summary):
@@ -297,8 +300,10 @@ def plot_age_vs_monthly_safe_withdraw(results: list[Results], summary: Summary):
         .mark_rule(strokeDash=[5, 5], color="black")
         .encode(y="spending_at_fi:Q")
     )
-
-    return alt.layer(base_chart, vertical_line, horizontal_line).to_json()
+    chart = alt.layer(base_chart, vertical_line, horizontal_line).properties(
+        **_PLOT_PROPERTIES
+    )
+    return chart.to_json()
 
 
 def plot_savings_vs_spending(results: list[Results], summary: Summary):
@@ -346,9 +351,10 @@ def plot_savings_vs_spending(results: list[Results], summary: Summary):
         .encode(y="spending_at_fi:Q")
     )
 
-    return alt.layer(
+    chart = alt.layer(
         base_chart, vertical_line, saving_horizontal_line, spending_horizontal_line
-    ).to_json()
+    ).properties(**_PLOT_PROPERTIES)
+    return chart.to_json()
 
 
 def format_currency(value):
