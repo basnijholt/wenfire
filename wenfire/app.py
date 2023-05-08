@@ -349,6 +349,10 @@ def plot_savings_vs_spending(results: list[Results], summary: Summary):
     ).to_json()
 
 
+def format_currency(value):
+    return "${:,.0f}".format(value).replace(",", ".")
+
+
 @app.get("/calculate", response_class=HTMLResponse)
 def calculate(
     request: Request,
@@ -402,6 +406,7 @@ def calculate(
             "age_vs_net_worth_plot": age_vs_net_worth_plot,
             "age_vs_monthly_safe_withdraw_plot": age_vs_monthly_safe_withdraw_plot,
             "savings_vs_spending_plot": savings_vs_spending_plot,
+            "format_currency": format_currency,
         },
     )
 

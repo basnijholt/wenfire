@@ -41,7 +41,7 @@
     <form action="/calculate" method="get">
         <div class="row">
             {{ form_field('Growth Rate', 'growth_rate', growth_rate, 'number', '0.1', 'Enter the expected annual growth rate for investments (e.g., 7 for 7%).') }}
-            {{ form_field('Current Net Worth', 'current_nw', current_nw, help_text='Enter your current net worth (incl retirement plans like 401k).') }}
+            {{ form_field('Current Net Worth', 'current_nw', current_nw, help_text='Enter your current net worth (incl. retirement plans like 401k).') }}
         </div>
         <div class="row">
             {{ form_field('Annual Salary Increase', 'annual_salary_increase', annual_salary_increase, 'number', '0.1', 'Enter the expected annual salary increase percentage (e.g., 5 for 5%).') }}
@@ -158,13 +158,13 @@
                     <td>{{ result.months }} months</td>
                     <td>{{ result.years | round(1) }} years</td>
                     <td>{{ result.age | round(1) }} years</td>
-                    <td>${{ result.nw | int }}</td>
-                    <td>${{ result.delta_nw | int }}</td>
-                    <td>${{ result.saving | int }}</td>
-                    <td>${{ result.income | int }}</td>
-                    <td>${{ result.investment_profits | int }}</td>
-                    <td>${{ result.spending | int }}</td>
-                    <td>${{ result.safe_withdraw_rule_monthly | int }}</td>
+                    <td>{{ format_currency(result.nw) }}</td>
+                    <td>{{ format_currency(result.delta_nw) }}</td>
+                    <td>{{ format_currency(result.saving) }}</td>
+                    <td>{{ format_currency(result.income) }}</td>
+                    <td>{{ format_currency(result.investment_profits) }}</td>
+                    <td>{{ format_currency(result.spending) }}</td>
+                    <td>{{ format_currency(result.safe_withdraw_rule_monthly) }}</td>
                     <td bgcolor={{ "#86af49" if result.safe_withdraw_minus_spending > 0 else "#eca1a6" }}>{{ result.safe_withdraw_minus_spending | int }}</td>
                 </tr>
             {% endfor %}
