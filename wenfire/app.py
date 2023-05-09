@@ -28,7 +28,7 @@ class InputData(BaseModel):
     income_per_month: float
     extra_income: float
     date_of_birth: datetime.date
-    safe_withdraw_withdrawal_rate: float = 4
+    safe_withdraw_rate: float = 4
 
     @property
     def now(self):
@@ -93,7 +93,7 @@ class Results(BaseModel):
 
     @property
     def safe_withdraw_rule_yearly(self) -> float:
-        return self.nw * self.input_data.safe_withdraw_withdrawal_rate / 100
+        return self.nw * self.input_data.safe_withdraw_rate / 100
 
     @property
     def safe_withdraw_minus_spending(self) -> float:
@@ -174,6 +174,7 @@ async def index(
     income_per_month: Optional[float] = 8_000,
     extra_income: Optional[float] = 0,
     date_of_birth: Optional[str] = "1990-01-01",
+    safe_withdraw_rate: Optional[float] = 4,
 ):
     return templates.TemplateResponse(
         "index.html",
@@ -187,6 +188,7 @@ async def index(
             "income_per_month": income_per_month,
             "extra_income": extra_income,
             "date_of_birth": date_of_birth,
+            "safe_withdraw_rate": safe_withdraw_rate,
         },
     )
 
@@ -414,6 +416,7 @@ def calculate(
     income_per_month: float = Query(...),
     extra_income: float = Query(...),
     date_of_birth: str = Query(...),
+    safe_withdraw_rate: float = Query(...),
 ):
     dob = datetime.datetime.strptime(date_of_birth, "%Y-%m-%d").date()
     input_data = InputData(
@@ -425,6 +428,7 @@ def calculate(
         income_per_month=income_per_month,
         extra_income=extra_income,
         date_of_birth=dob,
+        safe_withdraw_rate=safe_withdraw_rate,
     )
     results = calculate_results_for_month(input_data)
     summary = Summary.from_results(results)
@@ -453,6 +457,7 @@ def calculate(
             "income_per_month": income_per_month,
             "extra_income": extra_income,
             "date_of_birth": dob.strftime("%Y-%m-%d"),
+            "safe_withdraw_rate": safe_withdraw_rate,
             "age_vs_net_worth_plot": age_vs_net_worth_plot,
             "age_vs_monthly_safe_withdraw_plot": age_vs_monthly_safe_withdraw_plot,
             "savings_vs_spending_plot": savings_vs_spending_plot,
