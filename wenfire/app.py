@@ -128,15 +128,19 @@ class Summary(BaseModel):
     safe_withdraw_at_fi: float
     spending_at_fi: float
     nw_at_fi: float
-    safe_withdraw_at_35: Optional[float]
-    safe_withdraw_at_40: Optional[float]
-    safe_withdraw_at_45: Optional[float]
+    safe_withdraw_at_age: dict[int, float]
 
     @classmethod
     def from_results(cls, results: list[Results]) -> Summary | None:
         r = next((r for r in results if r.safe_withdraw_minus_spending > 0), None)
         if r is None:
             return None
+
+        safe_withdraw_at_age = {
+            round(r.age): r.safe_withdraw_rule_yearly / 12
+            for r in results
+            if round(r.age, 1) % 1 == 0
+        }
         return cls(
             age=r.input_data.age,
             fire_date=r.date,
@@ -146,15 +150,7 @@ class Summary(BaseModel):
             spending_at_fi=r.spending,
             saving_at_fi=r.saving,
             nw_at_fi=r.nw,
-            safe_withdraw_at_35=next(
-                (r.safe_withdraw_rule_yearly for r in results if int(r.age) == 35), None
-            ),
-            safe_withdraw_at_40=next(
-                (r.safe_withdraw_rule_yearly for r in results if int(r.age) == 40), None
-            ),
-            safe_withdraw_at_45=next(
-                (r.safe_withdraw_rule_yearly for r in results if int(r.age) == 45), None
-            ),
+            safe_withdraw_at_age=safe_withdraw_at_age,
         )
 
 

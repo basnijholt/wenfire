@@ -135,24 +135,15 @@
                     <td>Monthly Spending at FI 💰</td>
                     <td>${{ (summary.spending_at_fi / 1000) | int }}k</td>
                 </tr>
-                {% if summary.safe_withdraw_at_35 is not none %}
+                {% for age in [35, 40, 45, 50, 55] %}
+                {% if age in summary.safe_withdraw_at_age %}
                 <tr>
-                    <td>Monthly Safe Withdraw at 35 👀️💰</td>
-                    <td>{{ format_currency(summary.safe_withdraw_at_35 / 12) }}</td>
+                    <td>Monthly Safe Withdraw at {{ age }} 👀️💰</td>
+                    <td>{{ format_currency(summary.safe_withdraw_at_age[age]) }}</td>
                 </tr>
                 {% endif %}
-                {% if summary.safe_withdraw_at_40 is not none %}
-                <tr>
-                    <td>Monthly Safe Withdraw at 40 👀️💰</td>
-                    <td>{{ format_currency(summary.safe_withdraw_at_40 / 12) }}</td>
-                </tr>
-                {% endif %}
-                {% if summary.safe_withdraw_at_45 is not none %}
-                <tr>
-                    <td>Monthly Safe Withdraw at 45 👀️💰</td>
-                    <td>{{ format_currency(summary.safe_withdraw_at_45 / 12) }}</td>
-                </tr>
-                {% endif %}
+                {% endfor %}
+
             </tbody>
         </table>
         {% endif %}
