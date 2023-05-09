@@ -2,6 +2,8 @@
 
 Welcome to the WenFire Financial Independence Calculator GitHub repository! This web application helps users visualize their journey to financial independence and early retirement by calculating and plotting various financial metrics. The app is built using FastAPI and Bootstrap, and it's currently hosted on Azure at https://wenfire.azurewebsites.net/.
 
+There are many such calculators available, however, I couldn't find one with the salary growth assumptions that I wanted. I also just wanted to play with Azure Functions, FastAPI, and Vega-Lite. So I built this calculator to scratch my own itch, and I hope you find it useful too! 😄
+
 ![WenFire Screenshot](./screenshot.png)
 
 ## Features 🌟
