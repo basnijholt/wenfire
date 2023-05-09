@@ -196,7 +196,7 @@
                         <td>{{ format_currency(result.investment_profits) }}</td>
                         <td>{{ format_currency(result.spending) }}</td>
                         <td>{{ format_currency(result.safe_withdraw_rule_monthly) }}</td>
-                        <td style="background-color: {{ '#86af49' if result.safe_withdraw_minus_spending > 0 else '#eca1a6' }}">{{ format_currency(result.safe_withdraw_minus_spending) }}</td>
+                        <td style="background-color: {{ interpolate_color(result.safe_withdraw_minus_spending) }}">{{ format_currency(result.safe_withdraw_minus_spending) }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

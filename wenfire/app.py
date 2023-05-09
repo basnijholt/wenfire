@@ -361,6 +361,48 @@ def format_currency(value):
     return "${:,.0f}".format(value).replace(",", ".")
 
 
+def interpolate_color(
+    x: float,
+    x_red: int = -2000,
+    x_orange: int = -1000,
+    x_yellow: int = 0,
+    x_light_green: int = 1000,
+    x_green: int = 2000,
+    return_hex: bool = True,
+):
+    color_points = {
+        x_red: (255, 0, 0),
+        x_orange: (255, 167, 0),
+        x_yellow: (255, 244, 0),
+        x_light_green: (163, 255, 0),
+        x_green: (44, 186, 0),
+    }
+
+    def _interpolate_color(c1, c2, ratio):
+        return tuple(int(c1[i] + (c2[i] - c1[i]) * ratio) for i in range(3))
+
+    if x <= x_red:
+        rgb = color_points[x_red]
+        return _rgb_to_hex(rgb) if return_hex else rgb
+
+    elif x >= x_green:
+        rgb = color_points[x_green]
+        return _rgb_to_hex(rgb) if return_hex else rgb
+    else:
+        sorted_keys = sorted(color_points.keys())
+        for i, key in enumerate(sorted_keys[:-1]):
+            if key <= x < sorted_keys[i + 1]:
+                c1 = color_points[key]
+                c2 = color_points[sorted_keys[i + 1]]
+                ratio = (x - key) / (sorted_keys[i + 1] - key)
+                rgb = _interpolate_color(c1, c2, ratio)
+                return _rgb_to_hex(rgb) if return_hex else rgb
+
+
+def _rgb_to_hex(rgb: tuple[int, int, int]) -> str:
+    return "#{:02x}{:02x}{:02x}".format(*rgb)
+
+
 @app.get("/calculate", response_class=HTMLResponse)
 def calculate(
     request: Request,
@@ -415,6 +457,7 @@ def calculate(
             "age_vs_monthly_safe_withdraw_plot": age_vs_monthly_safe_withdraw_plot,
             "savings_vs_spending_plot": savings_vs_spending_plot,
             "format_currency": format_currency,
+            "interpolate_color": interpolate_color,
         },
     )
 
