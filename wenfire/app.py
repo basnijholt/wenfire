@@ -277,7 +277,8 @@ def plot_age_vs_monthly_safe_withdraw(results: list[Results], summary: Summary):
                 "key:N",
                 title="Legend",
                 scale=alt.Scale(
-                    domain=["monthly_safe_withdraw", "spending"], range=["blue", "red"]
+                    domain=["monthly_safe_withdraw", "spending"],
+                    range=["blue", "red"],
                 ),
                 legend=alt.Legend(orient="top-left"),
             ),
@@ -306,13 +307,20 @@ def plot_age_vs_monthly_safe_withdraw(results: list[Results], summary: Summary):
 
 def plot_savings_vs_spending(results: list[Results], summary: Summary):
     data = [
-        {"age": result.age, "savings": result.saving, "spending": result.spending}
+        {
+            "age": result.age,
+            "savings": result.saving,
+            "spending": result.spending,
+            "investment_profits": result.investment_profits,
+        }
         for result in results
     ]
 
     base_chart = (
         alt.Chart(alt.Data(values=data))
-        .transform_fold(["savings", "spending"], as_=["key", "value"])
+        .transform_fold(
+            ["savings", "spending", "investment_profits"], as_=["key", "value"]
+        )
         .mark_line()
         .encode(
             x=alt.X("age:Q", title="Age"),
@@ -321,7 +329,8 @@ def plot_savings_vs_spending(results: list[Results], summary: Summary):
                 "key:N",
                 title="Legend",
                 scale=alt.Scale(
-                    domain=["savings", "spending"], range=["purple", "red"]
+                    domain=["savings", "spending", "investment_profits"],
+                    range=["purple", "red", "green"],
                 ),
                 legend=alt.Legend(orient="top-left"),
             ),
