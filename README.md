@@ -4,7 +4,7 @@ Welcome to the WenFire Financial Independence Calculator GitHub repository! This
 
 There are many such calculators available, however, I couldn't find one with the salary growth assumptions that I wanted. I also just wanted to play with Azure Functions, FastAPI, and Vega-Lite. So I built this calculator to scratch my own itch, and I hope you find it useful too! 😄
 
-![WenFire Screenshot](./screenshot.png)
+![WenFire Screenshot](https://github.com/basnijholt/wenfire/assets/6897215/0d76a7f0-6c5f-4ead-967d-84be6fb5a5f5)
 
 ## Features 🌟
 
