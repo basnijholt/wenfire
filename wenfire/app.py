@@ -67,6 +67,7 @@ class Results(BaseModel):
     months: int
     nw: float
     income: float
+    extra_income: float  # fixed extra income per month
     spending: float
     delta_nw: float
     input_data: InputData
@@ -89,7 +90,7 @@ class Results(BaseModel):
 
     @property
     def saving(self) -> float:
-        return self.income - self.spending
+        return self.income + self.extra_income - self.spending
 
     @property
     def safe_withdraw_rule_yearly(self) -> float:
@@ -112,9 +113,10 @@ class Results(BaseModel):
         return Results(
             months=new_months,
             nw=new_nw,
-            delta_nw=new_delta_nw,
             income=new_income,
+            extra_income=self.extra_income,
             spending=new_spending,
+            delta_nw=new_delta_nw,
             input_data=self.input_data,
         )
 
@@ -209,8 +211,8 @@ def calculate_results_for_month(
         years=0,
         nw=data.current_nw,
         delta_nw=0,
-        saving=data.saving_per_month,
         income=data.income_per_month,
+        extra_income=data.extra_income,
         spending=data.spending_per_month,
         input_data=data,
     )
