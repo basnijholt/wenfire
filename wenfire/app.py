@@ -241,16 +241,36 @@ def calculate_results_for_month(
 
 
 def plot_age_vs_net_worth(results: list[Results], summary: Summary):
-    data = [{"age": result.age, "net_worth": result.nw} for result in results]
+    data = [
+        {
+            "age": result.age,
+            "net_worth": result.nw,
+            "saved": result.total_saved,
+            "profits": result.total_investment_profits,
+        }
+        for result in results
+    ]
 
     base_chart = (
         alt.Chart(alt.Data(values=data))
+        .transform_fold(["net_worth", "saved", "profits"], as_=["key", "value"])
         .mark_line()
         .encode(
             x=alt.X("age:Q", title="Age"),
-            y=alt.Y("net_worth:Q", title="Net Worth"),
+            y=alt.Y("value:Q", title="Amount"),
+            color=alt.Color(
+                "key:N",
+                title="Legend",
+                scale=alt.Scale(
+                    domain=["net_worth", "saved", "profits"],
+                    range=["blue", "purple", "green"],
+                ),
+                legend=alt.Legend(orient="top-left"),
+            ),
+            tooltip=["key:N"],
         )
     )
+
     fire_age = summary.fire_age
 
     vertical_line = (
@@ -338,7 +358,7 @@ def plot_savings_vs_spending(results: list[Results], summary: Summary):
         .mark_line()
         .encode(
             x=alt.X("age:Q", title="Age"),
-            y=alt.Y("value:Q", title="Amount"),
+            y=alt.Y("value:Q", title="Monthly Amount"),
             color=alt.Color(
                 "key:N",
                 title="Legend",
