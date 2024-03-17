@@ -70,6 +70,7 @@ class Results(BaseModel):
     extra_income: float  # fixed extra income per month
     spending: float
     delta_nw: float
+    total_saved: float
     input_data: InputData
 
     @property
@@ -104,12 +105,17 @@ class Results(BaseModel):
     def investment_profits(self) -> float:
         return self.nw * self.input_data.monthly_growth_rate - self.nw
 
+    @property
+    def total_investment_profits(self) -> float:
+        return self.nw - self.total_saved
+
     def next_month(self) -> "Results":
         new_nw = self.nw + self.investment_profits + self.saving
         new_months = self.months + 1
         new_spending = self.spending * self.input_data.monthly_inflation
         new_income = self.income * self.input_data.monthly_salary_increase_rate
         new_delta_nw = new_nw - self.nw
+        new_saved = self.total_saved + self.saving
         return Results(
             months=new_months,
             nw=new_nw,
@@ -117,6 +123,7 @@ class Results(BaseModel):
             extra_income=self.extra_income,
             spending=new_spending,
             delta_nw=new_delta_nw,
+            total_saved=new_saved,
             input_data=self.input_data,
         )
 
@@ -130,6 +137,8 @@ class Summary(BaseModel):
     safe_withdraw_at_fi: float
     spending_at_fi: float
     nw_at_fi: float
+    total_investment_profits: float
+    total_saved: float
     safe_withdraw_at_age: dict[int, float]
 
     @classmethod
@@ -152,6 +161,8 @@ class Summary(BaseModel):
             spending_at_fi=r.spending,
             saving_at_fi=r.saving,
             nw_at_fi=r.nw,
+            total_investment_profits=r.total_investment_profits,
+            total_saved=r.total_saved,
             safe_withdraw_at_age=safe_withdraw_at_age,
         )
 
@@ -214,6 +225,7 @@ def calculate_results_for_month(
         income=data.income_per_month,
         extra_income=data.extra_income,
         spending=data.spending_per_month,
+        total_saved=0,
         input_data=data,
     )
     results = [r]

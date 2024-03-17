@@ -152,6 +152,14 @@
                     <td>${{ (summary.nw_at_fi / 1e6) | round(2) }}M</td>
                 </tr>
                 <tr>
+                    <td>Total saved 💰</td>
+                    <td>${{ (summary.total_saved / 1e6) | round(2) }}M</td>
+                </tr>
+                <tr>
+                    <td>Total Investment Profits 💰</td>
+                    <td>${{ (summary.total_investment_profits / 1e6) | round(2) }}M</td>
+                </tr>
+                <tr>
                     <td>Montly Safe Withdraw at FI 🤑</td>
                     <td>${{ (summary.safe_withdraw_at_fi / 1000) | int }}k</td>
                 </tr>
@@ -207,6 +215,8 @@
                         <th>Saving</th>
                         <th>Income</th>
                         <th>Investment profits</th>
+                        <th>Total saved</th>
+                        <th>Total Investment profits</th>
                         <th>Spending</th>
                         <th>Safe withdraw</th>
                         <th>Safe - spending</th>
@@ -223,6 +233,8 @@
                         <td>{{ format_currency(result.saving) }}</td>
                         <td>{{ format_currency(result.income) }}</td>
                         <td>{{ format_currency(result.investment_profits) }}</td>
+                        <td>{{ format_currency(result.total_saved) }}</td>
+                        <td>{{ format_currency(result.total_investment_profits) }}</td>
                         <td>{{ format_currency(result.spending) }}</td>
                         <td>{{ format_currency(result.safe_withdraw_rule_monthly) }}</td>
                         <td style="background-color: {{ interpolate_color(result.safe_withdraw_minus_spending) }}">{{ format_currency(result.safe_withdraw_minus_spending) }}</td>
