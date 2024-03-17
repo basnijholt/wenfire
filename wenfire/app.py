@@ -225,7 +225,7 @@ def calculate_results_for_month(
         income=data.income_per_month,
         extra_income=data.extra_income,
         spending=data.spending_per_month,
-        total_saved=0,
+        total_saved=data.current_nw,
         input_data=data,
     )
     results = [r]
