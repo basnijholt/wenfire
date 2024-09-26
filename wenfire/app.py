@@ -224,6 +224,7 @@ async def index(
     extra_income: Optional[float] = 0,
     date_of_birth: Optional[str] = "1990-01-01",
     safe_withdraw_rate: Optional[float] = 4,
+    extra_spending: Optional[float] = 0,
 ):
     return templates.TemplateResponse(
         "index.html",
@@ -238,6 +239,7 @@ async def index(
             "extra_income": extra_income,
             "date_of_birth": date_of_birth,
             "safe_withdraw_rate": safe_withdraw_rate,
+            "extra_spending": extra_spending,
         },
     )
 
@@ -496,7 +498,7 @@ def calculate(
     extra_income: float = Query(...),
     date_of_birth: str = Query(...),
     safe_withdraw_rate: float = Query(...),
-    extra_spending: float = Query(0, description="Additional one-time spending amount"),
+    extra_spending: float = Query(...),
 ):
     dob = datetime.datetime.strptime(date_of_birth, "%Y-%m-%d").date()
     input_data = InputData(
