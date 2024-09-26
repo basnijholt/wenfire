@@ -14,6 +14,7 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from fastapi import Query
 from fastapi_htmx import htmx, htmx_init
+from urllib.parse import urlencode
 
 _PLOT_PROPERTIES = dict(width=360, usermeta={"embedOptions": {"actions": False}})
 
@@ -544,6 +545,22 @@ async def calculate(
         age_vs_monthly_safe_withdraw_plot = None
         savings_vs_spending_plot = None
 
+    # Create URL parameters string
+    url_params = urlencode(
+        {
+            "growth_rate": growth_rate,
+            "current_nw": current_nw,
+            "spending_per_month": spending_per_month,
+            "inflation": inflation,
+            "annual_salary_increase": annual_salary_increase,
+            "income_per_month": income_per_month,
+            "extra_income": extra_income,
+            "date_of_birth": date_of_birth,
+            "safe_withdraw_rate": safe_withdraw_rate,
+            "extra_spending": extra_spending,
+        }
+    )
+
     context = {
         "request": request,
         "results": results,
@@ -565,6 +582,7 @@ async def calculate(
         "extra_spending": extra_spending,
         "time_difference": time_difference,
         "summary_with_extra": summary_with_extra,
+        "url_params": url_params,
     }
 
     return context
