@@ -188,12 +188,12 @@ class Summary(BaseModel):
         r = cls._interpolate_result(results, index)
 
         safe_withdraw_at_age = {
-            round(result.age): result.safe_withdraw_rule_yearly / 12
-            for result in results
-            if round(result.age, 1) % 1 == 0
+            round(r.age): r.safe_withdraw_rule_yearly / 12
+            for r in results
+            if round(r.age, 1) % 1 == 0
         }
         return cls(
-            age=results[0].input_data.age,
+            age=r.input_data.age,
             fire_date=r.date,
             fire_age=r.age,
             years_till_fi=r.years,
