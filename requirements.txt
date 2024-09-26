@@ -3,3 +3,4 @@ fastapi[all]
 altair
 python-dateutil
 python-multipart
+fastapi-htmx
