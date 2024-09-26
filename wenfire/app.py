@@ -64,7 +64,7 @@ class InputData(BaseModel):
 
 
 class Results(BaseModel):
-    months: int
+    months: float
     nw: float
     income: float
     extra_income: float  # fixed extra income per month
@@ -128,6 +128,17 @@ class Results(BaseModel):
         )
 
 
+def retirement_index(results: list[Results]) -> int | None:
+    for i, r in enumerate(results):
+        if r.safe_withdraw_minus_spending >= 0:
+            return i
+    return None
+
+
+def interpolate(start: float, end: float, fraction: float) -> float:
+    return start + (end - start) * fraction
+
+
 class Summary(BaseModel):
     age: float
     fire_age: float
@@ -142,10 +153,39 @@ class Summary(BaseModel):
     safe_withdraw_at_age: dict[int, float]
 
     @classmethod
+    def _interpolate_result(cls, results: list[Results], index: int) -> Results:
+        if index == 0:
+            return results[index]
+
+        last = results[index]
+        second_last = results[index - 1]
+
+        fraction = (0 - second_last.safe_withdraw_minus_spending) / (
+            last.safe_withdraw_minus_spending - second_last.safe_withdraw_minus_spending
+        )
+
+        interpolated_months = interpolate(second_last.months, last.months, fraction)
+
+        return Results(
+            months=interpolated_months,
+            nw=interpolate(second_last.nw, last.nw, fraction),
+            income=interpolate(second_last.income, last.income, fraction),
+            extra_income=second_last.extra_income,
+            spending=interpolate(second_last.spending, last.spending, fraction),
+            delta_nw=interpolate(second_last.delta_nw, last.delta_nw, fraction),
+            total_saved=interpolate(
+                second_last.total_saved, last.total_saved, fraction
+            ),
+            input_data=second_last.input_data,
+        )
+
+    @classmethod
     def from_results(cls, results: list[Results]) -> Summary | None:
-        r = next((r for r in results if r.safe_withdraw_minus_spending > 0), None)
-        if r is None:
+        index = retirement_index(results)
+        if index is None:
             return None
+
+        r = cls._interpolate_result(results, index)
 
         safe_withdraw_at_age = {
             round(r.age): r.safe_withdraw_rule_yearly / 12
@@ -456,6 +496,7 @@ def calculate(
     extra_income: float = Query(...),
     date_of_birth: str = Query(...),
     safe_withdraw_rate: float = Query(...),
+    extra_spending: float = Query(0, description="Additional one-time spending amount"),
 ):
     dob = datetime.datetime.strptime(date_of_birth, "%Y-%m-%d").date()
     input_data = InputData(
@@ -469,8 +510,24 @@ def calculate(
         date_of_birth=dob,
         safe_withdraw_rate=safe_withdraw_rate,
     )
+    input_data_with_extra = input_data.copy(
+        update={"current_nw": current_nw - extra_spending}
+    )
+
+    # Calculate results without extra spending (main results)
     results = calculate_results_for_month(input_data)
     summary = Summary.from_results(results)
+
+    # Calculate results with extra spending only for comparison
+    results_with_extra = calculate_results_for_month(input_data_with_extra)
+    summary_with_extra = Summary.from_results(results_with_extra)
+
+    time_difference = None
+    if summary and summary_with_extra:
+        time_difference = (
+            summary_with_extra.fire_date - summary.fire_date
+        ).total_seconds() / (365.25 * 24 * 3600)
+
     if summary is not None:
         age_vs_net_worth_plot = plot_age_vs_net_worth(results, summary)
         age_vs_monthly_safe_withdraw_plot = plot_age_vs_monthly_safe_withdraw(
@@ -502,6 +559,9 @@ def calculate(
             "savings_vs_spending_plot": savings_vs_spending_plot,
             "format_currency": format_currency,
             "interpolate_color": interpolate_color,
+            "extra_spending": extra_spending,
+            "time_difference": time_difference,
+            "summary_with_extra": summary_with_extra,
         },
     )
 
