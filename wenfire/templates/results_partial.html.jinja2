@@ -97,13 +97,9 @@
 
 <!-- Add the JavaScript code to render the plots -->
 <script>
-    const ageVsNetWorthPlotSpec = JSON.parse({{ age_vs_net_worth_plot| tojson | safe }});
-    const ageVsMonthlySafeWithdrawPlotSpec = JSON.parse({{ age_vs_monthly_safe_withdraw_plot| tojson | safe }});
-    const savingsVsSpendingPlotSpec = JSON.parse({{ savings_vs_spending_plot| tojson | safe }});
-
-    vegaEmbed("#age-vs-net-worth-plot", ageVsNetWorthPlotSpec);
-    vegaEmbed("#age-vs-monthly-safe-withdraw-plot", ageVsMonthlySafeWithdrawPlotSpec);
-    vegaEmbed("#savings-vs-spending-plot", savingsVsSpendingPlotSpec);
+    vegaEmbed("#age-vs-net-worth-plot", JSON.parse({{ age_vs_net_worth_plot| tojson | safe }}));
+    vegaEmbed("#age-vs-monthly-safe-withdraw-plot", JSON.parse({{ age_vs_monthly_safe_withdraw_plot| tojson | safe }}));
+    vegaEmbed("#savings-vs-spending-plot", JSON.parse({{ savings_vs_spending_plot| tojson | safe }}));
 </script>
 
 <div class="scrollable-table">
