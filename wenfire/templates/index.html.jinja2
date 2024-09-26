@@ -119,7 +119,7 @@
             </div>
             <div class="row">
                 {{ form_field('Safe Withdraw Rate', 'safe_withdraw_rate', safe_withdraw_rate, step='0.1', help_text='Enter the safe withdraw rate (typically 4%, aka "the 4%-rule").', unit="%") }}
-                {{ form_field('Extra One-time Spending', 'extra_spending', extra_spending, help_text='Enter an additional one-time spending amount to see how it affects your FIRE date.', unit="$") }}
+                {{ form_field('Extra One-time Spending', 'extra_spending', extra_spending, help_text='Enter an additional one-time spending amount to see how it affects your FIRE date. This only affects the "Impact of Extra Spending" field in the table below.', unit="$") }}
             </div>
             <input type="submit" value="Calculate" class="btn btn-primary">
         </form>
