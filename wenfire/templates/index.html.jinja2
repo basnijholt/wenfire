@@ -12,6 +12,7 @@
     <script src="https://cdn.jsdelivr.net/npm/vega@5.20.2"></script>
     <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.5.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.18.2"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.6"></script>
     <title>Retirement Calculator</title>
 </head>
 
@@ -99,7 +100,7 @@
         </div>
         {% endmacro %}
 
-        <form action="/calculate" method="get">
+        <form id="calculate-form" hx-get="/calculate" hx-target="#results-container" hx-swap="innerHTML">
             <div class="row">
                 {{ form_field('Growth Rate', 'growth_rate', growth_rate, 'number', '0.1', 'Enter the expected annual growth rate for investments (e.g., 7 for 7%).', unit="%") }}
                 {{ form_field('Current Net Worth', 'current_nw', current_nw, help_text='Enter your current net worth (incl. retirement plans like 401k).', unit="$") }}
@@ -124,6 +125,10 @@
             </div>
             <input type="submit" value="Calculate" class="btn btn-primary">
         </form>
+
+        <div id="results-container">
+            <!-- This is where the results will be dynamically inserted -->
+        </div>
 
         {% if summary %}
         <table class="table table-striped table-bordered table-smaller-rows">

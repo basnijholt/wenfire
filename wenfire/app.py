@@ -13,6 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from fastapi import Query
+from fastapi_htmx import htmx, htmx_init
 
 _PLOT_PROPERTIES = dict(width=360, usermeta={"embedOptions": {"actions": False}})
 
@@ -211,8 +212,12 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory=FOLDER / "static"), name="static")
 templates = Jinja2Templates(directory=FOLDER / "templates")
 
+# Initialize fastapi-htmx with your templates
+htmx_init(templates=templates)
+
 
 @app.get("/", response_class=HTMLResponse)
+@htmx("index.html", "index.html")
 async def index(
     request: Request,
     growth_rate: Optional[float] = 7,
@@ -224,22 +229,103 @@ async def index(
     extra_income: Optional[float] = 0,
     date_of_birth: Optional[str] = "1990-01-01",
     safe_withdraw_rate: Optional[float] = 4,
+    extra_spending: Optional[float] = 0,
 ):
-    return templates.TemplateResponse(
-        "index.html",
-        {
-            "request": request,
-            "growth_rate": growth_rate,
-            "current_nw": current_nw,
-            "spending_per_month": spending_per_month,
-            "inflation": inflation,
-            "annual_salary_increase": annual_salary_increase,
-            "income_per_month": income_per_month,
-            "extra_income": extra_income,
-            "date_of_birth": date_of_birth,
-            "safe_withdraw_rate": safe_withdraw_rate,
-        },
+    return {
+        "request": request,
+        "growth_rate": growth_rate,
+        "current_nw": current_nw,
+        "spending_per_month": spending_per_month,
+        "inflation": inflation,
+        "annual_salary_increase": annual_salary_increase,
+        "income_per_month": income_per_month,
+        "extra_income": extra_income,
+        "date_of_birth": date_of_birth,
+        "safe_withdraw_rate": safe_withdraw_rate,
+        "extra_spending": extra_spending,
+    }
+
+
+@app.get("/calculate", response_class=HTMLResponse)
+@htmx("results_partial.html", "index.html")
+async def calculate(
+    request: Request,
+    growth_rate: float = Query(...),
+    current_nw: float = Query(...),
+    spending_per_month: float = Query(...),
+    inflation: float = Query(...),
+    annual_salary_increase: float = Query(...),
+    income_per_month: float = Query(...),
+    extra_income: float = Query(...),
+    date_of_birth: str = Query(...),
+    safe_withdraw_rate: float = Query(...),
+    extra_spending: float = Query(...),
+):
+    dob = datetime.datetime.strptime(date_of_birth, "%Y-%m-%d").date()
+    input_data = InputData(
+        growth_rate=growth_rate,
+        current_nw=current_nw,
+        spending_per_month=spending_per_month,
+        inflation=inflation,
+        annual_salary_increase=annual_salary_increase,
+        income_per_month=income_per_month,
+        extra_income=extra_income,
+        date_of_birth=dob,
+        safe_withdraw_rate=safe_withdraw_rate,
     )
+    input_data_with_extra = input_data.copy(
+        update={"current_nw": current_nw - extra_spending}
+    )
+
+    # Calculate results without extra spending (main results)
+    results = calculate_results_for_month(input_data)
+    summary = Summary.from_results(results)
+
+    # Calculate results with extra spending only for comparison
+    results_with_extra = calculate_results_for_month(input_data_with_extra)
+    summary_with_extra = Summary.from_results(results_with_extra)
+
+    time_difference = None
+    if summary and summary_with_extra:
+        time_difference = (
+            summary_with_extra.fire_date - summary.fire_date
+        ).total_seconds() / (365.25 * 24 * 3600)
+
+    if summary is not None:
+        age_vs_net_worth_plot = plot_age_vs_net_worth(results, summary)
+        age_vs_monthly_safe_withdraw_plot = plot_age_vs_monthly_safe_withdraw(
+            results, summary
+        )
+        savings_vs_spending_plot = plot_savings_vs_spending(results, summary)
+    else:
+        age_vs_net_worth_plot = None
+        age_vs_monthly_safe_withdraw_plot = None
+        savings_vs_spending_plot = None
+
+    context = {
+        "request": request,
+        "results": results,
+        "summary": summary,
+        "growth_rate": growth_rate,
+        "current_nw": current_nw,
+        "spending_per_month": spending_per_month,
+        "inflation": inflation,
+        "annual_salary_increase": annual_salary_increase,
+        "income_per_month": income_per_month,
+        "extra_income": extra_income,
+        "date_of_birth": dob.strftime("%Y-%m-%d"),
+        "safe_withdraw_rate": safe_withdraw_rate,
+        "age_vs_net_worth_plot": age_vs_net_worth_plot,
+        "age_vs_monthly_safe_withdraw_plot": age_vs_monthly_safe_withdraw_plot,
+        "savings_vs_spending_plot": savings_vs_spending_plot,
+        "format_currency": format_currency,
+        "interpolate_color": interpolate_color,
+        "extra_spending": extra_spending,
+        "time_difference": time_difference,
+        "summary_with_extra": summary_with_extra,
+    }
+
+    return context
 
 
 def calculate_results_for_month(
@@ -482,88 +568,6 @@ def interpolate_color(
 
 def _rgb_to_hex(rgb: tuple[int, int, int]) -> str:
     return "#{:02x}{:02x}{:02x}".format(*rgb)
-
-
-@app.get("/calculate", response_class=HTMLResponse)
-def calculate(
-    request: Request,
-    growth_rate: float = Query(...),
-    current_nw: float = Query(...),
-    spending_per_month: float = Query(...),
-    inflation: float = Query(...),
-    annual_salary_increase: float = Query(...),
-    income_per_month: float = Query(...),
-    extra_income: float = Query(...),
-    date_of_birth: str = Query(...),
-    safe_withdraw_rate: float = Query(...),
-    extra_spending: float = Query(0, description="Additional one-time spending amount"),
-):
-    dob = datetime.datetime.strptime(date_of_birth, "%Y-%m-%d").date()
-    input_data = InputData(
-        growth_rate=growth_rate,
-        current_nw=current_nw,
-        spending_per_month=spending_per_month,
-        inflation=inflation,
-        annual_salary_increase=annual_salary_increase,
-        income_per_month=income_per_month,
-        extra_income=extra_income,
-        date_of_birth=dob,
-        safe_withdraw_rate=safe_withdraw_rate,
-    )
-    input_data_with_extra = input_data.copy(
-        update={"current_nw": current_nw - extra_spending}
-    )
-
-    # Calculate results without extra spending (main results)
-    results = calculate_results_for_month(input_data)
-    summary = Summary.from_results(results)
-
-    # Calculate results with extra spending only for comparison
-    results_with_extra = calculate_results_for_month(input_data_with_extra)
-    summary_with_extra = Summary.from_results(results_with_extra)
-
-    time_difference = None
-    if summary and summary_with_extra:
-        time_difference = (
-            summary_with_extra.fire_date - summary.fire_date
-        ).total_seconds() / (365.25 * 24 * 3600)
-
-    if summary is not None:
-        age_vs_net_worth_plot = plot_age_vs_net_worth(results, summary)
-        age_vs_monthly_safe_withdraw_plot = plot_age_vs_monthly_safe_withdraw(
-            results, summary
-        )
-        savings_vs_spending_plot = plot_savings_vs_spending(results, summary)
-    else:
-        age_vs_net_worth_plot = None
-        age_vs_monthly_safe_withdraw_plot = None
-        savings_vs_spending_plot = None
-
-    return templates.TemplateResponse(
-        "index.html",
-        {
-            "request": request,
-            "results": results,
-            "summary": summary,
-            "growth_rate": growth_rate,
-            "current_nw": current_nw,
-            "spending_per_month": spending_per_month,
-            "inflation": inflation,
-            "annual_salary_increase": annual_salary_increase,
-            "income_per_month": income_per_month,
-            "extra_income": extra_income,
-            "date_of_birth": dob.strftime("%Y-%m-%d"),
-            "safe_withdraw_rate": safe_withdraw_rate,
-            "age_vs_net_worth_plot": age_vs_net_worth_plot,
-            "age_vs_monthly_safe_withdraw_plot": age_vs_monthly_safe_withdraw_plot,
-            "savings_vs_spending_plot": savings_vs_spending_plot,
-            "format_currency": format_currency,
-            "interpolate_color": interpolate_color,
-            "extra_spending": extra_spending,
-            "time_difference": time_difference,
-            "summary_with_extra": summary_with_extra,
-        },
-    )
 
 
 if __name__ == "__main__":
