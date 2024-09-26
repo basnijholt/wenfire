@@ -130,6 +130,17 @@
             <!-- This is where the results will be dynamically inserted -->
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.toString()) {
+                // If there are URL parameters, trigger the calculation
+                htmx.trigger('#calculate-form', 'submit');
+            }
+        });
+    </script>
+
 </body>
 
 </html>
