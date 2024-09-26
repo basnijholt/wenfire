@@ -521,6 +521,7 @@ async def calculate(
     # Calculate results without extra spending (main results)
     results = calculate_results_for_month(input_data)
     summary = Summary.from_results(results)
+
     # Calculate results with extra spending only for comparison
     results_with_extra = calculate_results_for_month(input_data_with_extra)
     summary_with_extra = Summary.from_results(results_with_extra)
