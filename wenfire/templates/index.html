@@ -119,6 +119,9 @@
             <div class="row">
                 {{ form_field('Safe Withdraw Rate', 'safe_withdraw_rate', safe_withdraw_rate, step='0.1', help_text='Enter the safe withdraw rate (typically 4%, aka "the 4%-rule").', unit="%") }}
             </div>
+            <div class="row">
+                {{ form_field('Extra One-time Spending', 'extra_spending', extra_spending, help_text='Enter an additional one-time spending amount to see how it affects your FIRE date.', unit="$") }}
+            </div>
             <input type="submit" value="Calculate" class="btn btn-primary">
         </form>
 
@@ -175,7 +178,35 @@
                 </tr>
                 {% endif %}
                 {% endfor %}
-
+                <tr>
+                    <td>Impact of Extra Spending 💸</td>
+                    <td>
+                        {% if extra_spending > 0 %}
+                            {% if time_difference %}
+                                {% set total_days = (time_difference * 365.25) | round | int %}
+                                {% if total_days >= 365 %}
+                                    {% set years = (total_days / 365.25) | round(2) %}
+                                    Spending ${{ extra_spending }} now will delay your FIRE date by approximately {{ years }} year{% if years != 1 %}s{% endif %}.
+                                {% elif total_days >= 30 %}
+                                    {% set months = (total_days / 30.44) | round(2) %}
+                                    Spending ${{ extra_spending }} now will delay your FIRE date by approximately {{ months }} month{% if months != 1 %}s{% endif %}.
+                                {% else %}
+                                    Spending ${{ extra_spending }} now will delay your FIRE date by approximately {{ total_days }} day{% if total_days != 1 %}s{% endif %}.
+                                {% endif %}
+                                {% if summary_with_extra %}
+                                <br>
+                                Original FIRE date: {{ summary.fire_date }}
+                                <br>
+                                New FIRE date with extra spending: {{ summary_with_extra.fire_date }}
+                                {% endif %}
+                            {% else %}
+                                Extra spending of ${{ extra_spending }} entered, but it doesn't affect your FIRE date.
+                            {% endif %}
+                        {% else %}
+                            No extra spending entered.
+                        {% endif %}
+                    </td>
+                </tr>
             </tbody>
         </table>
         {% elif results %}
@@ -184,7 +215,6 @@
             <p>Uh-oh! It looks like you're on the Neverending Work Train! Keep chugging along, or better yet, reevaluate your financial plan to hop on the Express Train to Retirement! 🌴🍹</p>
         </div>
         {% endif %}
-
 
         {% if results %}
         <!-- Create div elements to hold the plots -->
