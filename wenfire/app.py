@@ -153,40 +153,39 @@ class Summary(BaseModel):
     safe_withdraw_at_age: dict[int, float]
 
     @classmethod
+    def _interpolate_result(cls, results: list[Results], index: int) -> Results:
+        if index == 0:
+            return results[index]
+
+        last = results[index]
+        second_last = results[index - 1]
+
+        fraction = (0 - second_last.safe_withdraw_minus_spending) / (
+            last.safe_withdraw_minus_spending - second_last.safe_withdraw_minus_spending
+        )
+
+        interpolated_months = interpolate(second_last.months, last.months, fraction)
+
+        return Results(
+            months=interpolated_months,
+            nw=interpolate(second_last.nw, last.nw, fraction),
+            income=interpolate(second_last.income, last.income, fraction),
+            extra_income=second_last.extra_income,
+            spending=interpolate(second_last.spending, last.spending, fraction),
+            delta_nw=interpolate(second_last.delta_nw, last.delta_nw, fraction),
+            total_saved=interpolate(
+                second_last.total_saved, last.total_saved, fraction
+            ),
+            input_data=second_last.input_data,
+        )
+
+    @classmethod
     def from_results(cls, results: list[Results]) -> Summary | None:
         index = retirement_index(results)
         if index is None:
             return None
-        if index > 0:
-            # Previously calculated variables
-            last = results[index]
-            second_last = results[index - 1]
 
-            # Calculate the fraction for interpolation based on change in 'nw'
-            fraction = (0 - second_last.safe_withdraw_minus_spending) / (
-                last.safe_withdraw_minus_spending
-                - second_last.safe_withdraw_minus_spending
-            )
-
-            # Calculate the interpolated months
-            interpolated_months = interpolate(second_last.months, last.months, fraction)
-
-            # Create an interpolated result
-            interpolated_result = Results(
-                months=interpolated_months,
-                nw=interpolate(second_last.nw, last.nw, fraction),
-                income=interpolate(second_last.income, last.income, fraction),
-                extra_income=second_last.extra_income,
-                spending=interpolate(second_last.spending, last.spending, fraction),
-                delta_nw=interpolate(second_last.delta_nw, last.delta_nw, fraction),
-                total_saved=interpolate(
-                    second_last.total_saved, last.total_saved, fraction
-                ),
-                input_data=second_last.input_data,
-            )
-            r = interpolated_result
-        else:
-            r = results[index]
+        r = cls._interpolate_result(results, index)
 
         safe_withdraw_at_age = {
             round(result.age): result.safe_withdraw_rule_yearly / 12
