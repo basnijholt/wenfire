@@ -212,8 +212,6 @@ class Summary(BaseModel):
 app = FastAPI()
 app.mount("/static", StaticFiles(directory=FOLDER / "static"), name="static")
 templates = Jinja2Templates(directory=FOLDER / "templates")
-
-# Initialize fastapi-htmx with your templates
 htmx_init(templates=templates)
 
 
