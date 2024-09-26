@@ -269,11 +269,14 @@ def calculate_results_for_month(
         input_data=data,
     )
     results = [r]
+    done_for = 0
     for _ in range(1, delta_months + 1):
         r = r.next_month()
         results.append(r)
         if r.safe_withdraw_minus_spending > 0:
-            break
+            done_for += 1
+            if done_for >= 24:
+                break
     return results
 
 
