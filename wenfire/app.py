@@ -31,6 +31,7 @@ class InputData(BaseModel):
     extra_income: float
     date_of_birth: datetime.date
     safe_withdraw_rate: float = 4
+    parameter_changes: list[ParameterChange] = []
 
     @property
     def now(self):
@@ -63,6 +64,22 @@ class InputData(BaseModel):
     @property
     def monthly_salary_increase_rate(self):
         return (1 + self.annual_salary_increase / 100) ** (1 / 12)
+
+
+class ParameterChange(BaseModel):
+    effective_date: datetime.date
+    growth_rate: Optional[float] = None
+    spending_per_month: Optional[float] = None
+    inflation: Optional[float] = None
+    annual_salary_increase: Optional[float] = None
+    income_per_month: Optional[float] = None
+    extra_income: Optional[float] = None
+
+    # Method to update parameters
+    def apply(self, current_parameters: InputData):
+        for field in self.__fields_set__:
+            if field != "effective_date" and getattr(self, field) is not None:
+                setattr(current_parameters, field, getattr(self, field))
 
 
 class Results(BaseModel):
@@ -246,40 +263,40 @@ async def index(
 
 
 def calculate_results_for_month(
-    data: InputData,
-    target: int | date | None = None,
+    data: InputData, target: int | date | None = None
 ) -> list[Results]:
-    # If target is a date, calculate the target month
-    if isinstance(target, date):
-        delta_months = (
-            (target.year - data.now.year) * 12 + target.month - data.now.month
-        )
-    elif target is None:
-        delta_months = 100 * 12
-    else:
-        delta_months = target
-
-    # Set initial values
+    parameter_changes = sorted(data.parameter_changes, key=lambda x: x.effective_date)
+    change_index = 0
+    total_months = target if isinstance(target, int) else 100 * 12
+    current_parameters = data.copy()
     r = Results(
         months=0,
-        years=0,
-        nw=data.current_nw,
+        nw=current_parameters.current_nw,
         delta_nw=0,
-        income=data.income_per_month,
-        extra_income=data.extra_income,
-        spending=data.spending_per_month,
-        total_saved=data.current_nw,
-        input_data=data,
+        income=current_parameters.income_per_month,
+        extra_income=current_parameters.extra_income,
+        spending=current_parameters.spending_per_month,
+        total_saved=current_parameters.current_nw,
+        input_data=current_parameters,
     )
     results = [r]
-    done_for = 0
-    for _ in range(1, delta_months + 1):
+    for _ in range(1, total_months + 1):
+        current_date = data.now + relativedelta(months=r.months)
+        # Check for parameter changes
+        while (
+            change_index < len(parameter_changes)
+            and current_date >= parameter_changes[change_index].effective_date
+        ):
+            change = parameter_changes[change_index]
+            change.apply(current_parameters)
+            change_index += 1
+        # Update input data in Results
+        r.input_data = current_parameters.copy()
         r = r.next_month()
         results.append(r)
-        if r.safe_withdraw_minus_spending > 0:
-            done_for += 1
-            if done_for >= 24:
-                break
+        # Stop if FIRE is achieved
+        if retirement_index(results) is not None:
+            break
     return results
 
 
@@ -501,7 +518,24 @@ async def calculate(
     date_of_birth: str = Query(...),
     safe_withdraw_rate: float = Query(...),
     extra_spending: float = Query(...),
+    *,
+    change_dates: list[str] = Query([]),
+    change_fields: list[str] = Query([]),
+    change_values: list[str] = Query([]),
 ):
+    print(locals())
+    parameter_changes = []
+    for i in range(len(change_dates)):
+        effective_date = datetime.datetime.strptime(change_dates[i], "%Y-%m-%d").date()
+        field_name = change_fields[i]
+        new_value = float(change_values[i])
+
+        change_kwargs = {field_name: new_value}
+
+        parameter_changes.append(
+            ParameterChange(effective_date=effective_date, **change_kwargs)
+        )
+
     dob = datetime.datetime.strptime(date_of_birth, "%Y-%m-%d").date()
     input_data = InputData(
         growth_rate=growth_rate,
@@ -513,6 +547,7 @@ async def calculate(
         extra_income=extra_income,
         date_of_birth=dob,
         safe_withdraw_rate=safe_withdraw_rate,
+        parameter_changes=parameter_changes,
     )
     input_data_with_extra = input_data.copy(
         update={"current_nw": current_nw - extra_spending}
