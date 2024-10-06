@@ -1,0 +1,13 @@
+[project]
+name = "wenfire"
+version = "0.1.0"
+description = "WenFire 🔥 Financial Independence Calculator 💸"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "altair>=5.4.1",
+    "fastapi-htmx>=0.4.4",
+    "fastapi[all]>=0.115.0",
+    "python-dateutil>=2.9.0.post0",
+    "python-multipart>=0.0.12",
+]

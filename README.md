@@ -29,8 +29,8 @@ Always be prepared to review and adjust your financial plans based on your perso
 
 1. Clone this repository: `git clone https://github.com/basnijholt/wenfire.git`
 2. Navigate to the project folder: `cd wenfire`
-3. Install the required dependencies: `pip install -r requirements.txt`
-4. Run the FastAPI server: `uvicorn main:app --reload`
+3. Install the required dependencies: `uv sync`
+4. Run the FastAPI server: `uv run uvicorn wenfire.app:app --reload`
 5. Open your browser and visit `http://localhost:8000/`
 
 ## Contributing 🤝
