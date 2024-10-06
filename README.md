@@ -1,8 +1,8 @@
 # WenFire 🔥 Financial Independence Calculator 💸
 
-Welcome to the WenFire Financial Independence Calculator GitHub repository! This web application helps users visualize their journey to financial independence and early retirement by calculating and plotting various financial metrics. The app is built using FastAPI and Bootstrap, and it's currently hosted on Azure at https://wenfire.azurewebsites.net/.
+Welcome to the WenFire Financial Independence Calculator GitHub repository! This web application helps users visualize their journey to financial independence and early retirement by calculating and plotting various financial metrics. The app is built using FastAPI and Bootstrap, and it's currently hosted on at https://wenfire.nijho.lt/.
 
-There are many such calculators available, however, I couldn't find one with the salary growth assumptions that I wanted. I also just wanted to play with Azure Functions, FastAPI, and Vega-Lite. So I built this calculator to scratch my own itch, and I hope you find it useful too! 😄
+There are many such calculators available, however, I couldn't find one with the salary growth assumptions that I wanted. I also just wanted to play FastAPI, htmx, and Vega-Lite. So I built this calculator to scratch my own itch, and I hope you find it useful too! 😄
 
 ![WenFire Screenshot](https://github.com/basnijholt/wenfire/assets/6897215/0d76a7f0-6c5f-4ead-967d-84be6fb5a5f5)
 
@@ -32,30 +32,6 @@ Always be prepared to review and adjust your financial plans based on your perso
 3. Install the required dependencies: `pip install -r requirements.txt`
 4. Run the FastAPI server: `uvicorn main:app --reload`
 5. Open your browser and visit `http://localhost:8000/`
-
-### Run locally with Azure Functions on MacOS ARM 🍎
-
-Install the Azure Functions CLI tool
-
-```bash
-x86brew tap azure/functions
-x86brew install azure-functions-core-tools@4
-```
-
-Create a x86 environment (because of ARM incompatibility)
-
-```bash
-ENV_NAME="x86python39"
-CONDA_SUBDIR=osx-64 micromamba create -n $ENV_NAME python=3.9
-micromamba activate $ENV_NAME
-pip install -r requirements.txt
-```
-
-Start the function with
-
-```bash
-/usr/local/bin/func start
-```
 
 ## Contributing 🤝
 

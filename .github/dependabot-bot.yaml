@@ -1,3 +1,0 @@
-safe:
- - azure-functions
- - fastapi
