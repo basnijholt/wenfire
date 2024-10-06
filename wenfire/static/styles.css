@@ -24,13 +24,15 @@ table {
 .scrollable-table {
   display: block;
   max-height: 800px; /* Adjust this value according to your desired maximum table height */
-  overflow-y: scroll;
+  overflow-y: auto;
 }
+/* Make the table header sticky */
 .scrollable-table thead th {
-  position: sticky;
-  top: 0;
-  background-color: #f8f9fa; /* Adjust this value to match your table header background color */
-  z-index: 10;
+  position: sticky; /* Enables the sticky behavior */
+  top: 0; /* Sticks the header to the top */
+  background-color: #f8f9fa; /* Ensures the header has a background when sticky */
+  z-index: 10; /* Keeps the header on top of other elements while scrolling */
+  box-shadow: 0 2px 2px rgba(0,0,0,0.1); /* Adds a subtle shadow to distinguish header while scrolling */
 }
 /* Set the minimum width and allow autoscaling */
 .container {
