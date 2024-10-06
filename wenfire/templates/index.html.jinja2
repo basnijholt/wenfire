@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="light">
 
 <head>
     <meta charset="UTF-8">
@@ -17,12 +17,47 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Existing code to handle URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.toString()) {
+                // If there are URL parameters, trigger the calculation
+                htmx.trigger('#calculate-form', 'submit');
+            }
+
+            // Theme toggling
+            const themeToggleButton = document.getElementById('theme-toggle');
+            const userPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const currentTheme = localStorage.getItem('theme') || (userPrefersDark ? 'dark' : 'light');
+            setTheme(currentTheme);
+
+            themeToggleButton.addEventListener('click', function () {
+                const newTheme = (document.documentElement.getAttribute('data-bs-theme') === 'dark') ? 'light' : 'dark';
+                setTheme(newTheme);
+            });
+
+            function setTheme(theme) {
+                document.documentElement.setAttribute('data-bs-theme', theme);
+                if (theme === 'dark') {
+                    themeToggleButton.innerHTML = '<i class="fas fa-sun"></i> Light Mode';
+                } else {
+                    themeToggleButton.innerHTML = '<i class="fas fa-moon"></i> Dark Mode';
+                }
+                localStorage.setItem('theme', theme);
+            }
+        });
+    </script>
+
+
+    <nav class="navbar navbar-expand-lg">
         <div class="container-fluid">
             <a class="navbar-brand" href="/">WenFire</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
+
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
@@ -37,6 +72,9 @@
                     </li>
                 </ul>
             </div>
+            <button id="theme-toggle" class="btn btn-outline-secondary ms-auto" type="button">
+                <i class="fas fa-moon"></i> Dark Mode
+            </button>
         </div>
     </nav>
 
@@ -130,7 +168,7 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.toString()) {
                 // If there are URL parameters, trigger the calculation
