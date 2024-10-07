@@ -12,7 +12,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi_htmx import htmx, htmx_init
 
-from .fire import InputData, ParameterChange, Summary, calculate_results_for_month
+from .fire import InputData, ParameterUpdate, Summary, calculate_results_for_month
 from .plots import (
     plot_age_vs_monthly_safe_withdraw,
     plot_age_vs_net_worth,
@@ -138,16 +138,11 @@ async def calculate(
     change_fields: list[str] = Query([]),
     change_values: list[str] = Query([]),
 ):
-    print(f"{change_dates=}, {change_fields=}, {change_values=}")
     parameter_changes = []
     for date, field, value in zip(change_dates, change_fields, change_values):
-        effective_date = datetime.datetime.strptime(date, "%Y-%m-%d").date()
-        change_kwargs = {field: value}
-        parameter_changes.append(
-            ParameterChange(effective_date=effective_date, **change_kwargs)
-        )
-    parameter_changes = sorted(parameter_changes, key=lambda x: x.effective_date)
-    print(f"{parameter_changes=}")
+        date_ = datetime.datetime.strptime(date, "%Y-%m-%d").date()
+        parameter_changes.append(ParameterUpdate(date=date_, field=field, value=value))
+    parameter_changes = sorted(parameter_changes, key=lambda x: x.date)
 
     dob = datetime.datetime.strptime(date_of_birth, "%Y-%m-%d").date()
     input_data = InputData(
@@ -160,6 +155,7 @@ async def calculate(
         extra_income=extra_income,
         date_of_birth=dob,
         safe_withdraw_rate=safe_withdraw_rate,
+        parameter_changes=parameter_changes,
     )
     input_data_with_extra = input_data.copy(
         update={"current_nw": current_nw - extra_spending}

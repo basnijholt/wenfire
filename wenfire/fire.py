@@ -1,43 +1,36 @@
 from __future__ import annotations
 
 import datetime
-from datetime import date
 
 from dateutil.relativedelta import relativedelta
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
-def _today() -> date:
+def _today() -> datetime.date:
     return datetime.date.today()
 
 
-class ParameterChange(BaseModel):
-    effective_date: datetime.date
-    growth_rate: float | None = None
-    spending_per_month: float | None = None
-    inflation: float | None = None
-    annual_salary_increase: float | None = None
-    income_per_month: float | None = None
-    extra_income: float | None = None
+class ParameterUpdate(BaseModel):
+    date: datetime.date
+    field: str
+    value: float
 
 
 class InputData(BaseModel):
+    date: datetime.date = Field(default_factory=_today)
     growth_rate: float
-    current_nw: float
     spending_per_month: float
     inflation: float
     annual_salary_increase: float
     income_per_month: float
     extra_income: float
+    # Above can also be in ParameterUpdate
+    current_nw: float
     date_of_birth: datetime.date
     safe_withdraw_rate: float = 4
-    parameter_changes: list[ParameterChange] = []
+    parameter_changes: list[ParameterUpdate] = []
 
-    @property
-    def now(self):
-        return _today()
-
-    def age_at(self, date: date) -> float:
+    def age_at(self, date: datetime.date) -> float:
         delta = relativedelta(date, self.date_of_birth)
         years = delta.years
         months = delta.months
@@ -47,7 +40,7 @@ class InputData(BaseModel):
 
     @property
     def age(self) -> float:
-        return self.age_at(self.now)
+        return self.age_at(self.date)
 
     @property
     def saving_per_month(self):
@@ -78,7 +71,7 @@ class Results(BaseModel):
 
     @property
     def date(self):
-        return self.input_data.now + datetime.timedelta(days=365.25 / 12) * self.months
+        return self.input_data.date + datetime.timedelta(days=365.25 / 12) * self.months
 
     @property
     def age(self):
@@ -113,6 +106,24 @@ class Results(BaseModel):
         return self.nw - self.total_saved
 
     def next_month(self) -> "Results":
+        while (
+            self.input_data.parameter_changes
+            and self.input_data.parameter_changes[0].date
+            and self.date >= self.input_data.parameter_changes[0].date
+        ):
+            change = self.input_data.parameter_changes.pop(0)
+            print(f"Changing {change.field} to {change.value} at {change.date}")
+            if change.field in ("growth_rate", "inflation", "annual_salary_increase"):
+                setattr(self.input_data, change.field, change.value)
+            elif change.field == "income_per_month":
+                self.income = change.value
+            elif change.field == "extra_income":
+                self.extra_income = change.value
+            elif change.field == "spending_per_month":
+                self.spending = change.value
+            else:
+                raise ValueError(f"Unknown field {change.field}")
+
         new_nw = self.nw + self.investment_profits + self.saving
         new_months = self.months + 1
         new_spending = self.spending * self.input_data.monthly_inflation
@@ -145,7 +156,7 @@ def interpolate(start: float, end: float, fraction: float) -> float:
 class Summary(BaseModel):
     age: float
     fire_age: float
-    fire_date: date
+    fire_date: datetime.date
     years_till_fi: float
     saving_at_fi: float
     safe_withdraw_at_fi: float
@@ -212,12 +223,12 @@ class Summary(BaseModel):
 
 def calculate_results_for_month(
     data: InputData,
-    target: int | date | None = None,
+    target: int | datetime.date | None = None,
 ) -> list[Results]:
     # If target is a date, calculate the target month
-    if isinstance(target, date):
+    if isinstance(target, datetime.date):
         delta_months = (
-            (target.year - data.now.year) * 12 + target.month - data.now.month
+            (target.year - data.date.year) * 12 + target.month - data.date.month
         )
     elif target is None:
         delta_months = 100 * 12
