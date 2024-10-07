@@ -5,7 +5,8 @@ from pathlib import Path
 from typing import Optional
 
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
+import uuid
+from fastapi.responses import HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi import Query
@@ -55,6 +56,21 @@ async def index(
         "safe_withdraw_rate": safe_withdraw_rate,
         "extra_spending": extra_spending,
     }
+
+
+@app.get("/add-parameter-change", response_class=HTMLResponse)
+async def add_parameter_change(request: Request):
+    unique_id = uuid.uuid4().hex[:8]  # Generate a unique identifier
+    return templates.TemplateResponse(
+        "parameter_change.html.jinja2", {"request": request, "uuid": unique_id}
+    )
+
+
+@app.delete("/remove-parameter-change", response_class=HTMLResponse)
+async def remove_parameter_change():
+    # Since htmx handles the removal on the client side using hx-target and hx-swap,
+    # the server doesn't need to perform any action. Just return an empty response.
+    return Response("", status_code=200)
 
 
 def format_currency(value):
