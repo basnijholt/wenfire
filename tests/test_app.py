@@ -1,5 +1,3 @@
-# test_financial.py
-
 import datetime
 from unittest.mock import patch
 
