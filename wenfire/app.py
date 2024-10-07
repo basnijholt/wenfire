@@ -27,25 +27,36 @@ app.mount("/static", StaticFiles(directory=FOLDER / "static"), name="static")
 templates = Jinja2Templates(directory=FOLDER / "templates")
 htmx_init(templates=templates)
 
+# Default values for the input fields
+DEFAULT_GROWTH_RATE = 7
+DEFAULT_CURRENT_NW = 50_000
+DEFAULT_SPENDING_PER_MONTH = 4_000
+DEFAULT_INFLATION = 2
+DEFAULT_ANNUAL_SALARY_INCREASE = 5
+DEFAULT_INCOME_PER_MONTH = 8_000
+DEFAULT_EXTRA_INCOME = 0
+DEFAULT_DATE_OF_BIRTH = "1990-01-01"
+DEFAULT_SAFE_WITHDRAW_RATE = 4
+DEFAULT_EXTRA_SPENDING = 0
+
 
 @app.get("/", response_class=HTMLResponse)
 @htmx("index.html", "index.html")
 async def index(
     request: Request,
-    # Default values for the input fields
-    growth_rate: Optional[float] = 7,
-    current_nw: Optional[float] = 50_000,
-    spending_per_month: Optional[float] = 4_000,
-    inflation: Optional[float] = 2,
-    annual_salary_increase: Optional[float] = 5,
-    income_per_month: Optional[float] = 8_000,
-    extra_income: Optional[float] = 0,
-    date_of_birth: Optional[str] = "1990-01-01",
-    safe_withdraw_rate: Optional[float] = 4,
-    extra_spending: Optional[float] = 0,
-    change_dates: list[str] = [],
-    change_fields: list[str] = [],
-    change_values: list[str] = [],
+    growth_rate: Optional[float] = DEFAULT_GROWTH_RATE,
+    current_nw: Optional[float] = DEFAULT_CURRENT_NW,
+    spending_per_month: Optional[float] = DEFAULT_SPENDING_PER_MONTH,
+    inflation: Optional[float] = DEFAULT_INFLATION,
+    annual_salary_increase: Optional[float] = DEFAULT_ANNUAL_SALARY_INCREASE,
+    income_per_month: Optional[float] = DEFAULT_INCOME_PER_MONTH,
+    extra_income: Optional[float] = DEFAULT_EXTRA_INCOME,
+    date_of_birth: Optional[str] = DEFAULT_DATE_OF_BIRTH,
+    safe_withdraw_rate: Optional[float] = DEFAULT_SAFE_WITHDRAW_RATE,
+    extra_spending: Optional[float] = DEFAULT_EXTRA_SPENDING,
+    change_dates: list[str] = Query(default=[]),
+    change_fields: list[str] = Query(default=[]),
+    change_values: list[str] = Query(default=[]),
 ):
     parameter_changes = _parameter_changes(change_dates, change_fields, change_values)
     return {
@@ -145,19 +156,19 @@ def _parameter_changes(
 @htmx("results_partial.html", "index.html")
 async def calculate(
     request: Request,
-    growth_rate: float = Query(...),
-    current_nw: float = Query(...),
-    spending_per_month: float = Query(...),
-    inflation: float = Query(...),
-    annual_salary_increase: float = Query(...),
-    income_per_month: float = Query(...),
-    extra_income: float = Query(...),
-    date_of_birth: str = Query(...),
-    safe_withdraw_rate: float = Query(...),
-    extra_spending: float = Query(...),
-    change_dates: list[str] = Query([]),
-    change_fields: list[str] = Query([]),
-    change_values: list[str] = Query([]),
+    growth_rate: float = Query(default=DEFAULT_GROWTH_RATE),
+    current_nw: float = Query(default=DEFAULT_CURRENT_NW),
+    spending_per_month: float = Query(default=DEFAULT_SPENDING_PER_MONTH),
+    inflation: float = Query(default=DEFAULT_INFLATION),
+    annual_salary_increase: float = Query(default=DEFAULT_ANNUAL_SALARY_INCREASE),
+    income_per_month: float = Query(default=DEFAULT_INCOME_PER_MONTH),
+    extra_income: float = Query(default=DEFAULT_EXTRA_INCOME),
+    date_of_birth: str = Query(default=DEFAULT_DATE_OF_BIRTH),
+    safe_withdraw_rate: float = Query(default=DEFAULT_SAFE_WITHDRAW_RATE),
+    extra_spending: float = Query(default=DEFAULT_EXTRA_SPENDING),
+    change_dates: list[str] = Query(default=[]),
+    change_fields: list[str] = Query(default=[]),
+    change_values: list[str] = Query(default=[]),
 ):
     parameter_changes = _parameter_changes(change_dates, change_fields, change_values)
     dob = _date_str_to_date(date_of_birth)
