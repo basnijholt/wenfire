@@ -17,12 +17,10 @@ from wenfire.fire import (
     retirement_index,
 )
 
-# For demonstration, I'll assume the classes are available in the current namespace.
-
 
 # Fixtures
 @pytest.fixture
-def input_data():
+def input_data() -> InputData:
     return InputData(
         growth_rate=5.0,
         current_nw=100000.0,
@@ -38,14 +36,14 @@ def input_data():
 
 # Mock today's date for consistent testing
 @pytest.fixture
-def fixed_today():
+def fixed_today() -> datetime.date:
     return datetime.date(2024, 4, 1)
 
 
 # Tests for InputData
-def test_input_data_age_at(input_data, fixed_today):
+def test_input_data_age_at(input_data: InputData, fixed_today: datetime.date) -> None:
     target_date = datetime.date(2024, 4, 1)
-    with patch("datetime.date") as mock_date:
+    with patch("wenfire.fire.datetime.date") as mock_date:
         mock_date.today.return_value = fixed_today
         mock_date.side_effect = lambda *args, **kw: datetime.date(*args, **kw)
         age = input_data.age_at(target_date)
@@ -53,7 +51,7 @@ def test_input_data_age_at(input_data, fixed_today):
         assert abs(age - expected_age) < 0.01, f"Expected age {expected_age}, got {age}"
 
 
-def test_input_data_age(input_data, fixed_today):
+def test_input_data_age(input_data: InputData, fixed_today: datetime.date) -> None:
     with patch("datetime.date") as mock_date:
         mock_date.today.return_value = fixed_today
         mock_date.side_effect = lambda *args, **kw: datetime.date(*args, **kw)
@@ -62,7 +60,7 @@ def test_input_data_age(input_data, fixed_today):
         assert abs(age - expected_age) < 0.01, f"Expected age {expected_age}, got {age}"
 
 
-def test_input_data_saving_per_month(input_data):
+def test_input_data_saving_per_month(input_data: InputData) -> None:
     expected_saving = (
         input_data.income_per_month
         + input_data.extra_income
@@ -73,21 +71,21 @@ def test_input_data_saving_per_month(input_data):
     ), "Incorrect saving_per_month calculation"
 
 
-def test_input_data_monthly_growth_rate(input_data):
+def test_input_data_monthly_growth_rate(input_data: InputData) -> None:
     expected = (1 + input_data.growth_rate / 100) ** (1 / 12)
     assert (
         abs(input_data.monthly_growth_rate - expected) < 1e-6
     ), "Incorrect monthly_growth_rate calculation"
 
 
-def test_input_data_monthly_inflation(input_data):
+def test_input_data_monthly_inflation(input_data: InputData) -> None:
     expected = (1 + input_data.inflation / 100) ** (1 / 12)
     assert (
         abs(input_data.monthly_inflation - expected) < 1e-6
     ), "Incorrect monthly_inflation calculation"
 
 
-def test_input_data_monthly_salary_increase_rate(input_data):
+def test_input_data_monthly_salary_increase_rate(input_data: InputData) -> None:
     expected = (1 + input_data.annual_salary_increase / 100) ** (1 / 12)
     assert (
         abs(input_data.monthly_salary_increase_rate - expected) < 1e-6
@@ -95,7 +93,7 @@ def test_input_data_monthly_salary_increase_rate(input_data):
 
 
 # Tests for Results
-def test_results_initial(input_data):
+def test_results_initial(input_data: InputData) -> None:
     r = Results(
         months=0,
         nw=input_data.current_nw,
@@ -115,7 +113,7 @@ def test_results_initial(input_data):
     assert r.total_saved == input_data.current_nw
 
 
-def test_results_next_month(input_data, fixed_today):
+def test_results_next_month(input_data: InputData, fixed_today: datetime.date) -> None:
     with patch("datetime.date") as mock_date:
         mock_date.today.return_value = fixed_today
         mock_date.side_effect = lambda *args, **kw: datetime.date(*args, **kw)
@@ -153,7 +151,7 @@ def test_results_next_month(input_data, fixed_today):
 
 
 # Tests for utility functions
-def test_retirement_index():
+def test_retirement_index() -> None:
     input_data = InputData(
         growth_rate=5.0,
         current_nw=100000.0,
@@ -194,7 +192,7 @@ def test_retirement_index():
     assert index is None, "Expected retirement index None when condition not met"
 
 
-def test_interpolate():
+def test_interpolate() -> None:
     assert interpolate(0, 10, 0.5) == 5.0, "Interpolation failed for middle fraction"
     assert (
         interpolate(10, 20, 0.25) == 12.5
@@ -205,7 +203,9 @@ def test_interpolate():
 
 
 # Tests for Summary
-def test_summary_from_results(input_data, fixed_today):
+def test_summary_from_results(
+    input_data: InputData, fixed_today: datetime.date
+) -> None:
     with patch("datetime.date") as mock_date:
         mock_date.today.return_value = fixed_today
         mock_date.side_effect = lambda *args, **kw: datetime.date(*args, **kw)
@@ -243,7 +243,7 @@ def test_summary_from_results(input_data, fixed_today):
         assert summary.total_saved == r2.total_saved
 
 
-def test_summary_from_results_no_retirement(input_data):
+def test_summary_from_results_no_retirement(input_data: InputData) -> None:
     # Create a list of Results where the retirement condition is never met
     r = Results(
         months=0,
@@ -263,7 +263,9 @@ def test_summary_from_results_no_retirement(input_data):
 
 
 # Tests for calculate_results_for_month
-def test_calculate_results_for_month_no_target(input_data, fixed_today):
+def test_calculate_results_for_month_no_target(
+    input_data: InputData, fixed_today: datetime.date
+) -> None:
     with patch("datetime.date") as mock_date:
         mock_date.today.return_value = fixed_today
         mock_date.side_effect = lambda *args, **kw: datetime.date(*args, **kw)
@@ -278,19 +280,23 @@ def test_calculate_results_for_month_no_target(input_data, fixed_today):
         assert first.spending == input_data.spending_per_month
 
 
-def test_calculate_results_for_month_with_target_date(input_data, fixed_today):
+def test_calculate_results_for_month_with_target_date(
+    input_data: InputData, fixed_today: datetime.date
+) -> None:
     target_date = fixed_today + relativedelta(months=12)
     results = calculate_results_for_month(input_data, target=target_date)
     assert len(results) == 13, f"Expected 13 months, got {len(results)}"
 
 
-def test_calculate_results_for_month_with_target_int(input_data):
+def test_calculate_results_for_month_with_target_int(input_data: InputData) -> None:
     target_months = 24
     results = calculate_results_for_month(input_data, target=target_months)
     assert len(results) == 25, f"Expected 25 months, got {len(results)}"
 
 
-def test_calculate_results_for_month_retirement_condition(input_data, fixed_today):
+def test_calculate_results_for_month_retirement_condition(
+    input_data: InputData, fixed_today: datetime.date
+) -> None:
     # Modify input_data to meet retirement condition quickly
     input_data.spending_per_month = 4000.0  # Increase spending
     input_data.extra_income = 2000.0  # Increase extra income to make saving high
@@ -301,7 +307,7 @@ def test_calculate_results_for_month_retirement_condition(input_data, fixed_toda
 
 
 # Tests for Validation
-def test_input_data_validation():
+def test_input_data_validation() -> None:
     with pytest.raises(ValidationError):
         InputData(
             growth_rate="five",  # Invalid type
@@ -315,7 +321,7 @@ def test_input_data_validation():
         )
 
 
-def test_results_validation(input_data):
+def test_results_validation(input_data: InputData) -> None:
     with pytest.raises(ValidationError):
         Results(
             months=-1,  # Invalid negative months
@@ -330,7 +336,7 @@ def test_results_validation(input_data):
 
 
 # Additional edge case tests
-def test_age_at_leap_year(input_data, fixed_today):
+def test_age_at_leap_year(input_data: InputData, fixed_today: datetime.date) -> None:
     birth_date = datetime.date(2000, 2, 29)
     input_data.date_of_birth = birth_date
     target_date = datetime.date(2024, 2, 28)
@@ -339,7 +345,7 @@ def test_age_at_leap_year(input_data, fixed_today):
     assert abs(age - expected_age) < 0.01, f"Expected age {expected_age}, got {age}"
 
 
-def test_interpolate_fraction_out_of_bounds():
+def test_interpolate_fraction_out_of_bounds() -> None:
     # Even though the function does not restrict fraction, test behavior
     assert (
         interpolate(0, 10, -0.5) == -5.0
@@ -347,7 +353,7 @@ def test_interpolate_fraction_out_of_bounds():
     assert interpolate(0, 10, 1.5) == 15.0, "Interpolation failed for fraction >1"
 
 
-def test_retirement_index_multiple_meets():
+def test_retirement_index_multiple_meets() -> None:
     input_data = InputData(
         growth_rate=5.0,
         current_nw=50000.0,
@@ -394,7 +400,7 @@ def test_retirement_index_multiple_meets():
     assert index == 1, f"Expected first retirement index 1, got {index}"
 
 
-def test_summary_safe_withdraw_at_age():
+def test_summary_safe_withdraw_at_age() -> None:
     input_data = InputData(
         growth_rate=5.0,
         current_nw=100000.0,

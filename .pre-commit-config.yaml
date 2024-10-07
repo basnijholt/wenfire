@@ -17,14 +17,6 @@ repos:
     hooks:
       - id: ruff
         args: ["--fix"]
-  - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.8.7
-    hooks:
-      - id: nbqa-black
-        additional_dependencies: [jupytext, black]
-      - id: nbqa
-        args: ["ruff", "--fix", "--ignore=E402,B018,F704"]
-        additional_dependencies: [jupytext, ruff]
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: "v1.11.2"
     hooks:
