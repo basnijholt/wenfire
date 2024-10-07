@@ -7,7 +7,7 @@ from dateutil.relativedelta import relativedelta
 from pydantic import BaseModel
 
 
-def _today():
+def _today() -> date:
     return datetime.date.today()
 
 
