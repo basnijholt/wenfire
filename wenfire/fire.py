@@ -231,7 +231,7 @@ def calculate_results_for_month(
     # If target is a date, calculate the target month
     if isinstance(target, datetime.date):
         delta_months = (
-            (target.year - data.date.year) * 12 + target.month - data.date.month
+            (target.year - data.now.year) * 12 + target.month - data.now.month
         )
     elif target is None:
         delta_months = 100 * 12
