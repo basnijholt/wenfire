@@ -3,7 +3,7 @@ from __future__ import annotations
 import datetime
 
 from dateutil.relativedelta import relativedelta
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 def _today() -> datetime.date:
@@ -17,7 +17,6 @@ class ParameterChange(BaseModel):
 
 
 class InputData(BaseModel):
-    date: datetime.date = Field(default_factory=_today)
     growth_rate: float
     spending_per_month: float
     inflation: float
@@ -30,6 +29,10 @@ class InputData(BaseModel):
     safe_withdraw_rate: float = 4
     parameter_changes: list[ParameterChange] = []
 
+    @property
+    def now(self):
+        return _today()
+
     def age_at(self, date: datetime.date) -> float:
         delta = relativedelta(date, self.date_of_birth)
         years = delta.years
@@ -40,7 +43,7 @@ class InputData(BaseModel):
 
     @property
     def age(self) -> float:
-        return self.age_at(self.date)
+        return self.age_at(self.now)
 
     @property
     def saving_per_month(self):
@@ -71,7 +74,7 @@ class Results(BaseModel):
 
     @property
     def date(self):
-        return self.input_data.date + datetime.timedelta(days=365.25 / 12) * self.months
+        return self.input_data.now + datetime.timedelta(days=365.25 / 12) * self.months
 
     @property
     def age(self):

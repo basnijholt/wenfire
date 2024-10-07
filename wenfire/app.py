@@ -173,7 +173,7 @@ async def calculate(
         safe_withdraw_rate=safe_withdraw_rate,
         parameter_changes=parameter_changes,
     )
-    input_data_with_extra = input_data.copy(
+    input_data_with_extra = input_data.model_copy(
         update={"current_nw": current_nw - extra_spending}
     )
 
