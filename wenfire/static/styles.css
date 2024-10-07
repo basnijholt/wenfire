@@ -9,9 +9,6 @@ label {
   display: block;
   margin-top: 10px;
 }
-input[type="submit"] {
-  margin-top: 20px;
-}
 table {
   width: 100%;
   margin-top: 30px;
