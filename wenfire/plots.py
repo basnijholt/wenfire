@@ -75,13 +75,13 @@ def plot_age_vs_monthly_safe_withdraw(results: list[Results], summary: Summary):
         .mark_line()
         .encode(
             x=alt.X("age:Q", title="Age"),
-            y=alt.Y("value:Q", title="Montly Amount"),
+            y=alt.Y("value:Q", title="Monthly Amount"),
             color=alt.Color(
                 "key:N",
                 title="Legend",
                 scale=alt.Scale(
                     domain=["monthly_safe_withdraw", "spending", "income"],
-                    range=["blue", "red"],
+                    range=["blue", "red", "green"],
                 ),
                 legend=alt.Legend(orient="top-left"),
             ),
