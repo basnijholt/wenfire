@@ -18,6 +18,7 @@ dependencies = [
 
 [tool.uv]
 dev-dependencies = [
+    "pre-commit>=4.0.0",
     "pytest>=8.3.3",
 ]
 
