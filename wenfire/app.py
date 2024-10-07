@@ -4,17 +4,16 @@ import datetime
 from datetime import date
 from pathlib import Path
 from typing import Optional
+from urllib.parse import urlencode
 
 import altair as alt
 from dateutil.relativedelta import relativedelta
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, Query, Request
+from fastapi.responses import HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from pydantic import BaseModel
-from fastapi import Query
 from fastapi_htmx import htmx, htmx_init
-from urllib.parse import urlencode
+from pydantic import BaseModel
 
 _PLOT_PROPERTIES = dict(width=360, usermeta={"embedOptions": {"actions": False}})
 
@@ -260,6 +259,20 @@ async def index(
         "safe_withdraw_rate": safe_withdraw_rate,
         "extra_spending": extra_spending,
     }
+
+
+@app.get("/add-parameter-change", response_class=HTMLResponse)
+async def add_parameter_change(request: Request):
+    return templates.TemplateResponse(
+        "parameter_change.html.jinja2",
+        {"request": request},
+    )
+
+
+@app.delete("/remove-parameter-change", response_class=HTMLResponse)
+async def remove_parameter_change(request: Request):
+    # No need to handle index; htmx will remove the targeted section
+    return Response("", status_code=200)
 
 
 def calculate_results_for_month(
@@ -518,6 +531,7 @@ async def calculate(
     date_of_birth: str = Query(...),
     safe_withdraw_rate: float = Query(...),
     extra_spending: float = Query(...),
+    parameter_change_count: int = Query(0),
     *,
     change_dates: list[str] = Query([]),
     change_fields: list[str] = Query([]),
