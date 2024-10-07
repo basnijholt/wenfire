@@ -7,6 +7,10 @@ from dateutil.relativedelta import relativedelta
 from pydantic import BaseModel
 
 
+def _today():
+    return datetime.date.today()
+
+
 class InputData(BaseModel):
     growth_rate: float
     current_nw: float
@@ -20,9 +24,9 @@ class InputData(BaseModel):
 
     @property
     def now(self):
-        return datetime.date.today()
+        return _today()
 
-    def age_at(self, date) -> float:
+    def age_at(self, date: date) -> float:
         delta = relativedelta(date, self.date_of_birth)
         years = delta.years
         months = delta.months

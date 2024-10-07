@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "wenfire"
 version = "0.1.0"
@@ -14,5 +18,9 @@ dependencies = [
 
 [tool.uv]
 dev-dependencies = [
+    "pre-commit>=4.0.0",
     "pytest>=8.3.3",
 ]
+
+[tool.setuptools.packages.find]
+include = ["wenfire.*", "wenfire"]
