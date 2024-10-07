@@ -1,21 +1,21 @@
 from __future__ import annotations
 
 import datetime
+import uuid
 from pathlib import Path
 from typing import Optional
+from urllib.parse import urlencode
 
-from fastapi import FastAPI, Request
-import uuid
+from fastapi import FastAPI, Query, Request
 from fastapi.responses import HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from fastapi import Query
 from fastapi_htmx import htmx, htmx_init
-from urllib.parse import urlencode
-from .fire import InputData, Summary, calculate_results_for_month
+
+from .fire import InputData, ParameterChange, Summary, calculate_results_for_month
 from .plots import (
-    plot_age_vs_net_worth,
     plot_age_vs_monthly_safe_withdraw,
+    plot_age_vs_net_worth,
     plot_savings_vs_spending,
 )
 
@@ -133,7 +133,24 @@ async def calculate(
     date_of_birth: str = Query(...),
     safe_withdraw_rate: float = Query(...),
     extra_spending: float = Query(...),
+    parameter_change_count: int = Query(0),
+    *,
+    change_dates: list[str] = Query([]),
+    change_fields: list[str] = Query([]),
+    change_values: list[str] = Query([]),
 ):
+    parameter_changes = []
+    for i in range(len(change_dates)):
+        effective_date = datetime.datetime.strptime(change_dates[i], "%Y-%m-%d").date()
+        field_name = change_fields[i]
+        new_value = float(change_values[i])
+
+        change_kwargs = {field_name: new_value}
+
+        parameter_changes.append(
+            ParameterChange(effective_date=effective_date, **change_kwargs)
+        )
+
     dob = datetime.datetime.strptime(date_of_birth, "%Y-%m-%d").date()
     input_data = InputData(
         growth_rate=growth_rate,

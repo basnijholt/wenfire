@@ -11,6 +11,16 @@ def _today() -> date:
     return datetime.date.today()
 
 
+class ParameterChange(BaseModel):
+    effective_date: datetime.date
+    growth_rate: float | None = None
+    spending_per_month: float | None = None
+    inflation: float | None = None
+    annual_salary_increase: float | None = None
+    income_per_month: float | None = None
+    extra_income: float | None = None
+
+
 class InputData(BaseModel):
     growth_rate: float
     current_nw: float
@@ -21,6 +31,7 @@ class InputData(BaseModel):
     extra_income: float
     date_of_birth: datetime.date
     safe_withdraw_rate: float = 4
+    parameter_changes: list[ParameterChange] = []
 
     @property
     def now(self):
