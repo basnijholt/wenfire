@@ -161,7 +161,11 @@
             </div>
 
             <div id="parameter-changes-container">
-                <!-- New parameter change sections will be added here -->
+                {% for change in parameter_changes %}
+                {% with uuid=change.uuid, date=change.date, field=change.field, value=change.value %}
+                {% include 'parameter_change.html.jinja2' %}
+                {% endwith %}
+                {% endfor %}
             </div>
 
             <div class="mt-3">

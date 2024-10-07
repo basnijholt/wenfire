@@ -1,3 +1,4 @@
+<!-- parameter_change.html.jinja2 -->
 <div class="parameter-change-section mb-3">
     <div class="card">
         <div class="card-body">
@@ -5,30 +6,29 @@
             <div class="row">
                 <div class="col-md-4">
                     <label for="change_dates_{{ uuid }}">Effective Date:</label>
-                    <input type="date" name="change_dates" id="change_dates_{{ uuid }}" required class="form-control">
+                    <input type="date" name="change_dates" id="change_dates_{{ uuid }}" value="{{ date }}" required class="form-control">
                 </div>
                 <div class="col-md-4">
                     <label for="change_fields_{{ uuid }}">Field to Change:</label>
                     <select name="change_fields" id="change_fields_{{ uuid }}" class="form-control" required>
                         <option value="">Select Field</option>
-                        <option value="growth_rate">Growth Rate (%)</option>
-                        <option value="spending_per_month">Spending per Month ($)</option>
-                        <option value="inflation">Inflation (%)</option>
-                        <option value="annual_salary_increase">Annual Salary Increase (%)</option>
-                        <option value="income_per_month">Income per Month ($)</option>
-                        <option value="extra_income">Extra Income ($)</option>
+                        <option value="growth_rate" {% if field=="growth_rate" %}selected{% endif %}>Growth Rate (%)</option>
+                        <option value="spending_per_month" {% if field=="spending_per_month" %}selected{% endif %}>Spending per Month ($)</option>
+                        <option value="inflation" {% if field=="inflation" %}selected{% endif %}>Inflation (%)</option>
+                        <option value="annual_salary_increase" {% if field=="annual_salary_increase" %}selected{% endif %}>Annual Salary Increase (%)</option>
+                        <option value="income_per_month" {% if field=="income_per_month" %}selected{% endif %}>Income per Month ($)</option>
+                        <option value="extra_income" {% if field=="extra_income" %}selected{% endif %}>Extra Income ($)</option>
                     </select>
                 </div>
                 <div class="col-md-3">
                     <label for="change_values_{{ uuid }}">New Value:</label>
-                    <input type="number" step="0.1" name="change_values" id="change_values_{{ uuid }}" class="form-control" required>
+                    <input type="number" step="0.1" name="change_values" id="change_values_{{ uuid }}" value="{{ value }}" class="form-control" required>
                 </div>
                 <div class="col-md-1 d-flex align-items-center">
                     <!-- Trash Can Remove Button -->
                     <button type="button" class="btn btn-danger btn-sm remove-parameter-change d-flex align-items-center justify-content-center" hx-delete="/remove-parameter-change" hx-target="closest .parameter-change-section" hx-swap="outerHTML" hx-push-url="false" aria-label="Remove Parameter Change" title="Remove Parameter Change">
                         <i class="fas fa-trash-alt"></i>
                     </button>
-
                 </div>
             </div>
         </div>

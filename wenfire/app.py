@@ -42,7 +42,11 @@ async def index(
     date_of_birth: Optional[str] = "1990-01-01",
     safe_withdraw_rate: Optional[float] = 4,
     extra_spending: Optional[float] = 0,
+    change_dates: list[str] = [],
+    change_fields: list[str] = [],
+    change_values: list[str] = [],
 ):
+    parameter_changes = _parameter_changes(change_dates, change_fields, change_values)
     return {
         "request": request,
         "growth_rate": growth_rate,
@@ -55,6 +59,7 @@ async def index(
         "date_of_birth": date_of_birth,
         "safe_withdraw_rate": safe_withdraw_rate,
         "extra_spending": extra_spending,
+        "parameter_changes": parameter_changes,
     }
 
 
@@ -119,6 +124,18 @@ def _rgb_to_hex(rgb: tuple[int, int, int]) -> str:
     return "#{:02x}{:02x}{:02x}".format(*rgb)
 
 
+def _parameter_changes(
+    change_dates: list[str],
+    change_fields: list[str],
+    change_values: list[str],
+) -> list[ParameterChange]:
+    parameter_changes = []
+    for date, field, value in zip(change_dates, change_fields, change_values):
+        date_ = datetime.datetime.strptime(date, "%Y-%m-%d").date()
+        parameter_changes.append(ParameterChange(date=date_, field=field, value=value))
+    return sorted(parameter_changes, key=lambda x: x.date)
+
+
 @app.get("/calculate", response_class=HTMLResponse)
 @htmx("results_partial.html", "index.html")
 async def calculate(
@@ -138,11 +155,7 @@ async def calculate(
     change_fields: list[str] = Query([]),
     change_values: list[str] = Query([]),
 ):
-    parameter_changes = []
-    for date, field, value in zip(change_dates, change_fields, change_values):
-        date_ = datetime.datetime.strptime(date, "%Y-%m-%d").date()
-        parameter_changes.append(ParameterChange(date=date_, field=field, value=value))
-    parameter_changes = sorted(parameter_changes, key=lambda x: x.date)
+    parameter_changes = _parameter_changes(change_dates, change_fields, change_values)
 
     dob = datetime.datetime.strptime(date_of_birth, "%Y-%m-%d").date()
     input_data = InputData(
@@ -199,6 +212,9 @@ async def calculate(
             "date_of_birth": date_of_birth,
             "safe_withdraw_rate": safe_withdraw_rate,
             "extra_spending": extra_spending,
+            "change_dates": change_dates,
+            "change_fields": change_fields,
+            "change_values": change_values,
         }
     )
 
@@ -215,12 +231,13 @@ async def calculate(
         "extra_income": extra_income,
         "date_of_birth": dob.strftime("%Y-%m-%d"),
         "safe_withdraw_rate": safe_withdraw_rate,
+        "extra_spending": extra_spending,
+        "parameter_changes": parameter_changes,
         "age_vs_net_worth_plot": age_vs_net_worth_plot,
         "age_vs_monthly_safe_withdraw_plot": age_vs_monthly_safe_withdraw_plot,
         "savings_vs_spending_plot": savings_vs_spending_plot,
         "format_currency": format_currency,
         "interpolate_color": interpolate_color,
-        "extra_spending": extra_spending,
         "time_difference": time_difference,
         "summary_with_extra": summary_with_extra,
         "url_params": url_params,
