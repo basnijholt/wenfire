@@ -125,6 +125,10 @@ def _rgb_to_hex(rgb: tuple[int, int, int]) -> str:
     return "#{:02x}{:02x}{:02x}".format(*rgb)
 
 
+def _date_str_to_date(date_str: str) -> datetime.date:
+    return datetime.datetime.strptime(date_str, "%Y-%m-%d").date()
+
+
 def _parameter_changes(
     change_dates: list[str],
     change_fields: list[str],
@@ -132,7 +136,7 @@ def _parameter_changes(
 ) -> list[ParameterChange]:
     parameter_changes = []
     for date, field, value in zip(change_dates, change_fields, change_values):
-        date_ = datetime.datetime.strptime(date, "%Y-%m-%d").date()
+        date_ = _date_str_to_date(date)
         parameter_changes.append(ParameterChange(date=date_, field=field, value=value))
     return sorted(parameter_changes, key=lambda x: x.date)
 
@@ -156,8 +160,7 @@ async def calculate(
     change_values: list[str] = Query([]),
 ):
     parameter_changes = _parameter_changes(change_dates, change_fields, change_values)
-
-    dob = datetime.datetime.strptime(date_of_birth, "%Y-%m-%d").date()
+    dob = _date_str_to_date(date_of_birth)
     input_data = InputData(
         growth_rate=growth_rate,
         current_nw=current_nw,
