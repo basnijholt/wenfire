@@ -151,7 +151,6 @@ async def calculate(
     date_of_birth: str = Query(...),
     safe_withdraw_rate: float = Query(...),
     extra_spending: float = Query(...),
-    *,
     change_dates: list[str] = Query([]),
     change_fields: list[str] = Query([]),
     change_values: list[str] = Query([]),
