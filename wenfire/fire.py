@@ -10,7 +10,7 @@ def _today() -> datetime.date:
     return datetime.date.today()
 
 
-class ParameterUpdate(BaseModel):
+class ParameterChange(BaseModel):
     date: datetime.date
     field: str
     value: float
@@ -28,7 +28,7 @@ class InputData(BaseModel):
     current_nw: float
     date_of_birth: datetime.date
     safe_withdraw_rate: float = 4
-    parameter_changes: list[ParameterUpdate] = []
+    parameter_changes: list[ParameterChange] = []
 
     def age_at(self, date: datetime.date) -> float:
         delta = relativedelta(date, self.date_of_birth)

@@ -12,7 +12,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi_htmx import htmx, htmx_init
 
-from .fire import InputData, ParameterUpdate, Summary, calculate_results_for_month
+from .fire import InputData, ParameterChange, Summary, calculate_results_for_month
 from .plots import (
     plot_age_vs_monthly_safe_withdraw,
     plot_age_vs_net_worth,
@@ -141,7 +141,7 @@ async def calculate(
     parameter_changes = []
     for date, field, value in zip(change_dates, change_fields, change_values):
         date_ = datetime.datetime.strptime(date, "%Y-%m-%d").date()
-        parameter_changes.append(ParameterUpdate(date=date_, field=field, value=value))
+        parameter_changes.append(ParameterChange(date=date_, field=field, value=value))
     parameter_changes = sorted(parameter_changes, key=lambda x: x.date)
 
     dob = datetime.datetime.strptime(date_of_birth, "%Y-%m-%d").date()
