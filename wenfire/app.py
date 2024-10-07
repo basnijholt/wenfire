@@ -133,12 +133,12 @@ async def calculate(
     date_of_birth: str = Query(...),
     safe_withdraw_rate: float = Query(...),
     extra_spending: float = Query(...),
-    parameter_change_count: int = Query(0),
     *,
     change_dates: list[str] = Query([]),
     change_fields: list[str] = Query([]),
     change_values: list[str] = Query([]),
 ):
+    print(f"{change_dates=}, {change_fields=}, {change_values=}")
     parameter_changes = []
     for i in range(len(change_dates)):
         effective_date = datetime.datetime.strptime(change_dates[i], "%Y-%m-%d").date()
