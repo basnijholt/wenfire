@@ -32,6 +32,7 @@ htmx_init(templates=templates)
 @htmx("index.html", "index.html")
 async def index(
     request: Request,
+    # Default values for the input fields
     growth_rate: Optional[float] = 7,
     current_nw: Optional[float] = 50_000,
     spending_per_month: Optional[float] = 4_000,
