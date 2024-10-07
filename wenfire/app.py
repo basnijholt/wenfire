@@ -140,16 +140,14 @@ async def calculate(
 ):
     print(f"{change_dates=}, {change_fields=}, {change_values=}")
     parameter_changes = []
-    for i in range(len(change_dates)):
-        effective_date = datetime.datetime.strptime(change_dates[i], "%Y-%m-%d").date()
-        field_name = change_fields[i]
-        new_value = float(change_values[i])
-
-        change_kwargs = {field_name: new_value}
-
+    for date, field, value in zip(change_dates, change_fields, change_values):
+        effective_date = datetime.datetime.strptime(date, "%Y-%m-%d").date()
+        change_kwargs = {field: value}
         parameter_changes.append(
             ParameterChange(effective_date=effective_date, **change_kwargs)
         )
+    parameter_changes = sorted(parameter_changes, key=lambda x: x.effective_date)
+    print(f"{parameter_changes=}")
 
     dob = datetime.datetime.strptime(date_of_birth, "%Y-%m-%d").date()
     input_data = InputData(
