@@ -62,13 +62,16 @@ def plot_age_vs_monthly_safe_withdraw(results: list[Results], summary: Summary):
             "age": result.age,
             "monthly_safe_withdraw": result.safe_withdraw_rule_monthly,
             "spending": result.spending,
+            "income": result.income,
         }
         for result in results
     ]
 
     base_chart = (
         alt.Chart(alt.Data(values=data))
-        .transform_fold(["monthly_safe_withdraw", "spending"], as_=["key", "value"])
+        .transform_fold(
+            ["monthly_safe_withdraw", "spending", "income"], as_=["key", "value"]
+        )
         .mark_line()
         .encode(
             x=alt.X("age:Q", title="Age"),
@@ -77,7 +80,7 @@ def plot_age_vs_monthly_safe_withdraw(results: list[Results], summary: Summary):
                 "key:N",
                 title="Legend",
                 scale=alt.Scale(
-                    domain=["monthly_safe_withdraw", "spending"],
+                    domain=["monthly_safe_withdraw", "spending", "income"],
                     range=["blue", "red"],
                 ),
                 legend=alt.Legend(orient="top-left"),
