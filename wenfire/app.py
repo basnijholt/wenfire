@@ -14,9 +14,8 @@ from fastapi_htmx import htmx, htmx_init
 
 from .fire import InputData, ParameterChange, Summary, calculate_results_for_month
 from .plots import (
-    plot_age_vs_monthly_safe_withdraw,
     plot_age_vs_net_worth,
-    plot_savings_vs_spending,
+    plot_monthly_financial_flows,
 )
 
 FOLDER = Path(__file__).parent.resolve()
@@ -204,14 +203,10 @@ async def calculate(
 
     if summary is not None:
         age_vs_net_worth_plot = plot_age_vs_net_worth(results, summary)
-        age_vs_monthly_safe_withdraw_plot = plot_age_vs_monthly_safe_withdraw(
-            results, summary
-        )
-        savings_vs_spending_plot = plot_savings_vs_spending(results, summary)
+        monthly_financial_flows_plot = plot_monthly_financial_flows(results, summary)
     else:
         age_vs_net_worth_plot = None
-        age_vs_monthly_safe_withdraw_plot = None
-        savings_vs_spending_plot = None
+        monthly_financial_flows_plot = None
 
     # Create URL parameters string
     url_params = urlencode(
@@ -248,8 +243,7 @@ async def calculate(
         "extra_spending": extra_spending,
         "parameter_changes": parameter_changes,
         "age_vs_net_worth_plot": age_vs_net_worth_plot,
-        "age_vs_monthly_safe_withdraw_plot": age_vs_monthly_safe_withdraw_plot,
-        "savings_vs_spending_plot": savings_vs_spending_plot,
+        "monthly_financial_flows_plot": monthly_financial_flows_plot,
         "format_currency": format_currency,
         "interpolate_color": interpolate_color,
         "time_difference": time_difference,

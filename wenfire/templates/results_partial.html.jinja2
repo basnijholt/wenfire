@@ -239,15 +239,8 @@
 
         <div class="col-lg-6 col-md-12">
             <div class="chart-container fade-in">
-                <div class="chart-title">Monthly Safe Withdrawal Capacity</div>
-                <div id="age-vs-monthly-safe-withdraw-plot"></div>
-            </div>
-        </div>
-
-        <div class="col-12">
-            <div class="chart-container fade-in">
-                <div class="chart-title">Savings vs Spending Analysis</div>
-                <div id="savings-vs-spending-plot"></div>
+                <div class="chart-title">Monthly Financial Flows</div>
+                <div id="monthly-financial-flows-plot"></div>
             </div>
         </div>
     </div>
@@ -310,8 +303,7 @@
     // Store chart instances for theme switching
     let chartInstances = {
         netWorth: null,
-        withdrawal: null,
-        savings: null
+        monthlyFlows: null
     };
 
     // Function to get current theme
@@ -459,28 +451,16 @@
                 console.log('Net Worth chart rendered successfully');
             }
 
-            // Monthly Safe Withdrawal Chart
-            if (chartInstances.withdrawal) {
-                chartInstances.withdrawal.destroy();
+            // Monthly Financial Flows Chart
+            if (chartInstances.monthlyFlows) {
+                chartInstances.monthlyFlows.destroy();
             }
-            const withdrawalData = {{ age_vs_monthly_safe_withdraw_plot| tojson | safe }};
-            if (withdrawalData && withdrawalData.series && withdrawalData.series.length > 0) {
-                const withdrawalConfig = createChartConfig('Monthly Safe Withdrawal', 'Monthly Amount ($)', withdrawalData, theme);
-                chartInstances.withdrawal = new ApexCharts(document.querySelector("#age-vs-monthly-safe-withdraw-plot"), withdrawalConfig);
-                chartInstances.withdrawal.render();
-                console.log('Withdrawal chart rendered successfully');
-            }
-
-            // Savings vs Spending Chart
-            if (chartInstances.savings) {
-                chartInstances.savings.destroy();
-            }
-            const savingsData = {{ savings_vs_spending_plot| tojson | safe }};
-            if (savingsData && savingsData.series && savingsData.series.length > 0) {
-                const savingsConfig = createChartConfig('Savings vs Spending', 'Monthly Amount ($)', savingsData, theme);
-                chartInstances.savings = new ApexCharts(document.querySelector("#savings-vs-spending-plot"), savingsConfig);
-                chartInstances.savings.render();
-                console.log('Savings chart rendered successfully');
+            const flowsData = {{ monthly_financial_flows_plot| tojson | safe }};
+            if (flowsData && flowsData.series && flowsData.series.length > 0) {
+                const flowsConfig = createChartConfig('Monthly Financial Flows', 'Monthly Amount ($)', flowsData, theme);
+                chartInstances.monthlyFlows = new ApexCharts(document.querySelector("#monthly-financial-flows-plot"), flowsConfig);
+                chartInstances.monthlyFlows.render();
+                console.log('Monthly Financial Flows chart rendered successfully');
             }
 
         } catch (error) {

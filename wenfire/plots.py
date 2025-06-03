@@ -60,3 +60,29 @@ def plot_savings_vs_spending(results: list[Results], summary: Summary):
         "saving_at_fi": summary.saving_at_fi,
         "spending_at_fi": summary.spending_at_fi,
     }
+
+
+def plot_monthly_financial_flows(results: list[Results], summary: Summary):
+    """Generate data for ApexCharts comprehensive monthly financial flows chart."""
+    monthly_safe_withdraw_data = [
+        {"x": result.age, "y": result.safe_withdraw_rule_monthly} for result in results
+    ]
+    spending_data = [{"x": result.age, "y": result.spending} for result in results]
+    income_data = [{"x": result.age, "y": result.income} for result in results]
+    savings_data = [{"x": result.age, "y": result.saving} for result in results]
+    investment_profits_data = [
+        {"x": result.age, "y": result.investment_profits} for result in results
+    ]
+
+    return {
+        "series": [
+            {"name": "Monthly Safe Withdraw", "data": monthly_safe_withdraw_data},
+            {"name": "Income", "data": income_data},
+            {"name": "Spending", "data": spending_data},
+            {"name": "Savings", "data": savings_data},
+            {"name": "Investment Profits", "data": investment_profits_data},
+        ],
+        "fire_age": summary.fire_age,
+        "spending_at_fi": summary.spending_at_fi,
+        "saving_at_fi": summary.saving_at_fi,
+    }
