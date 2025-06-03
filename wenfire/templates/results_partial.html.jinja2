@@ -307,8 +307,8 @@
 
 <!-- Render Charts -->
 <script>
-    // Store chart specifications for re-rendering
-    let chartSpecs = {
+    // Store chart instances for theme switching
+    let chartInstances = {
         netWorth: null,
         withdrawal: null,
         savings: null
@@ -319,116 +319,183 @@
         return document.documentElement.getAttribute('data-bs-theme') || 'light';
     }
 
-    // Function to get theme-appropriate chart config
-    function getChartConfig(theme) {
+    // Function to get theme-appropriate colors
+    function getThemeColors(theme) {
         const isDark = theme === 'dark';
         return {
-            theme: isDark ? 'dark' : 'default',
-            actions: false,
-            tooltip: {
-                theme: isDark ? 'dark' : 'light'
-            },
-            config: {
-                background: isDark ? '#2c2c2c' : '#ffffff',
-                view: {
-                    stroke: isDark ? '#404040' : '#e9ecef'
-                },
-                axis: {
-                    domainColor: isDark ? '#bdc3c7' : '#2c3e50',
-                    gridColor: isDark ? '#404040' : '#e9ecef',
-                    tickColor: isDark ? '#bdc3c7' : '#2c3e50',
-                    labelColor: isDark ? '#ecf0f1' : '#2c3e50',
-                    titleColor: isDark ? '#ecf0f1' : '#2c3e50'
-                },
-                legend: {
-                    labelColor: isDark ? '#ecf0f1' : '#2c3e50',
-                    titleColor: isDark ? '#ecf0f1' : '#2c3e50'
-                },
-                title: {
-                    color: isDark ? '#ecf0f1' : '#2c3e50'
-                }
-            }
+            background: isDark ? '#2c2c2c' : '#ffffff',
+            foreground: isDark ? '#ecf0f1' : '#2c3e50',
+            gridColor: isDark ? '#404040' : '#e9ecef',
+            tooltipBg: isDark ? '#404040' : '#ffffff',
+            tooltipColor: isDark ? '#ecf0f1' : '#2c3e50'
         };
     }
 
-    // Simple function to add proper tooltips to charts
-    function addTooltips(spec) {
-        try {
-            const enhanced = JSON.parse(JSON.stringify(spec));
+    // Function to create ApexCharts configuration
+    function createChartConfig(title, yAxisTitle, chartData, theme) {
+        const colors = getThemeColors(theme);
 
-            if (enhanced.layer && Array.isArray(enhanced.layer)) {
-                enhanced.layer.forEach(layer => {
-                    if (layer.mark && layer.encoding && layer.encoding.x && layer.encoding.y) {
-                        // Add tooltip with proper formatting
-                        layer.encoding.tooltip = [
-                            {
-                                field: layer.encoding.x.field,
-                                type: layer.encoding.x.type || "quantitative",
-                                format: layer.encoding.x.field === 'age' ? '.1f' : '.0f'
-                            },
-                            {
-                                field: layer.encoding.y.field,
-                                type: layer.encoding.y.type || "quantitative",
-                                format: '$,.0f'
-                            }
-                        ];
+        const config = {
+            series: chartData.series,
+            chart: {
+                type: 'line',
+                height: 350,
+                background: colors.background,
+                foreColor: colors.foreground,
+                toolbar: {
+                    show: false
+                },
+                animations: {
+                    enabled: true,
+                    easing: 'easeinout',
+                    speed: 800
+                }
+            },
+            colors: ['#ff6b35', '#6c5ce7', '#00b894', '#e17055', '#0984e3'],
+            stroke: {
+                curve: 'smooth',
+                width: 3
+            },
+            grid: {
+                borderColor: colors.gridColor,
+                strokeDashArray: 0,
+                xaxis: {
+                    lines: {
+                        show: true
+                    }
+                },
+                yaxis: {
+                    lines: {
+                        show: true
+                    }
+                }
+            },
+            xaxis: {
+                title: {
+                    text: 'Age',
+                    style: {
+                        color: colors.foreground
+                    }
+                },
+                labels: {
+                    style: {
+                        colors: colors.foreground
+                    }
+                }
+            },
+            yaxis: {
+                title: {
+                    text: yAxisTitle,
+                    style: {
+                        color: colors.foreground
+                    }
+                },
+                labels: {
+                    style: {
+                        colors: colors.foreground
+                    },
+                    formatter: function (val) {
+                        return '$' + val.toLocaleString();
+                    }
+                }
+            },
+            tooltip: {
+                theme: theme,
+                style: {
+                    fontSize: '12px',
+                    color: colors.tooltipColor
+                },
+                y: {
+                    formatter: function (val) {
+                        return '$' + val.toLocaleString();
+                    }
+                }
+            },
+            legend: {
+                position: 'top',
+                horizontalAlign: 'left',
+                labels: {
+                    colors: colors.foreground
+                }
+            }
+        };
 
-                        // Add series name if there's a color field
-                        if (layer.encoding.color && layer.encoding.color.field) {
-                            layer.encoding.tooltip.push({
-                                field: layer.encoding.color.field,
-                                type: "nominal"
-                            });
+        // Add FIRE age vertical line if available
+        if (chartData.fire_age) {
+            config.annotations = {
+                xaxis: [{
+                    x: chartData.fire_age,
+                    borderColor: colors.foreground,
+                    strokeDashArray: 5,
+                    label: {
+                        text: 'FIRE Age',
+                        style: {
+                            color: colors.foreground,
+                            background: colors.background
                         }
                     }
-                });
-            }
-
-            return enhanced;
-        } catch (error) {
-            console.warn('Failed to add tooltips, using original spec:', error);
-            return spec;
+                }]
+            };
         }
+
+        return config;
     }
 
     // Function to render all charts
     function renderCharts() {
         const theme = getCurrentTheme();
-        const config = getChartConfig(theme);
+        console.log('Rendering charts with theme:', theme);
 
         try {
-            if (chartSpecs.netWorth) {
-                vegaEmbed("#age-vs-net-worth-plot", addTooltips(chartSpecs.netWorth), config);
+            // Net Worth Chart
+            if (chartInstances.netWorth) {
+                chartInstances.netWorth.destroy();
             }
-            if (chartSpecs.withdrawal) {
-                vegaEmbed("#age-vs-monthly-safe-withdraw-plot", addTooltips(chartSpecs.withdrawal), config);
+            const netWorthData = {{ age_vs_net_worth_plot| tojson | safe }};
+            if (netWorthData && netWorthData.series && netWorthData.series.length > 0) {
+                const netWorthConfig = createChartConfig('Net Worth Growth', 'Amount ($)', netWorthData, theme);
+                chartInstances.netWorth = new ApexCharts(document.querySelector("#age-vs-net-worth-plot"), netWorthConfig);
+                chartInstances.netWorth.render();
+                console.log('Net Worth chart rendered successfully');
             }
-            if (chartSpecs.savings) {
-                vegaEmbed("#savings-vs-spending-plot", addTooltips(chartSpecs.savings), config);
+
+            // Monthly Safe Withdrawal Chart
+            if (chartInstances.withdrawal) {
+                chartInstances.withdrawal.destroy();
             }
+            const withdrawalData = {{ age_vs_monthly_safe_withdraw_plot| tojson | safe }};
+            if (withdrawalData && withdrawalData.series && withdrawalData.series.length > 0) {
+                const withdrawalConfig = createChartConfig('Monthly Safe Withdrawal', 'Monthly Amount ($)', withdrawalData, theme);
+                chartInstances.withdrawal = new ApexCharts(document.querySelector("#age-vs-monthly-safe-withdraw-plot"), withdrawalConfig);
+                chartInstances.withdrawal.render();
+                console.log('Withdrawal chart rendered successfully');
+            }
+
+            // Savings vs Spending Chart
+            if (chartInstances.savings) {
+                chartInstances.savings.destroy();
+            }
+            const savingsData = {{ savings_vs_spending_plot| tojson | safe }};
+            if (savingsData && savingsData.series && savingsData.series.length > 0) {
+                const savingsConfig = createChartConfig('Savings vs Spending', 'Monthly Amount ($)', savingsData, theme);
+                chartInstances.savings = new ApexCharts(document.querySelector("#savings-vs-spending-plot"), savingsConfig);
+                chartInstances.savings.render();
+                console.log('Savings chart rendered successfully');
+            }
+
         } catch (error) {
             console.error('Error rendering charts:', error);
         }
     }
 
     // Initial chart rendering
-    try {
-        chartSpecs.netWorth = JSON.parse({{ age_vs_net_worth_plot| tojson | safe }});
-        chartSpecs.withdrawal = JSON.parse({{ age_vs_monthly_safe_withdraw_plot| tojson | safe }});
-        chartSpecs.savings = JSON.parse({{ savings_vs_spending_plot| tojson | safe }});
-
-        renderCharts();
-    } catch (error) {
-        console.error('Error parsing chart specifications:', error);
-    }
+    renderCharts();
 
     // Set up theme change monitoring
     function setupThemeMonitoring() {
-        // Watch for direct theme attribute changes using MutationObserver
         const observer = new MutationObserver(function(mutations) {
             mutations.forEach(function(mutation) {
                 if (mutation.type === 'attributes' && mutation.attributeName === 'data-bs-theme') {
-                    // Re-render charts immediately when theme changes
                     renderCharts();
                 }
             });
@@ -439,7 +506,6 @@
             attributeFilter: ['data-bs-theme']
         });
 
-        // Also listen for storage events in case theme is changed in another tab
         window.addEventListener('storage', function(e) {
             if (e.key === 'theme') {
                 renderCharts();
@@ -447,7 +513,6 @@
         });
     }
 
-    // Initialize theme monitoring when DOM is ready
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', setupThemeMonitoring);
     } else {
