@@ -325,6 +325,9 @@
         return {
             theme: isDark ? 'dark' : 'default',
             actions: false,
+            tooltip: {
+                theme: isDark ? 'dark' : 'light'
+            },
             config: {
                 background: isDark ? '#2c2c2c' : '#ffffff',
                 view: {
@@ -348,6 +351,46 @@
         };
     }
 
+    // Simple function to add proper tooltips to charts
+    function addTooltips(spec) {
+        try {
+            const enhanced = JSON.parse(JSON.stringify(spec));
+
+            if (enhanced.layer && Array.isArray(enhanced.layer)) {
+                enhanced.layer.forEach(layer => {
+                    if (layer.mark && layer.encoding && layer.encoding.x && layer.encoding.y) {
+                        // Add tooltip with proper formatting
+                        layer.encoding.tooltip = [
+                            {
+                                field: layer.encoding.x.field,
+                                type: layer.encoding.x.type || "quantitative",
+                                format: layer.encoding.x.field === 'age' ? '.1f' : '.0f'
+                            },
+                            {
+                                field: layer.encoding.y.field,
+                                type: layer.encoding.y.type || "quantitative",
+                                format: '$,.0f'
+                            }
+                        ];
+
+                        // Add series name if there's a color field
+                        if (layer.encoding.color && layer.encoding.color.field) {
+                            layer.encoding.tooltip.push({
+                                field: layer.encoding.color.field,
+                                type: "nominal"
+                            });
+                        }
+                    }
+                });
+            }
+
+            return enhanced;
+        } catch (error) {
+            console.warn('Failed to add tooltips, using original spec:', error);
+            return spec;
+        }
+    }
+
     // Function to render all charts
     function renderCharts() {
         const theme = getCurrentTheme();
@@ -355,13 +398,13 @@
 
         try {
             if (chartSpecs.netWorth) {
-                vegaEmbed("#age-vs-net-worth-plot", chartSpecs.netWorth, config);
+                vegaEmbed("#age-vs-net-worth-plot", addTooltips(chartSpecs.netWorth), config);
             }
             if (chartSpecs.withdrawal) {
-                vegaEmbed("#age-vs-monthly-safe-withdraw-plot", chartSpecs.withdrawal, config);
+                vegaEmbed("#age-vs-monthly-safe-withdraw-plot", addTooltips(chartSpecs.withdrawal), config);
             }
             if (chartSpecs.savings) {
-                vegaEmbed("#savings-vs-spending-plot", chartSpecs.savings, config);
+                vegaEmbed("#savings-vs-spending-plot", addTooltips(chartSpecs.savings), config);
             }
         } catch (error) {
             console.error('Error rendering charts:', error);
