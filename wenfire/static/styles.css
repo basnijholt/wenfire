@@ -424,18 +424,58 @@ body {
 .chart-container {
   background: var(--bg-card);
   border-radius: var(--border-radius-lg);
-  padding: 2rem;
-  margin: 2rem 0;
+  padding: 1.5rem;
+  margin: 0 auto;
   box-shadow: var(--shadow-md);
   border: 1px solid var(--border-color);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .chart-title {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 600;
   margin-bottom: 1rem;
   color: var(--text-primary);
   text-align: center;
+  flex-shrink: 0;
+}
+
+/* Ensure charts fill their containers properly and are centered */
+.chart-container > div:last-child {
+  flex: 1;
+  min-height: 400px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Responsive chart adjustments */
+@media (max-width: 991.98px) {
+  .chart-container {
+    margin-bottom: 2rem;
+  }
+
+  .chart-container > div:last-child {
+    min-height: 450px;
+  }
+}
+
+@media (max-width: 768px) {
+  .chart-container {
+    padding: 1rem;
+  }
+
+  .chart-title {
+    font-size: 1rem;
+  }
+
+  .chart-container > div:last-child {
+    min-height: 350px;
+  }
 }
 
 /* Loading States */
