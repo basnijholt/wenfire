@@ -23,9 +23,7 @@
 
     <!-- JavaScript Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vega@5.20.2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.5.0"></script>
-    <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.18.2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script src="https://unpkg.com/htmx.org@1.9.6"></script>
 
     <title>WenFire 🔥 - Financial Independence Calculator</title>
@@ -67,7 +65,7 @@
 
     <!-- Hero Section -->
     <section class="hero-section">
-        <div class="container">
+    <div class="container">
             <div class="hero-content fade-in">
                 <h1 class="hero-title">WenFire 🔥</h1>
                 <h2 class="hero-subtitle">Financial Independence Calculator</h2>
@@ -340,14 +338,14 @@
                                         <i class="fas fa-plus-circle me-1"></i>
                                         Extra Monthly Income
                                     </label>
-                                    <div class="input-group">
+            <div class="input-group">
                                         <span class="input-group-text">$</span>
                                         <input type="number" id="extra_income" name="extra_income" value="{{ extra_income }}" class="form-control" placeholder="0">
                                     </div>
                                     <small class="form-help">Side jobs, rental income, dividends, etc. (optional)</small>
                                 </div>
-                            </div>
-                        </div>
+            </div>
+        </div>
 
                         <!-- Advanced Settings -->
                         <div class="mb-4">
@@ -366,7 +364,7 @@
                                         <input type="number" id="safe_withdraw_rate" name="safe_withdraw_rate" value="{{ safe_withdraw_rate }}" step="0.1" required class="form-control" placeholder="4.0">
                                     </div>
                                     <small class="form-help">The famous "4% rule" - percentage you can safely withdraw annually</small>
-                                </div>
+            </div>
 
                                 <div class="form-group">
                                     <label for="extra_spending" class="form-label">
@@ -376,20 +374,20 @@
                                     <div class="input-group">
                                         <span class="input-group-text">$</span>
                                         <input type="number" id="extra_spending" name="extra_spending" value="{{ extra_spending }}" class="form-control" placeholder="0">
-                                    </div>
+            </div>
                                     <small class="form-help">See how a large purchase affects your FIRE date (optional)</small>
-                                </div>
-                            </div>
-                        </div>
+            </div>
+            </div>
+            </div>
 
                         <!-- Parameter Changes Section -->
                         <div id="parameter-changes-container" class="mb-4">
-                            {% for change in parameter_changes %}
-                            {% with uuid=change.uuid, date=change.date, field=change.field, value=change.value %}
-                            {% include 'parameter_change.html.jinja2' %}
-                            {% endwith %}
-                            {% endfor %}
-                        </div>
+                {% for change in parameter_changes %}
+                {% with uuid=change.uuid, date=change.date, field=change.field, value=change.value %}
+                {% include 'parameter_change.html.jinja2' %}
+                {% endwith %}
+                {% endfor %}
+            </div>
 
                         <!-- Action Buttons -->
                         <div class="d-flex flex-wrap gap-3 justify-content-center">
@@ -406,7 +404,7 @@
                     </form>
                 </div>
             </div>
-        </div>
+            </div>
 
         <!-- Results Container -->
         <div id="results-container" class="fade-in">
