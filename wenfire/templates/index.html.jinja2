@@ -5,192 +5,469 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="WenFire - A beautiful Financial Independence Calculator to help you plan your journey to FIRE (Financial Independence, Retire Early)">
+    <meta name="keywords" content="FIRE, financial independence, retirement calculator, investment calculator">
+
+    <!-- Preload critical fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Custom Styles -->
     <link href="/static/styles.css" rel="stylesheet">
+
+    <!-- JavaScript Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/vega@5.20.2"></script>
     <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.5.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.18.2"></script>
     <script src="https://unpkg.com/htmx.org@1.9.6"></script>
-    <title>Retirement Calculator</title>
+
+    <title>WenFire 🔥 - Financial Independence Calculator</title>
 </head>
 
 <body>
+    <!-- Enhanced Navigation -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-fire text-gradient"></i>
+                WenFire
+            </a>
 
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="http://nijho.lt/" target="_blank">
+                            <i class="fas fa-globe"></i> Creator's Website
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://github.com/basnijholt/wenfire" target="_blank">
+                            <i class="fab fa-github"></i> GitHub
+                        </a>
+                    </li>
+                </ul>
+
+                <button id="theme-toggle" class="btn btn-outline-secondary" type="button">
+                    <i class="fas fa-moon"></i> Dark Mode
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="hero-content fade-in">
+                <h1 class="hero-title">WenFire 🔥</h1>
+                <h2 class="hero-subtitle">Financial Independence Calculator</h2>
+                <p class="hero-description">
+                    Plan your journey to Financial Independence and Early Retirement with our beautiful,
+                    comprehensive calculator. Visualize your path to freedom with interactive charts and detailed projections.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <!-- Information Alert -->
+        <div class="alert alert-info fade-in" role="alert">
+            <div class="d-flex align-items-center mb-3">
+                <i class="fas fa-info-circle me-2 fs-4"></i>
+                <h5 class="mb-0">Welcome to the 🔥 FIRE Calculator 🔥!</h5>
+            </div>
+            <p class="mb-3">
+                Financial Independence, Retire Early (FIRE) is a movement that aims to help you achieve financial freedom
+                and retire before the traditional retirement age. Our calculator will help you visualize your journey towards
+                financial independence, but before you dive in, it's important to understand the methodology and limitations.
+            </p>
+            <button class="btn btn-info btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#assumptionsList" aria-expanded="false" aria-controls="assumptionsList">
+                <i class="fas fa-chart-line me-1"></i>
+                View Assumptions & Limitations
+            </button>
+
+            <div class="collapse mt-3" id="assumptionsList">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-title">
+                            <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                            Important Assumptions & Limitations
+                        </h6>
+                        <p class="mb-3">
+                            This calculator is a useful tool for estimating your journey to financial independence,
+                            but it's important to remember the following assumptions and limitations:
+                        </p>
+
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="mb-4">
+                                    <h6 class="text-success">
+                                        <i class="fas fa-chart-line me-2"></i>
+                                        Investment Growth
+                                    </h6>
+                                    <p class="small mb-0">
+                                        The calculator assumes a fixed annual growth rate for your investments. While historically,
+                                        the stock market has had an average annual return of around 7%, it's important to remember
+                                        that past performance doesn't guarantee future results. Market conditions can change, and
+                                        your actual returns might be different.
+                                    </p>
+                                </div>
+
+                                <div class="mb-4">
+                                    <h6 class="text-info">
+                                        <i class="fas fa-percentage me-2"></i>
+                                        Inflation
+                                    </h6>
+                                    <p class="small mb-0">
+                                        We factor in inflation as a constant rate throughout your journey. In reality, inflation
+                                        rates can vary over time, affecting your spending power differently than projected.
+                                    </p>
+                                </div>
+
+                                <div class="mb-4">
+                                    <h6 class="text-primary">
+                                        <i class="fas fa-arrow-trend-up me-2"></i>
+                                        Salary Increases
+                                    </h6>
+                                    <p class="small mb-0">
+                                        The calculator assumes that your salary will increase at a constant rate every year.
+                                        However, life can be unpredictable, and changes in your career or job market can
+                                        impact your income growth.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6">
+                                <div class="mb-4">
+                                    <h6 class="text-warning">
+                                        <i class="fas fa-shopping-cart me-2"></i>
+                                        Spending Patterns
+                                    </h6>
+                                    <p class="small mb-0">
+                                        Your monthly spending is assumed to be constant, adjusted for inflation. In real life,
+                                        your expenses might change as your lifestyle evolves or due to unexpected events like
+                                        medical bills, home repairs, or family changes.
+                                    </p>
+                                </div>
+
+                                <div class="mb-4">
+                                    <h6 class="text-success">
+                                        <i class="fas fa-piggy-bank me-2"></i>
+                                        Safe Withdrawal Rate
+                                    </h6>
+                                    <p class="small mb-0">
+                                        We use the popular 4% rule, which assumes that you can withdraw 4% of your portfolio
+                                        annually without running out of money in retirement. Keep in mind that this rule is
+                                        based on historical data, and future market conditions might require adjustments to
+                                        your withdrawal rate.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning mt-4 mb-0">
+                            <div class="d-flex align-items-start">
+                                <i class="fas fa-lightbulb me-3 mt-1"></i>
+                                <div>
+                                    <h6 class="mb-2">
+                                        <strong>Remember: This is a Planning Tool! 🛠️</strong>
+                                    </h6>
+                                    <p class="mb-0">
+                                        This calculator helps you get a rough estimate of your journey to financial independence.
+                                        It's essential to regularly review and adjust your financial plans based on your personal
+                                        situation and the ever-changing world around us. Stay curious, keep learning, and always
+                                        be prepared to adapt! 😃
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calculator Form -->
+        <div class="form-section">
+            <div class="card fade-in">
+                <div class="card-header">
+                    <i class="fas fa-calculator me-2"></i>
+                    Financial Independence Calculator
+                </div>
+                <div class="card-body">
+                    <form id="calculate-form" hx-get="/calculate" hx-target="#results-container" hx-swap="innerHTML" hx-push-url="true">
+
+                        <!-- Basic Financial Information -->
+                        <div class="mb-4">
+                            <h5 class="text-gradient mb-3">
+                                <i class="fas fa-wallet me-2"></i>
+                                Current Financial Situation
+                            </h5>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="current_nw" class="form-label">
+                                        <i class="fas fa-chart-pie me-1"></i>
+                                        Current Net Worth
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input type="number" id="current_nw" name="current_nw" value="{{ current_nw }}" required class="form-control" placeholder="150000">
+                                    </div>
+                                    <small class="form-help">Include all assets: savings, investments, 401k, real estate equity, etc.</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="income_per_month" class="form-label">
+                                        <i class="fas fa-money-bill-wave me-1"></i>
+                                        Monthly Income (After Tax)
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input type="number" id="income_per_month" name="income_per_month" value="{{ income_per_month }}" required class="form-control" placeholder="5000">
+                                    </div>
+                                    <small class="form-help">Your take-home pay after taxes and deductions</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Spending and Growth -->
+                        <div class="mb-4">
+                            <h5 class="text-gradient mb-3">
+                                <i class="fas fa-chart-line me-2"></i>
+                                Spending & Growth Assumptions
+                            </h5>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="spending_per_month" class="form-label">
+                                        <i class="fas fa-shopping-cart me-1"></i>
+                                        Monthly Spending
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input type="number" id="spending_per_month" name="spending_per_month" value="{{ spending_per_month }}" required class="form-control" placeholder="3000">
+                                    </div>
+                                    <small class="form-help">Your average monthly expenses (housing, food, entertainment, etc.)</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="growth_rate" class="form-label">
+                                        <i class="fas fa-trending-up me-1"></i>
+                                        Investment Growth Rate
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">%</span>
+                                        <input type="number" id="growth_rate" name="growth_rate" value="{{ growth_rate }}" step="0.1" required class="form-control" placeholder="7.0">
+                                    </div>
+                                    <small class="form-help">Expected annual return on investments (7% is historical stock market average)</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Economic Factors -->
+                        <div class="mb-4">
+                            <h5 class="text-gradient mb-3">
+                                <i class="fas fa-globe me-2"></i>
+                                Economic Factors
+                            </h5>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="annual_salary_increase" class="form-label">
+                                        <i class="fas fa-arrow-up me-1"></i>
+                                        Annual Salary Increase
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">%</span>
+                                        <input type="number" id="annual_salary_increase" name="annual_salary_increase" value="{{ annual_salary_increase }}" step="0.1" required class="form-control" placeholder="3.0">
+                                    </div>
+                                    <small class="form-help">Expected yearly salary growth (promotions, raises, etc.)</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="inflation" class="form-label">
+                                        <i class="fas fa-percentage me-1"></i>
+                                        Inflation Rate
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">%</span>
+                                        <input type="number" id="inflation" name="inflation" value="{{ inflation }}" step="0.1" required class="form-control" placeholder="2.5">
+                                    </div>
+                                    <small class="form-help">Expected annual inflation rate (affects spending power over time)</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Personal Information -->
+                        <div class="mb-4">
+                            <h5 class="text-gradient mb-3">
+                                <i class="fas fa-user me-2"></i>
+                                Personal Information
+                            </h5>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="date_of_birth" class="form-label">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        Date of Birth
+                                    </label>
+                                    <input type="date" id="date_of_birth" name="date_of_birth" value="{{ date_of_birth }}" required class="form-control">
+                                    <small class="form-help">Used to calculate your current age and retirement timeline</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="extra_income" class="form-label">
+                                        <i class="fas fa-plus-circle me-1"></i>
+                                        Extra Monthly Income
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input type="number" id="extra_income" name="extra_income" value="{{ extra_income }}" class="form-control" placeholder="0">
+                                    </div>
+                                    <small class="form-help">Side jobs, rental income, dividends, etc. (optional)</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Advanced Settings -->
+                        <div class="mb-4">
+                            <h5 class="text-gradient mb-3">
+                                <i class="fas fa-cogs me-2"></i>
+                                Advanced Settings
+                            </h5>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="safe_withdraw_rate" class="form-label">
+                                        <i class="fas fa-shield-alt me-1"></i>
+                                        Safe Withdrawal Rate
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">%</span>
+                                        <input type="number" id="safe_withdraw_rate" name="safe_withdraw_rate" value="{{ safe_withdraw_rate }}" step="0.1" required class="form-control" placeholder="4.0">
+                                    </div>
+                                    <small class="form-help">The famous "4% rule" - percentage you can safely withdraw annually</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="extra_spending" class="form-label">
+                                        <i class="fas fa-credit-card me-1"></i>
+                                        One-time Extra Spending
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input type="number" id="extra_spending" name="extra_spending" value="{{ extra_spending }}" class="form-control" placeholder="0">
+                                    </div>
+                                    <small class="form-help">See how a large purchase affects your FIRE date (optional)</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Parameter Changes Section -->
+                        <div id="parameter-changes-container" class="mb-4">
+                            {% for change in parameter_changes %}
+                            {% with uuid=change.uuid, date=change.date, field=change.field, value=change.value %}
+                            {% include 'parameter_change.html.jinja2' %}
+                            {% endwith %}
+                            {% endfor %}
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex flex-wrap gap-3 justify-content-center">
+                            <button type="button" class="btn btn-secondary" hx-get="/add-parameter-change" hx-target="#parameter-changes-container" hx-swap="beforeend" hx-trigger="click" hx-push-url="false">
+                                <i class="fas fa-plus me-2"></i>
+                                Add Parameter Change
+                            </button>
+
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-calculator me-2"></i>
+                                Calculate My FIRE Date
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Container -->
+        <div id="results-container" class="fade-in">
+            <!-- Dynamic results will be inserted here -->
+        </div>
+    </div>
+
+    <!-- Enhanced JavaScript -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Existing code to handle URL parameters
+            // Initialize theme system
+            initializeTheme();
+
+            // Auto-calculate if URL parameters exist
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.toString()) {
-                // If there are URL parameters, trigger the calculation
                 htmx.trigger('#calculate-form', 'submit');
             }
 
-            // Theme toggling
+            // Add loading states to form submission
+            const form = document.getElementById('calculate-form');
+            form.addEventListener('htmx:beforeRequest', function() {
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalContent = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<span class="loading me-2"></span>Calculating...';
+                submitBtn.disabled = true;
+
+                // Re-enable after request
+                form.addEventListener('htmx:afterRequest', function() {
+                    submitBtn.innerHTML = originalContent;
+                    submitBtn.disabled = false;
+                }, { once: true });
+            });
+        });
+
+        function initializeTheme() {
             const themeToggleButton = document.getElementById('theme-toggle');
             const userPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
             const currentTheme = localStorage.getItem('theme') || (userPrefersDark ? 'dark' : 'light');
+
             setTheme(currentTheme);
 
             themeToggleButton.addEventListener('click', function () {
                 const newTheme = (document.documentElement.getAttribute('data-bs-theme') === 'dark') ? 'light' : 'dark';
                 setTheme(newTheme);
             });
+        }
 
-            function setTheme(theme) {
-                document.documentElement.setAttribute('data-bs-theme', theme);
-                if (theme === 'dark') {
-                    themeToggleButton.innerHTML = '<i class="fas fa-sun"></i> Light Mode';
-                } else {
-                    themeToggleButton.innerHTML = '<i class="fas fa-moon"></i> Dark Mode';
-                }
-                localStorage.setItem('theme', theme);
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-bs-theme', theme);
+            const themeToggleButton = document.getElementById('theme-toggle');
+
+            if (theme === 'dark') {
+                themeToggleButton.innerHTML = '<i class="fas fa-sun"></i> Light Mode';
+                themeToggleButton.classList.remove('btn-outline-secondary');
+                themeToggleButton.classList.add('btn-outline-warning');
+            } else {
+                themeToggleButton.innerHTML = '<i class="fas fa-moon"></i> Dark Mode';
+                themeToggleButton.classList.remove('btn-outline-warning');
+                themeToggleButton.classList.add('btn-outline-secondary');
+            }
+
+            localStorage.setItem('theme', theme);
+        }
+
+        // Add smooth scrolling to results
+        document.addEventListener('htmx:afterSwap', function(event) {
+            if (event.detail.target.id === 'results-container') {
+                event.detail.target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
             }
         });
     </script>
-
-
-    <nav class="navbar navbar-expand-lg">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="/">WenFire</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="http://nijho.lt/">
-                            <i class="fas fa-globe"></i> Bas Nijholt's website
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="https://github.com/basnijholt/wenfire" target="_blank">
-                            <i class="fab fa-github"></i> GitHub Repo
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            <button id="theme-toggle" class="btn btn-outline-secondary ms-auto" type="button">
-                <i class="fas fa-moon"></i> Dark Mode
-            </button>
-        </div>
-    </nav>
-
-    <div class="container">
-        <div class="py-5 text-center">
-            <h1>WenFire ⁉️🔥</h1>
-            <h2>Financial Independence Calculator</h2>
-        </div>
-
-        <div class="alert alert-info" role="alert">
-            <div>
-                Welcome to the 🔥 FIRE Calculator 🔥, click on the button below to see more information about this calculator!
-            </div>
-            <button class="btn btn-sm btn-info mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#assumptionsList" aria-expanded="false" aria-controls="assumptionsList">
-                Assumptions and Limitations
-            </button>
-            <div class="collapse mt-2" id="assumptionsList">
-                Financial Independence, Retire Early (FIRE) is a movement that aims to help you achieve financial freedom and retire before the traditional retirement age.
-                Our calculator will help you visualize your journey towards financial independence.
-                But before you dive in, here are some assumptions and limitations to keep in mind:
-                <ol>
-                    <li>💹 Investment Growth: The calculator assumes a fixed annual growth rate for your investments. While historically, the stock market has had an average annual return of around 7%, it's important to remember that past performance doesn't guarantee future results. Market conditions can change, and your actual returns might be different.</li>
-                    <li>💰 Inflation: We factor in inflation as a constant rate throughout your journey. In reality, inflation rates can vary over time, affecting your spending power differently.</li>
-                    <li>📈 Salary Increases: The calculator assumes that your salary will increase at a constant rate every year. However, life can be unpredictable, and changes in your career or job market can impact your income growth.</li>
-                    <li>🛍️ Spending: Your monthly spending is assumed to be constant, adjusted for inflation. In real life, your expenses might change as your lifestyle evolves or due to unexpected events.</li>
-                    <li>💵 Safe Withdrawal Rate: We use the popular 4% rule, which assumes that you can withdraw 4% of your portfolio annually without running out of money in retirement. Keep in mind that this rule is based on historical data, and future market conditions might require adjustments to your withdrawal rate.</li>
-                </ol>
-                Remember, this calculator is a 🛠️ tool to help you get a rough estimate of your journey to financial independence. It's essential to regularly review and adjust your financial plans based on your personal situation and the ever-changing world around us. Stay curious, keep learning, and always be prepared to adapt! 😃
-
-            </div>
-        </div>
-
-
-        <details>
-            Welcome to the 🔥 FIRE Calculator 🔥!
-            Financial Independence, Retire Early (FIRE) is a movement that aims to help you achieve financial freedom and retire before the traditional retirement age.
-            Our calculator will help you visualize your journey towards financial independence.
-            But before you dive in, here are some assumptions and limitations to keep in mind:
-            <ol>
-                <li>💹 Investment Growth: The calculator assumes a fixed annual growth rate for your investments. While historically, the stock market has had an average annual return of around 7%, it's important to remember that past performance doesn't guarantee future results. Market conditions can change, and your actual returns might be different.</li>
-                <li>💰 Inflation: We factor in inflation as a constant rate throughout your journey. In reality, inflation rates can vary over time, affecting your spending power differently.</li>
-                <li>📈 Salary Increases: The calculator assumes that your salary will increase at a constant rate every year. However, life can be unpredictable, and changes in your career or job market can impact your income growth.</li>
-                <li>🛍️ Spending: Your monthly spending is assumed to be constant, adjusted for inflation. In real life, your expenses might change as your lifestyle evolves or due to unexpected events.</li>
-                <li>💵 Safe Withdrawal Rate: We use the popular 4% rule, which assumes that you can withdraw 4% of your portfolio annually without running out of money in retirement. Keep in mind that this rule is based on historical data, and future market conditions might require adjustments to your withdrawal rate.</li>
-            </ol>
-            Remember, this calculator is a 🛠️ tool to help you get a rough estimate of your journey to financial independence. It's essential to regularly review and adjust your financial plans based on your personal situation and the ever-changing world around us. Stay curious, keep learning, and always be prepared to adapt! 😃
-        </details>
-
-        {% macro form_field(label, name, value, field_type='number', step=None, help_text='', placeholder='', unit='') %}
-        <div class="col-md-6">
-            <label for="{{ name }}">{{ label }}:</label>
-            <div class="input-group">
-                {% if unit %}
-                <div class="input-group-prepend"><span class="input-group-text">{{ unit }}</span></div>
-                {% endif %}
-                <input type="{{ field_type }}" id="{{ name }}" name="{{ name }}" value="{{ value }}" {% if step %}step="{{ step }}" {% endif %} required class="form-control" placeholder="{{ placeholder }}">
-            </div>
-            {% if help_text %}
-            <small id="{{ name }}_help" class="form-text text-muted">{{ help_text }}</small>
-            {% endif %}
-        </div>
-        {% endmacro %}
-
-        <form id="calculate-form" hx-get="/calculate" hx-target="#results-container" hx-swap="innerHTML" hx-push-url="true">
-            <div class="row">
-                {{ form_field('Growth Rate', 'growth_rate', growth_rate, 'number', '0.1', 'Enter the expected annual growth rate for investments (e.g., 7 for 7%).', unit="%") }}
-                {{ form_field('Current Net Worth', 'current_nw', current_nw, help_text='Enter your current net worth (incl. retirement plans like 401k).', unit="$") }}
-            </div>
-            <div class="row">
-                {{ form_field('Annual Salary Increase', 'annual_salary_increase', annual_salary_increase, 'number', '0.1', 'Enter the expected annual salary increase percentage (e.g., 5 for 5%).', unit="%") }}
-                {{ form_field('Income per Month', 'income_per_month', income_per_month, help_text='Enter your monthly income after taxes.', unit="$") }}
-            </div>
-            <div class="row">
-                {{ form_field('Inflation', 'inflation', inflation, 'number', '0.1', 'Enter the expected annual inflation rate (e.g., 2 for 2%).', unit="%") }}
-                {{ form_field('Spending per Month', 'spending_per_month', spending_per_month, help_text='Enter your average monthly spending.', unit="$") }}
-            </div>
-            <div class="row">
-                {{ form_field('Date of Birth', 'date_of_birth', date_of_birth, 'date', help_text='Enter your date of birth.') }}
-                {{ form_field('Extra Income', 'extra_income', extra_income, help_text='Enter any extra monthly income (e.g., side job, rental income).', unit="$") }}
-            </div>
-            <div class="row">
-                {{ form_field('Safe Withdraw Rate', 'safe_withdraw_rate', safe_withdraw_rate, step='0.1', help_text='Enter the safe withdraw rate (typically 4%, aka "the 4%-rule").', unit="%") }}
-                {{ form_field('Extra One-time Spending', 'extra_spending', extra_spending, help_text='Enter an additional one-time spending amount to see how it affects your FIRE date. This only affects the "Impact of Extra Spending" field in the table below.', unit="$") }}
-            </div>
-
-            <div id="parameter-changes-container">
-                {% for change in parameter_changes %}
-                {% with uuid=change.uuid, date=change.date, field=change.field, value=change.value %}
-                {% include 'parameter_change.html.jinja2' %}
-                {% endwith %}
-                {% endfor %}
-            </div>
-
-            <div class="row">
-                <input type="submit" value="Add parameter change at date" id="add-parameter-change" class="btn btn-secondary" hx-get="/add-parameter-change" hx-target="#parameter-changes-container" hx-swap="beforeend" hx-trigger="click" hx-push-url="false">
-            </div>
-            <div class="row">
-                <input type="submit" value="Calculate" class="btn btn-primary">
-            </div>
-        </form>
-
-        <div id="results-container">
-            <!-- This is where the results will be dynamically inserted -->
-        </div>
-    </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.toString()) {
-                // If there are URL parameters, trigger the calculation
-                htmx.trigger('#calculate-form', 'submit');
-            }
-        });
-    </script>
-
 </body>
 
 </html>

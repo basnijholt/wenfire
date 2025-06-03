@@ -1,145 +1,320 @@
 {% if summary %}
-<table class="table table-striped table-bordered table-smaller-rows">
-    <thead>
-        <tr>
-            <th>Which</th>
-            <th>Value</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>Current Age 👨‍💻</td>
-            <td>{{ summary.age | round(1) }} years</td>
-        </tr>
-        <tr>
-            <td>Retirement Age 📅</td>
-            <td>{{ summary.fire_age | round(1) }} years</td>
-        </tr>
-        <tr>
-            <td>Fire date 📅</td>
-            <td>{{ summary.fire_date }}</td>
-        </tr>
-        <tr>
-            <td>Years to FI 🔥🔥🔥🔥</td>
-            <td>{{ summary.years_till_fi | round(1) }} years</td>
-        </tr>
-        <tr>
-            <td>NW at FI 🔥</td>
-            <td>${{ (summary.nw_at_fi / 1e6) | round(2) }}M</td>
-        </tr>
-        <tr>
-            <td>Total saved 💰</td>
-            <td>${{ (summary.total_saved / 1e6) | round(2) }}M</td>
-        </tr>
-        <tr>
-            <td>Total Investment Profits 💰</td>
-            <td>${{ (summary.total_investment_profits / 1e6) | round(2) }}M</td>
-        </tr>
-        <tr>
-            <td>Montly Safe Withdraw at FI 🤑</td>
-            <td>${{ (summary.safe_withdraw_at_fi / 1000) | int }}k</td>
-        </tr>
-        <tr>
-            <td>Monthly Spending at FI 💰</td>
-            <td>${{ (summary.spending_at_fi / 1000) | int }}k</td>
-        </tr>
-        {% for age in [35, 40, 45, 50, 55] %}
-        {% if age in summary.safe_withdraw_at_age %}
-        <tr>
-            <td>Monthly Safe Withdraw at {{ age }} 👀️💰</td>
-            <td>{{ format_currency(summary.safe_withdraw_at_age[age]) }}</td>
-        </tr>
-        {% endif %}
-        {% endfor %}
-        <tr>
-            <td>Impact of Extra Spending 💸</td>
-            <td>
-                {% if extra_spending > 0 %}
-                    {% if time_difference %}
-                        {% set total_days = (time_difference * 365.25) | round | int %}
+<!-- Key Metrics Summary Cards -->
+<div class="stats-grid fade-in">
+    <div class="stat-card">
+        <div class="stat-value">{{ summary.age | round(1) }}</div>
+        <div class="stat-label">
+            <i class="fas fa-user me-1"></i>
+            Current Age (years)
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-value">{{ summary.fire_age | round(1) }}</div>
+        <div class="stat-label">
+            <i class="fas fa-calendar-check me-1"></i>
+            FIRE Age (years)
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-value">{{ summary.years_till_fi | round(1) }}</div>
+        <div class="stat-label">
+            <i class="fas fa-clock me-1"></i>
+            Years to FIRE
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-value">${{ (summary.nw_at_fi / 1e6) | round(2) }}M</div>
+        <div class="stat-label">
+            <i class="fas fa-piggy-bank me-1"></i>
+            Net Worth at FIRE
+        </div>
+    </div>
+</div>
+
+<!-- Detailed Summary Table -->
+<div class="table-container fade-in">
+    <div class="chart-title">
+        <i class="fas fa-chart-bar me-2"></i>
+        Detailed Financial Projections
+    </div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th><i class="fas fa-info-circle me-1"></i>Metric</th>
+                <th><i class="fas fa-dollar-sign me-1"></i>Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <strong>FIRE Date</strong>
+                    <br><small class="text-muted">When you can retire</small>
+                </td>
+                <td>
+                    <span class="badge bg-primary fs-6">{{ summary.fire_date }}</span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>Total Saved</strong>
+                    <br><small class="text-muted">Amount you'll save by FIRE</small>
+                </td>
+                <td>
+                    <span class="text-success fw-bold">${{ (summary.total_saved / 1e6) | round(2) }}M</span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>Investment Profits</strong>
+                    <br><small class="text-muted">Growth from investments</small>
+                </td>
+                <td>
+                    <span class="text-info fw-bold">${{ (summary.total_investment_profits / 1e6) | round(2) }}M</span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>Monthly Safe Withdrawal</strong>
+                    <br><small class="text-muted">What you can withdraw monthly at FIRE</small>
+                </td>
+                <td>
+                    <span class="text-warning fw-bold">${{ (summary.safe_withdraw_at_fi / 1000) | int }}k</span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <strong>Monthly Spending at FIRE</strong>
+                    <br><small class="text-muted">Your expenses at retirement (inflation-adjusted)</small>
+                </td>
+                <td>
+                    <span class="text-secondary fw-bold">${{ (summary.spending_at_fi / 1000) | int }}k</span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- Age-based Projections -->
+{% set age_projections = [] %}
+{% for age in [35, 40, 45, 50, 55] %}
+    {% if age in summary.safe_withdraw_at_age %}
+        {% set _ = age_projections.append((age, summary.safe_withdraw_at_age[age])) %}
+    {% endif %}
+{% endfor %}
+
+{% if age_projections %}
+<div class="card fade-in">
+    <div class="card-header">
+        <i class="fas fa-timeline me-2"></i>
+        Safe Withdrawal by Age
+    </div>
+    <div class="card-body">
+        <div class="row">
+            {% for age, amount in age_projections %}
+            <div class="col-md-6 col-lg-4 mb-3">
+                <div class="stat-card">
+                    <div class="stat-value">{{ format_currency(amount) }}</div>
+                    <div class="stat-label">
+                        <i class="fas fa-birthday-cake me-1"></i>
+                        At Age {{ age }}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Extra Spending Impact -->
+<div class="card fade-in">
+    <div class="card-header">
+        <i class="fas fa-credit-card me-2"></i>
+        Impact of Extra Spending
+    </div>
+    <div class="card-body">
+        {% if extra_spending > 0 %}
+            {% if time_difference %}
+                <div class="alert alert-warning">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="fas fa-exclamation-triangle me-2 fs-4"></i>
+                        <h6 class="mb-0">Spending Impact Analysis</h6>
+                    </div>
+                    {% set total_days = (time_difference * 365.25) | round | int %}
+                    <p class="mb-2">
+                        <strong>Extra Spending:</strong> ${{ "{:,}".format(extra_spending) }}
+                    </p>
+                    <p class="mb-2">
+                        <strong>Delay to FIRE Date:</strong>
                         {% if total_days >= 365 %}
                             {% set years = (total_days / 365.25) | round(2) %}
-                            Spending ${{ extra_spending }} now will delay your FIRE date by approximately {{ years }} year{% if years != 1 %}s{% endif %}.
+                            <span class="text-danger fw-bold">{{ years }} year{% if years != 1 %}s{% endif %}</span>
                         {% elif total_days >= 30 %}
                             {% set months = (total_days / 30.44) | round(2) %}
-                            Spending ${{ extra_spending }} now will delay your FIRE date by approximately {{ months }} month{% if months != 1 %}s{% endif %}.
+                            <span class="text-warning fw-bold">{{ months }} month{% if months != 1 %}s{% endif %}</span>
                         {% else %}
-                            Spending ${{ extra_spending }} now will delay your FIRE date by approximately {{ total_days }} day{% if total_days != 1 %}s{% endif %}.
+                            <span class="text-info fw-bold">{{ total_days }} day{% if total_days != 1 %}s{% endif %}</span>
                         {% endif %}
-                        {% if summary_with_extra %}
-                        <br>
-                        Original FIRE date: {{ summary.fire_date }}
-                        <br>
-                        New FIRE date with extra spending: {{ summary_with_extra.fire_date }}
-                        {% endif %}
-                    {% else %}
-                        Extra spending of ${{ extra_spending }} entered, but it doesn't affect your FIRE date.
+                    </p>
+                    {% if summary_with_extra %}
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <small class="text-muted">Original FIRE Date:</small>
+                            <br><span class="badge bg-success">{{ summary.fire_date }}</span>
+                        </div>
+                        <div class="col-md-6">
+                            <small class="text-muted">New FIRE Date:</small>
+                            <br><span class="badge bg-danger">{{ summary_with_extra.fire_date }}</span>
+                        </div>
+                    </div>
                     {% endif %}
-                {% else %}
-                    No extra spending entered.
-                {% endif %}
-            </td>
-        </tr>
-    </tbody>
-</table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Extra spending of ${{ "{:,}".format(extra_spending) }} entered, but it doesn't significantly affect your FIRE date.
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="alert alert-secondary">
+                <i class="fas fa-calculator me-2"></i>
+                No extra spending entered. Use this field to see how large purchases might affect your FIRE timeline.
+            </div>
+        {% endif %}
+    </div>
+</div>
+
 {% elif results %}
-<div class="alert alert-danger" role="alert">
-    <h4 class="alert-heading">Neverending Work Train Alert! 🚂</h4>
-    <p>Uh-oh! It looks like you're on the Neverending Work Train! Keep chugging along, or better yet, reevaluate your financial plan to hop on the Express Train to Retirement! 🌴🍹</p>
+<div class="alert alert-danger fade-in" role="alert">
+    <div class="d-flex align-items-center mb-3">
+        <i class="fas fa-train fs-1 me-3"></i>
+        <div>
+            <h4 class="alert-heading mb-2">All Aboard the Neverending Work Train! 🚂</h4>
+            <p class="mb-0">
+                Uh-oh! Based on your current financial plan, you might be on the express route to working forever!
+                Don't worry though - let's get you on the FIRE Express instead! 🔥
+            </p>
+        </div>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col-md-6">
+            <h6><i class="fas fa-lightbulb me-2"></i>Quick Fixes:</h6>
+            <ul class="mb-0">
+                <li>Increase your savings rate</li>
+                <li>Reduce monthly expenses</li>
+                <li>Look for additional income sources</li>
+            </ul>
+        </div>
+        <div class="col-md-6">
+            <h6><i class="fas fa-chart-line me-2"></i>Long-term Strategies:</h6>
+            <ul class="mb-0">
+                <li>Invest in higher-growth assets</li>
+                <li>Consider career advancement</li>
+                <li>Optimize your investment portfolio</li>
+            </ul>
+        </div>
+    </div>
 </div>
 {% endif %}
 
 {% if results %}
-<!-- Create div elements to hold the plots -->
-<div id="age-vs-net-worth-plot"></div>
-<div id="age-vs-monthly-safe-withdraw-plot"></div>
-<div id="savings-vs-spending-plot"></div>
+<!-- Interactive Charts Section -->
+<div class="section-spacing">
+    <h3 class="text-gradient text-center mb-4">
+        <i class="fas fa-chart-area me-2"></i>
+        Interactive Financial Projections
+    </h3>
 
-<!-- Add the JavaScript code to render the plots -->
-<script>
-    vegaEmbed("#age-vs-net-worth-plot", JSON.parse({{ age_vs_net_worth_plot| tojson | safe }}));
-    vegaEmbed("#age-vs-monthly-safe-withdraw-plot", JSON.parse({{ age_vs_monthly_safe_withdraw_plot| tojson | safe }}));
-    vegaEmbed("#savings-vs-spending-plot", JSON.parse({{ savings_vs_spending_plot| tojson | safe }}));
-</script>
+    <div class="chart-container fade-in">
+        <div class="chart-title">Net Worth Growth Over Time</div>
+        <div id="age-vs-net-worth-plot"></div>
+    </div>
 
-<div class="scrollable-table">
-    <table class="table table-striped table-bordered table-smaller-rows">
-        <thead>
-            <tr>
-                <th># months</th>
-                <th># years</th>
-                <th>Age</th>
-                <th>NW</th>
-                <th>ΔNW</th>
-                <th>Saving</th>
-                <th>Income</th>
-                <th>Investment profits</th>
-                <th>Total saved</th>
-                <th>Total Investment profits</th>
-                <th>Spending</th>
-                <th>Safe withdraw</th>
-                <th>Safe - spending</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for result in results %}
-            <tr>
-                <td>{{ result.months }} months</td>
-                <td>{{ result.years | round(1) }} years</td>
-                <td>{{ result.age | round(1) }} years</td>
-                <td>{{ format_currency(result.nw) }}</td>
-                <td>{{ format_currency(result.delta_nw) }}</td>
-                <td>{{ format_currency(result.saving) }}</td>
-                <td>{{ format_currency(result.income) }}</td>
-                <td>{{ format_currency(result.investment_profits) }}</td>
-                <td>{{ format_currency(result.total_saved) }}</td>
-                <td>{{ format_currency(result.total_investment_profits) }}</td>
-                <td>{{ format_currency(result.spending) }}</td>
-                <td>{{ format_currency(result.safe_withdraw_rule_monthly) }}</td>
-                <td style="background-color: {{ interpolate_color(result.safe_withdraw_minus_spending) }}">{{ format_currency(result.safe_withdraw_minus_spending) }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <div class="chart-container fade-in">
+        <div class="chart-title">Monthly Safe Withdrawal Capacity</div>
+        <div id="age-vs-monthly-safe-withdraw-plot"></div>
+    </div>
+
+    <div class="chart-container fade-in">
+        <div class="chart-title">Savings vs Spending Analysis</div>
+        <div id="savings-vs-spending-plot"></div>
+    </div>
 </div>
+
+<!-- Detailed Data Table -->
+<div class="table-container fade-in">
+    <div class="chart-title">
+        <i class="fas fa-table me-2"></i>
+        Detailed Monthly Projections
+    </div>
+    <div class="scrollable-table">
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th><i class="fas fa-calendar me-1"></i>Months</th>
+                    <th><i class="fas fa-calendar-alt me-1"></i>Years</th>
+                    <th><i class="fas fa-user me-1"></i>Age</th>
+                    <th><i class="fas fa-chart-pie me-1"></i>Net Worth</th>
+                    <th><i class="fas fa-arrow-up me-1"></i>NW Change</th>
+                    <th><i class="fas fa-piggy-bank me-1"></i>Saving</th>
+                    <th><i class="fas fa-money-bill-wave me-1"></i>Income</th>
+                    <th><i class="fas fa-chart-line me-1"></i>Investment Profits</th>
+                    <th><i class="fas fa-coins me-1"></i>Total Saved</th>
+                    <th><i class="fas fa-trending-up me-1"></i>Total Profits</th>
+                    <th><i class="fas fa-shopping-cart me-1"></i>Spending</th>
+                    <th><i class="fas fa-shield-alt me-1"></i>Safe Withdraw</th>
+                    <th><i class="fas fa-balance-scale me-1"></i>Safe - Spending</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in results %}
+                <tr>
+                    <td>{{ result.months }}</td>
+                    <td>{{ result.years | round(1) }}</td>
+                    <td>{{ result.age | round(1) }}</td>
+                    <td>{{ format_currency(result.nw) }}</td>
+                    <td class="{% if result.delta_nw > 0 %}text-success{% else %}text-danger{% endif %}">
+                        {{ format_currency(result.delta_nw) }}
+                    </td>
+                    <td class="text-info">{{ format_currency(result.saving) }}</td>
+                    <td>{{ format_currency(result.income) }}</td>
+                    <td class="text-success">{{ format_currency(result.investment_profits) }}</td>
+                    <td>{{ format_currency(result.total_saved) }}</td>
+                    <td class="text-primary">{{ format_currency(result.total_investment_profits) }}</td>
+                    <td class="text-warning">{{ format_currency(result.spending) }}</td>
+                    <td>{{ format_currency(result.safe_withdraw_rule_monthly) }}</td>
+                    <td style="background-color: {{ interpolate_color(result.safe_withdraw_minus_spending) }}" class="fw-bold">
+                        {{ format_currency(result.safe_withdraw_minus_spending) }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Render Charts -->
+<script>
+    // Enhanced chart rendering with error handling
+    try {
+        vegaEmbed("#age-vs-net-worth-plot", JSON.parse({{ age_vs_net_worth_plot| tojson | safe }}), {
+            theme: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'default',
+            actions: false
+        });
+        vegaEmbed("#age-vs-monthly-safe-withdraw-plot", JSON.parse({{ age_vs_monthly_safe_withdraw_plot| tojson | safe }}), {
+            theme: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'default',
+            actions: false
+        });
+        vegaEmbed("#savings-vs-spending-plot", JSON.parse({{ savings_vs_spending_plot| tojson | safe }}), {
+            theme: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'default',
+            actions: false
+        });
+    } catch (error) {
+        console.error('Error rendering charts:', error);
+    }
+</script>
 {% endif %}
