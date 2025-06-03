@@ -307,22 +307,108 @@
 
 <!-- Render Charts -->
 <script>
-    // Enhanced chart rendering with error handling
+    // Store chart specifications for re-rendering
+    let chartSpecs = {
+        netWorth: null,
+        withdrawal: null,
+        savings: null
+    };
+
+    // Function to get current theme
+    function getCurrentTheme() {
+        return document.documentElement.getAttribute('data-bs-theme') || 'light';
+    }
+
+    // Function to get theme-appropriate chart config
+    function getChartConfig(theme) {
+        const isDark = theme === 'dark';
+        return {
+            theme: isDark ? 'dark' : 'default',
+            actions: false,
+            config: {
+                background: isDark ? '#2c2c2c' : '#ffffff',
+                view: {
+                    stroke: isDark ? '#404040' : '#e9ecef'
+                },
+                axis: {
+                    domainColor: isDark ? '#bdc3c7' : '#2c3e50',
+                    gridColor: isDark ? '#404040' : '#e9ecef',
+                    tickColor: isDark ? '#bdc3c7' : '#2c3e50',
+                    labelColor: isDark ? '#ecf0f1' : '#2c3e50',
+                    titleColor: isDark ? '#ecf0f1' : '#2c3e50'
+                },
+                legend: {
+                    labelColor: isDark ? '#ecf0f1' : '#2c3e50',
+                    titleColor: isDark ? '#ecf0f1' : '#2c3e50'
+                },
+                title: {
+                    color: isDark ? '#ecf0f1' : '#2c3e50'
+                }
+            }
+        };
+    }
+
+    // Function to render all charts
+    function renderCharts() {
+        const theme = getCurrentTheme();
+        const config = getChartConfig(theme);
+
+        try {
+            if (chartSpecs.netWorth) {
+                vegaEmbed("#age-vs-net-worth-plot", chartSpecs.netWorth, config);
+            }
+            if (chartSpecs.withdrawal) {
+                vegaEmbed("#age-vs-monthly-safe-withdraw-plot", chartSpecs.withdrawal, config);
+            }
+            if (chartSpecs.savings) {
+                vegaEmbed("#savings-vs-spending-plot", chartSpecs.savings, config);
+            }
+        } catch (error) {
+            console.error('Error rendering charts:', error);
+        }
+    }
+
+    // Initial chart rendering
     try {
-        vegaEmbed("#age-vs-net-worth-plot", JSON.parse({{ age_vs_net_worth_plot| tojson | safe }}), {
-            theme: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'default',
-            actions: false
-        });
-        vegaEmbed("#age-vs-monthly-safe-withdraw-plot", JSON.parse({{ age_vs_monthly_safe_withdraw_plot| tojson | safe }}), {
-            theme: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'default',
-            actions: false
-        });
-        vegaEmbed("#savings-vs-spending-plot", JSON.parse({{ savings_vs_spending_plot| tojson | safe }}), {
-            theme: document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'dark' : 'default',
-            actions: false
-        });
+        chartSpecs.netWorth = JSON.parse({{ age_vs_net_worth_plot| tojson | safe }});
+        chartSpecs.withdrawal = JSON.parse({{ age_vs_monthly_safe_withdraw_plot| tojson | safe }});
+        chartSpecs.savings = JSON.parse({{ savings_vs_spending_plot| tojson | safe }});
+
+        renderCharts();
     } catch (error) {
-        console.error('Error rendering charts:', error);
+        console.error('Error parsing chart specifications:', error);
+    }
+
+    // Set up theme change monitoring
+    function setupThemeMonitoring() {
+        // Watch for direct theme attribute changes using MutationObserver
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'data-bs-theme') {
+                    // Re-render charts immediately when theme changes
+                    renderCharts();
+                }
+            });
+        });
+
+        observer.observe(document.documentElement, {
+            attributes: true,
+            attributeFilter: ['data-bs-theme']
+        });
+
+        // Also listen for storage events in case theme is changed in another tab
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'theme') {
+                renderCharts();
+            }
+        });
+    }
+
+    // Initialize theme monitoring when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupThemeMonitoring);
+    } else {
+        setupThemeMonitoring();
     }
 </script>
 {% endif %}
