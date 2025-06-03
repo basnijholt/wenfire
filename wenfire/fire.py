@@ -257,6 +257,6 @@ def calculate_results_for_month(
         results.append(r)
         if r.safe_withdraw_minus_spending > 0:
             done_for += 1
-            if done_for >= 4 * 12:  # 4 years
+            if done_for >= 6 * 12:  # 6 years
                 break
     return results
