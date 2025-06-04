@@ -314,18 +314,23 @@
         monthlyFlows: null
     };
 
+    // Function to format currency values in compact notation
+    function formatCompactCurrency(val) {
+        if (val >= 1000000) {
+            return '$' + (val / 1000000).toFixed(val >= 10000000 ? 0 : 1) + 'M';
+        } else if (val >= 1000) {
+            return '$' + (val / 1000).toFixed(val >= 10000 ? 0 : 0) + 'k';
+        } else {
+            return '$' + val.toFixed(0);
+        }
+    }
+
     // Function to enhance config with JavaScript functions
     function enhanceChartConfig(config) {
         // Add y-axis formatter
         if (config.yaxis && config.yaxis.labels) {
             config.yaxis.labels.formatter = function (val) {
-                if (val >= 1000000) {
-                    return '$' + (val / 1000000).toFixed(val >= 10000000 ? 0 : 1) + 'M';
-                } else if (val >= 1000) {
-                    return '$' + (val / 1000).toFixed(val >= 10000 ? 0 : 0) + 'k';
-                } else {
-                    return '$' + val.toFixed(0);
-                }
+                return formatCompactCurrency(val);
             };
         }
 
@@ -351,7 +356,7 @@
                                 <div class="apexcharts-tooltip-text" style="font-family: inherit; font-size: 12px;">
                                     <div class="apexcharts-tooltip-y-group">
                                         <span class="apexcharts-tooltip-text-y-label">${w.globals.seriesNames[i]}: </span>
-                                        <span class="apexcharts-tooltip-text-y-value">$${s[dataPointIndex].toLocaleString()}</span>
+                                        <span class="apexcharts-tooltip-text-y-value">${formatCompactCurrency(s[dataPointIndex])}</span>
                                     </div>
                                 </div>
                             </div>
