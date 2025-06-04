@@ -1,12 +1,14 @@
-<!-- Enhanced Parameter Change Component -->
+<!-- Parameter Change Component -->
 <div class="parameter-change mb-3">
     <div class="card">
+        <!-- Header -->
         <div class="card-header d-flex justify-content-between align-items-center">
             <div>
                 <i class="fas fa-edit me-2"></i>
                 <strong>Parameter Change</strong>
             </div>
-            <button type="button" class="btn btn-outline-danger btn-sm remove-parameter-change"
+            <button type="button"
+                    class="btn btn-outline-danger btn-sm remove-parameter-change"
                     hx-delete="/remove-parameter-change"
                     hx-target="closest .parameter-change"
                     hx-swap="outerHTML"
@@ -17,13 +19,16 @@
                 Remove
             </button>
         </div>
+
+        <!-- Body -->
         <div class="card-body">
-            <!-- Date/Time Section -->
+            <!-- Timing Section -->
             <div class="mb-4">
                 <h6 class="text-muted mb-3">
                     <i class="fas fa-clock me-2"></i>
                     When This Change Takes Effect
                 </h6>
+
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label for="change_dates_{{ uuid }}" class="form-label">
@@ -55,6 +60,7 @@
                         <small class="form-help">How many years from today</small>
                     </div>
                 </div>
+
                 <div class="mt-2">
                     <small class="text-muted">
                         <i class="fas fa-sync-alt me-1"></i>
@@ -69,6 +75,7 @@
                     <i class="fas fa-cog me-2"></i>
                     What to Change
                 </h6>
+
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label for="change_fields_{{ uuid }}" class="form-label">
@@ -120,6 +127,7 @@
                 </div>
             </div>
 
+            <!-- Help Text -->
             <div class="alert alert-info">
                 <i class="fas fa-info-circle me-2"></i>
                 <strong>Tip:</strong> Use parameter changes to model life events like salary increases,
@@ -130,42 +138,45 @@
 </div>
 
 <script>
-(function() {
-    const uuid = '{{ uuid }}';
-    const dateInput = document.getElementById('change_dates_' + uuid);
-    const yearsInput = document.getElementById('years_from_now_' + uuid);
+document.addEventListener('DOMContentLoaded', function() {
+    initializeParameterChangeSync('{{ uuid }}');
+});
 
-    // Function to calculate years from now based on date
-    function dateToYearsFromNow(dateString) {
+function initializeParameterChangeSync(uuid) {
+    const dateInput = document.getElementById(`change_dates_${uuid}`);
+    const yearsInput = document.getElementById(`years_from_now_${uuid}`);
+
+    if (!dateInput || !yearsInput) return;
+
+    // Utility functions
+    const dateToYears = (dateString) => {
         if (!dateString) return '';
         const selectedDate = new Date(dateString);
         const today = new Date();
         const diffTime = selectedDate - today;
         const diffYears = diffTime / (1000 * 60 * 60 * 24 * 365.25);
         return Math.max(0, diffYears).toFixed(1);
-    }
+    };
 
-    // Function to calculate date based on years from now
-    function yearsFromNowToDate(years) {
+    const yearsToDate = (years) => {
         if (!years || years === '') return '';
         const today = new Date();
         const futureDate = new Date(today.getTime() + (parseFloat(years) * 365.25 * 24 * 60 * 60 * 1000));
         return futureDate.toISOString().split('T')[0];
-    }
+    };
 
-    // Initialize years field based on existing date
+    // Initialize years field if date exists
     if (dateInput.value) {
-        yearsInput.value = dateToYearsFromNow(dateInput.value);
+        yearsInput.value = dateToYears(dateInput.value);
     }
 
-    // Sync years when date changes
-    dateInput.addEventListener('change', function() {
-        yearsInput.value = dateToYearsFromNow(this.value);
+    // Event listeners
+    dateInput.addEventListener('change', () => {
+        yearsInput.value = dateToYears(dateInput.value);
     });
 
-    // Sync date when years changes
-    yearsInput.addEventListener('input', function() {
-        dateInput.value = yearsFromNowToDate(this.value);
+    yearsInput.addEventListener('input', () => {
+        dateInput.value = yearsToDate(yearsInput.value);
     });
-})();
+}
 </script>
