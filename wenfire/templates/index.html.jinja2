@@ -459,248 +459,142 @@
             setupChartRendering();
         });
 
+        // Simplified theme management
         function initializeTheme() {
-            const themeToggleButton = document.getElementById('theme-toggle');
-            const userPrefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const toggleBtn = document.getElementById('theme-toggle');
+            const userPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             const currentTheme = localStorage.getItem('theme') || (userPrefersDark ? 'dark' : 'light');
 
-            setTheme(currentTheme);
+            const setTheme = (theme) => {
+                document.documentElement.setAttribute('data-bs-theme', theme);
+                const isDark = theme === 'dark';
+                toggleBtn.innerHTML = `<i class="fas fa-${isDark ? 'sun' : 'moon'}"></i> ${isDark ? 'Light' : 'Dark'} Mode`;
+                toggleBtn.className = `btn btn-outline-${isDark ? 'warning' : 'secondary'}`;
+                localStorage.setItem('theme', theme);
+            };
 
-            themeToggleButton.addEventListener('click', function () {
-                const newTheme = (document.documentElement.getAttribute('data-bs-theme') === 'dark') ? 'light' : 'dark';
+            setTheme(currentTheme);
+            toggleBtn.addEventListener('click', () => {
+                const newTheme = document.documentElement.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
                 setTheme(newTheme);
             });
         }
 
-        function setTheme(theme) {
-            document.documentElement.setAttribute('data-bs-theme', theme);
-            const themeToggleButton = document.getElementById('theme-toggle');
-
-            if (theme === 'dark') {
-                themeToggleButton.innerHTML = '<i class="fas fa-sun"></i> Light Mode';
-                themeToggleButton.classList.remove('btn-outline-secondary');
-                themeToggleButton.classList.add('btn-outline-warning');
-            } else {
-                themeToggleButton.innerHTML = '<i class="fas fa-moon"></i> Dark Mode';
-                themeToggleButton.classList.remove('btn-outline-warning');
-                themeToggleButton.classList.add('btn-outline-secondary');
-            }
-
-            localStorage.setItem('theme', theme);
-        }
-
         function setupChartRendering() {
             // Store chart instances for theme switching
-            window.chartInstances = {
-                netWorth: null,
-                monthlyFlows: null
+            window.chartInstances = { netWorth: null, monthlyFlows: null };
+
+            // Utility functions
+            const formatCurrency = (val) => {
+                if (val < 1_000) return '$' + val.toFixed(0);
+                if (val < 100_000) return '$' + (val / 1_000).toFixed(1) + 'k';
+                if (val < 1_000_000) return '$' + (val / 1_000).toFixed(0) + 'k';
+                if (val < 10_000_000) return '$' + (val / 1_000_000).toFixed(1) + 'M';
+                return '$' + (val / 1_000_000).toFixed(0) + 'M';
             };
 
-            // Function to format currency values in compact notation
-            function formatCompactCurrency(val) {
-                if (val < 1_000) {
-                    return '$' + val.toFixed(0);
-                } else if (val < 100_000) {
-                    return '$' + (val / 1_000).toFixed(1) + 'k';
-                } else if (val < 1_000_000) {
-                    return '$' + (val / 1_000).toFixed(0) + 'k';
-                } else if (val < 10_000_000) {
-                    return '$' + (val / 1_000_000).toFixed(1) + 'M';
-                } else {
-                    return '$' + (val / 1_000_000).toFixed(0) + 'M';
+            const enhanceConfig = (config) => {
+                if (config.yaxis?.labels) {
+                    config.yaxis.labels.formatter = formatCurrency;
                 }
-            }
-
-            // Function to enhance config with JavaScript functions
-            function enhanceChartConfig(config) {
-                // Add y-axis formatter
-                if (config.yaxis && config.yaxis.labels) {
-                    config.yaxis.labels.formatter = function (val) {
-                        return formatCompactCurrency(val);
-                    };
-                }
-
-                // Add custom tooltip
                 if (config.tooltip) {
-                    config.tooltip.custom = function({series, seriesIndex, dataPointIndex, w}) {
+                    config.tooltip.custom = ({series, seriesIndex, dataPointIndex, w}) => {
+                        const data = w.config.series[seriesIndex].data[dataPointIndex];
                         const date = new Date(w.globals.seriesX[seriesIndex][dataPointIndex]);
-                        const age = w.config.series[seriesIndex].data[dataPointIndex].age;
-                        const timeFromNowText = w.config.series[seriesIndex].data[dataPointIndex].time_from_now_text;
 
-                        let tooltip = `
-                            <div class="apexcharts-tooltip-title" style="font-family: inherit; font-size: 12px;">
-                                ${date.toLocaleDateString()} (Age: ${age.toFixed(1)}, ${timeFromNowText})
-                            </div>
-                        `;
+                        let tooltip = `<div class="apexcharts-tooltip-title" style="font-family: inherit; font-size: 12px;">
+                            ${date.toLocaleDateString()} (Age: ${data.age.toFixed(1)}, ${data.time_from_now_text})
+                        </div>`;
 
                         series.forEach((s, i) => {
                             if (s[dataPointIndex] !== undefined) {
-                                const color = w.globals.colors[i];
-                                tooltip += `
-                                    <div class="apexcharts-tooltip-series-group apexcharts-active" style="order: 1; display: flex;">
-                                        <span class="apexcharts-tooltip-marker" style="background-color: ${color};"></span>
-                                        <div class="apexcharts-tooltip-text" style="font-family: inherit; font-size: 12px;">
-                                            <div class="apexcharts-tooltip-y-group">
-                                                <span class="apexcharts-tooltip-text-y-label">${w.globals.seriesNames[i]}: </span>
-                                                <span class="apexcharts-tooltip-text-y-value">${formatCompactCurrency(s[dataPointIndex])}</span>
-                                            </div>
+                                tooltip += `<div class="apexcharts-tooltip-series-group apexcharts-active" style="order: 1; display: flex;">
+                                    <span class="apexcharts-tooltip-marker" style="background-color: ${w.globals.colors[i]};"></span>
+                                    <div class="apexcharts-tooltip-text" style="font-family: inherit; font-size: 12px;">
+                                        <div class="apexcharts-tooltip-y-group">
+                                            <span class="apexcharts-tooltip-text-y-label">${w.globals.seriesNames[i]}: </span>
+                                            <span class="apexcharts-tooltip-text-y-value">${formatCurrency(s[dataPointIndex])}</span>
                                         </div>
                                     </div>
-                                `;
+                                </div>`;
                             }
                         });
-
                         return tooltip;
                     };
                 }
-
                 return config;
-            }
+            };
 
-            // Function to get current theme
-            function getCurrentTheme() {
-                return document.documentElement.getAttribute('data-bs-theme') || 'light';
-            }
+            const renderChart = (chartKey, containerId, dataKey) => {
+                const container = document.querySelector(containerId);
+                if (!container || !window.chartData?.[dataKey]) return;
 
-            // Function to render charts using data from window.chartData
-            function renderChartsFromData() {
-                const theme = getCurrentTheme();
-
-                try {
-                    // Check if chart data exists
-                    if (!window.chartData) {
-                        return;
-                    }
-
-                    // Check if chart containers exist
-                    const netWorthContainer = document.querySelector("#age-vs-net-worth-plot");
-                    const flowsContainer = document.querySelector("#monthly-financial-flows-plot");
-
-                    if (!netWorthContainer || !flowsContainer) {
-                        console.error('Chart containers not found');
-                        return;
-                    }
-
-                    // Net Worth Chart
-                    if (window.chartInstances.netWorth) {
-                        window.chartInstances.netWorth.destroy();
-                        window.chartInstances.netWorth = null;
-                    }
-
-                    const netWorthPlotData = window.chartData.netWorth;
-
-                    if (netWorthPlotData && netWorthPlotData.config_light) {
-                        let netWorthConfig = theme === 'dark' ? netWorthPlotData.config_dark : netWorthPlotData.config_light;
-                        netWorthConfig = enhanceChartConfig(netWorthConfig);
-
-                        window.chartInstances.netWorth = new ApexCharts(netWorthContainer, netWorthConfig);
-                        window.chartInstances.netWorth.render().then(() => {
-                            // Add double-click to reset zoom
-                            netWorthContainer.addEventListener('dblclick', function() {
-                                window.chartInstances.netWorth.resetSeries();
-                                const dates = netWorthConfig.series[0].data.map(d => new Date(d.x).getTime());
-                                window.chartInstances.netWorth.zoomX(
-                                    Math.min(...dates),
-                                    Math.max(...dates)
-                                );
-                            });
-                        }).catch((error) => {
-                            console.error('Error rendering Net Worth chart:', error);
-                        });
-                    }
-
-                    // Monthly Financial Flows Chart
-                    if (window.chartInstances.monthlyFlows) {
-                        window.chartInstances.monthlyFlows.destroy();
-                        window.chartInstances.monthlyFlows = null;
-                    }
-
-                    const flowsPlotData = window.chartData.monthlyFlows;
-
-                    if (flowsPlotData && flowsPlotData.config_light) {
-                        let flowsConfig = theme === 'dark' ? flowsPlotData.config_dark : flowsPlotData.config_light;
-                        flowsConfig = enhanceChartConfig(flowsConfig);
-
-                        window.chartInstances.monthlyFlows = new ApexCharts(flowsContainer, flowsConfig);
-                        window.chartInstances.monthlyFlows.render().then(() => {
-                            // Add double-click to reset zoom
-                            flowsContainer.addEventListener('dblclick', function() {
-                                window.chartInstances.monthlyFlows.resetSeries();
-                                const dates = flowsConfig.series[0].data.map(d => new Date(d.x).getTime());
-                                window.chartInstances.monthlyFlows.zoomX(
-                                    Math.min(...dates),
-                                    Math.max(...dates)
-                                );
-                            });
-                        }).catch((error) => {
-                            console.error('Error rendering Monthly Financial Flows chart:', error);
-                        });
-                    }
-
-                } catch (error) {
-                    console.error('Error in renderChartsFromData function:', error);
+                // Destroy existing chart
+                if (window.chartInstances[chartKey]) {
+                    window.chartInstances[chartKey].destroy();
+                    window.chartInstances[chartKey] = null;
                 }
-            }
 
-            // Expose chart rendering function globally
-            window.renderChartsFromData = renderChartsFromData;
+                const plotData = window.chartData[dataKey];
+                const theme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+                const config = enhanceConfig(theme === 'dark' ? plotData.config_dark : plotData.config_light);
 
-            // Set up theme change monitoring
-            function setupThemeMonitoring() {
-                const observer = new MutationObserver(function(mutations) {
-                    mutations.forEach(function(mutation) {
-                        if (mutation.type === 'attributes' && mutation.attributeName === 'data-bs-theme') {
-                            renderChartsFromData();
-                        }
+                window.chartInstances[chartKey] = new ApexCharts(container, config);
+                window.chartInstances[chartKey].render().then(() => {
+                    container.addEventListener('dblclick', () => {
+                        window.chartInstances[chartKey].resetSeries();
+                        const dates = config.series[0].data.map(d => new Date(d.x).getTime());
+                        window.chartInstances[chartKey].zoomX(Math.min(...dates), Math.max(...dates));
                     });
-                });
+                }).catch(error => console.error(`Error rendering ${chartKey} chart:`, error));
+            };
 
-                observer.observe(document.documentElement, {
-                    attributes: true,
-                    attributeFilter: ['data-bs-theme']
-                });
+            // Main render function
+            window.renderChartsFromData = () => {
+                if (!window.chartData) return;
+                renderChart('netWorth', '#age-vs-net-worth-plot', 'netWorth');
+                renderChart('monthlyFlows', '#monthly-financial-flows-plot', 'monthlyFlows');
+            };
 
-                window.addEventListener('storage', function(e) {
-                    if (e.key === 'theme') {
-                        renderChartsFromData();
+            // Theme change monitoring
+            const observer = new MutationObserver(mutations => {
+                mutations.forEach(mutation => {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'data-bs-theme') {
+                        window.renderChartsFromData();
                     }
                 });
-            }
+            });
+            observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-bs-theme'] });
 
-            // Setup theme monitoring
-            setupThemeMonitoring();
+            window.addEventListener('storage', e => {
+                if (e.key === 'theme') window.renderChartsFromData();
+            });
         }
 
-        // Parameter change date/years sync with event delegation
-        document.addEventListener('input', function(e) {
-            if (!e.target.matches('.date-input, .years-input')) return;
-
-            const container = e.target.closest('.parameter-change');
+        // Parameter change date/years sync with unified event delegation
+        const syncDateYears = (target) => {
+            const container = target.closest('.parameter-change');
             const dateInput = container.querySelector('.date-input');
             const yearsInput = container.querySelector('.years-input');
 
-            if (e.target.classList.contains('date-input') && dateInput.value) {
+            if (target.classList.contains('date-input') && dateInput.value) {
                 const date = new Date(dateInput.value);
                 const today = new Date();
                 const years = Math.max(0, (date - today) / (1000 * 60 * 60 * 24 * 365.25));
                 yearsInput.value = years.toFixed(1);
-            } else if (e.target.classList.contains('years-input') && yearsInput.value) {
+            } else if (target.classList.contains('years-input') && yearsInput.value) {
                 const today = new Date();
                 const futureDate = new Date(today.getTime() + (parseFloat(yearsInput.value) * 365.25 * 24 * 60 * 60 * 1000));
                 dateInput.value = futureDate.toISOString().split('T')[0];
             }
-        });
+        };
 
-        // Also handle 'change' events for date inputs
-        document.addEventListener('change', function(e) {
-            if (e.target.matches('.date-input') && e.target.value) {
-                const container = e.target.closest('.parameter-change');
-                const yearsInput = container.querySelector('.years-input');
-                const date = new Date(e.target.value);
-                const today = new Date();
-                const years = Math.max(0, (date - today) / (1000 * 60 * 60 * 24 * 365.25));
-                yearsInput.value = years.toFixed(1);
-            }
+        ['input', 'change'].forEach(eventType => {
+            document.addEventListener(eventType, (e) => {
+                if (e.target.matches('.date-input, .years-input')) {
+                    syncDateYears(e.target);
+                }
+            });
         });
     </script>
 </body>
