@@ -448,6 +448,91 @@
             }
         };
 
+        // Add parameter row functionality
+        const addParameterRow = (button) => {
+            const uuid = button.dataset.uuid;
+            const container = document.querySelector(`.parameter-rows-container[data-uuid="${uuid}"]`);
+            const existingRows = container.querySelectorAll('.parameter-row');
+            const newIndex = existingRows.length;
+
+            const newRow = document.createElement('div');
+            newRow.className = 'parameter-row mb-3';
+            newRow.setAttribute('data-row-index', newIndex);
+            newRow.innerHTML = `
+                <div class="row g-3">
+                    <div class="col-md-5">
+                        <label class="form-label">
+                            <i class="fas fa-list me-1"></i>
+                            Parameter to Change
+                        </label>
+                        <select name="change_fields" class="form-control" required>
+                            <option value="">Select parameter...</option>
+                            <option value="growth_rate">📈 Investment Growth Rate (%)</option>
+                            <option value="spending_per_month">🛒 Monthly Spending ($)</option>
+                            <option value="inflation">💰 Inflation Rate (%)</option>
+                            <option value="annual_salary_increase">📊 Annual Salary Increase (%)</option>
+                            <option value="income_per_month">💵 Monthly Income ($)</option>
+                            <option value="extra_income">💎 Extra Monthly Income ($)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label">
+                            <i class="fas fa-edit me-1"></i>
+                            New Value
+                        </label>
+                        <input type="number" step="0.1" name="change_values" class="form-control" required placeholder="Enter new value">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="button" class="btn btn-outline-danger btn-sm remove-parameter-row" title="Remove this parameter">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(newRow);
+            updateParameterRowVisibility(container);
+
+            // Add hidden date input for each additional parameter
+            const dateInput = container.closest('.parameter-change').querySelector('.date-input');
+            if (dateInput && dateInput.value) {
+                const hiddenDateInput = document.createElement('input');
+                hiddenDateInput.type = 'hidden';
+                hiddenDateInput.name = 'change_dates';
+                hiddenDateInput.value = dateInput.value;
+                newRow.appendChild(hiddenDateInput);
+            }
+        };
+
+        // Remove parameter row functionality
+        const removeParameterRow = (button) => {
+            const row = button.closest('.parameter-row');
+            const container = row.closest('.parameter-rows-container');
+            row.remove();
+            updateParameterRowVisibility(container);
+        };
+
+        // Update visibility of remove buttons based on number of rows
+        const updateParameterRowVisibility = (container) => {
+            const rows = container.querySelectorAll('.parameter-row');
+            rows.forEach((row, index) => {
+                const removeBtn = row.querySelector('.remove-parameter-row');
+                if (removeBtn) {
+                    removeBtn.style.display = rows.length > 1 ? 'block' : 'none';
+                }
+            });
+        };
+
+        // Update hidden date inputs when main date changes
+        const updateHiddenDateInputs = (parameterChange) => {
+            const mainDateInput = parameterChange.querySelector('.date-input');
+            const hiddenDateInputs = parameterChange.querySelectorAll('input[name="change_dates"][type="hidden"]');
+
+            hiddenDateInputs.forEach(hiddenInput => {
+                hiddenInput.value = mainDateInput.value;
+            });
+        };
+
         document.addEventListener('DOMContentLoaded', function () {
             // Initialize theme system
             initializeTheme();
@@ -463,6 +548,11 @@
                 if (dateInput.value) {
                     syncDateYears(dateInput);
                 }
+            });
+
+            // Initialize parameter row visibility for existing blocks
+            document.querySelectorAll('.parameter-rows-container').forEach(container => {
+                updateParameterRowVisibility(container);
             });
 
             // Add loading states to form submission
@@ -494,10 +584,46 @@
                         }
                     }, 200);
                 }
+
+                // Initialize new parameter change blocks added via HTMX
+                if (event.detail.target.classList.contains('parameter-change')) {
+                    const container = event.detail.target.querySelector('.parameter-rows-container');
+                    if (container) {
+                        updateParameterRowVisibility(container);
+                    }
+                }
             });
 
             // Chart rendering setup (runs once, doesn't get re-executed by HTMX)
             setupChartRendering();
+        });
+
+        // Event listeners for parameter change functionality
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.add-parameter-row')) {
+                e.preventDefault();
+                addParameterRow(e.target.closest('.add-parameter-row'));
+            }
+
+            if (e.target.closest('.remove-parameter-row')) {
+                e.preventDefault();
+                removeParameterRow(e.target.closest('.remove-parameter-row'));
+            }
+        });
+
+        // Event listeners for parameter change sync
+        ['input', 'change'].forEach(eventType => {
+            document.addEventListener(eventType, (e) => {
+                if (e.target.matches('.date-input, .years-input')) {
+                    syncDateYears(e.target);
+
+                    // Update hidden date inputs when main date changes
+                    if (e.target.classList.contains('date-input')) {
+                        const parameterChange = e.target.closest('.parameter-change');
+                        updateHiddenDateInputs(parameterChange);
+                    }
+                }
+            });
         });
 
         // Simplified theme management
@@ -609,15 +735,6 @@
                 if (e.key === 'theme') window.renderChartsFromData();
             });
         }
-
-        // Event listeners for parameter change sync
-        ['input', 'change'].forEach(eventType => {
-            document.addEventListener(eventType, (e) => {
-                if (e.target.matches('.date-input, .years-input')) {
-                    syncDateYears(e.target);
-                }
-            });
-        });
     </script>
 </body>
 

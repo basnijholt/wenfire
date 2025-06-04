@@ -5,7 +5,7 @@
         <div class="card-header d-flex justify-content-between align-items-center">
             <div>
                 <i class="fas fa-edit me-2"></i>
-                <strong>Parameter Change</strong>
+                <strong>Parameter Changes</strong>
             </div>
             <button type="button"
                     class="btn btn-outline-danger btn-sm remove-parameter-change"
@@ -14,9 +14,9 @@
                     hx-swap="outerHTML"
                     hx-push-url="false"
                     aria-label="Remove Parameter Change"
-                    title="Remove this parameter change">
+                    title="Remove this parameter change block">
                 <i class="fas fa-trash-alt me-1"></i>
-                Remove
+                Remove Block
             </button>
         </div>
 
@@ -26,7 +26,7 @@
             <div class="mb-4">
                 <h6 class="text-muted mb-3">
                     <i class="fas fa-clock me-2"></i>
-                    When This Change Takes Effect
+                    When These Changes Take Effect
                 </h6>
 
                 <div class="row g-3">
@@ -42,7 +42,7 @@
                                required
                                class="form-control date-input"
                                data-uuid="{{ uuid }}">
-                        <small class="form-help">Specific date when change occurs</small>
+                        <small class="form-help">Specific date when changes occur</small>
                     </div>
 
                     <div class="col-md-6">
@@ -69,60 +69,79 @@
                 </div>
             </div>
 
-            <!-- Parameter Change Section -->
+            <!-- Parameter Changes Section -->
             <div class="mb-3">
-                <h6 class="text-muted mb-3">
-                    <i class="fas fa-cog me-2"></i>
-                    What to Change
-                </h6>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="text-muted mb-0">
+                        <i class="fas fa-cog me-2"></i>
+                        Parameters to Change
+                    </h6>
+                    <button type="button"
+                            class="btn btn-outline-primary btn-sm add-parameter-row"
+                            data-uuid="{{ uuid }}"
+                            title="Add another parameter change for the same date">
+                        <i class="fas fa-plus me-1"></i>
+                        Add Parameter
+                    </button>
+                </div>
 
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label for="change_fields_{{ uuid }}" class="form-label">
-                            <i class="fas fa-list me-1"></i>
-                            Parameter to Change
-                        </label>
-                        <select name="change_fields"
-                                id="change_fields_{{ uuid }}"
-                                class="form-control"
-                                required>
-                            <option value="">Select a parameter...</option>
-                            <option value="growth_rate" {% if field=="growth_rate" %}selected{% endif %}>
-                                📈 Investment Growth Rate (%)
-                            </option>
-                            <option value="spending_per_month" {% if field=="spending_per_month" %}selected{% endif %}>
-                                🛒 Monthly Spending ($)
-                            </option>
-                            <option value="inflation" {% if field=="inflation" %}selected{% endif %}>
-                                💰 Inflation Rate (%)
-                            </option>
-                            <option value="annual_salary_increase" {% if field=="annual_salary_increase" %}selected{% endif %}>
-                                📊 Annual Salary Increase (%)
-                            </option>
-                            <option value="income_per_month" {% if field=="income_per_month" %}selected{% endif %}>
-                                💵 Monthly Income ($)
-                            </option>
-                            <option value="extra_income" {% if field=="extra_income" %}selected{% endif %}>
-                                💎 Extra Monthly Income ($)
-                            </option>
-                        </select>
-                        <small class="form-help">Which financial parameter will change</small>
-                    </div>
+                <div class="parameter-rows-container" data-uuid="{{ uuid }}">
+                    <!-- Initial parameter row -->
+                    <div class="parameter-row mb-3" data-row-index="0">
+                        <div class="row g-3">
+                            <div class="col-md-5">
+                                <label class="form-label">
+                                    <i class="fas fa-list me-1"></i>
+                                    Parameter to Change
+                                </label>
+                                <select name="change_fields"
+                                        class="form-control"
+                                        required>
+                                    <option value="">Select parameter...</option>
+                                    <option value="growth_rate" {% if field=="growth_rate" %}selected{% endif %}>
+                                        📈 Investment Growth Rate (%)
+                                    </option>
+                                    <option value="spending_per_month" {% if field=="spending_per_month" %}selected{% endif %}>
+                                        🛒 Monthly Spending ($)
+                                    </option>
+                                    <option value="inflation" {% if field=="inflation" %}selected{% endif %}>
+                                        💰 Inflation Rate (%)
+                                    </option>
+                                    <option value="annual_salary_increase" {% if field=="annual_salary_increase" %}selected{% endif %}>
+                                        📊 Annual Salary Increase (%)
+                                    </option>
+                                    <option value="income_per_month" {% if field=="income_per_month" %}selected{% endif %}>
+                                        💵 Monthly Income ($)
+                                    </option>
+                                    <option value="extra_income" {% if field=="extra_income" %}selected{% endif %}>
+                                        💎 Extra Monthly Income ($)
+                                    </option>
+                                </select>
+                            </div>
 
-                    <div class="col-md-6">
-                        <label for="change_values_{{ uuid }}" class="form-label">
-                            <i class="fas fa-edit me-1"></i>
-                            New Value
-                        </label>
-                        <input type="number"
-                               step="0.1"
-                               name="change_values"
-                               id="change_values_{{ uuid }}"
-                               value="{{ value }}"
-                               class="form-control"
-                               required
-                               placeholder="Enter new value">
-                        <small class="form-help">The new value for this parameter</small>
+                            <div class="col-md-5">
+                                <label class="form-label">
+                                    <i class="fas fa-edit me-1"></i>
+                                    New Value
+                                </label>
+                                <input type="number"
+                                       step="0.1"
+                                       name="change_values"
+                                       value="{{ value }}"
+                                       class="form-control"
+                                       required
+                                       placeholder="Enter new value">
+                            </div>
+
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="button"
+                                        class="btn btn-outline-danger btn-sm remove-parameter-row"
+                                        title="Remove this parameter"
+                                        style="display: none;">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -130,8 +149,8 @@
             <!-- Help Text -->
             <div class="alert alert-info">
                 <i class="fas fa-info-circle me-2"></i>
-                <strong>Tip:</strong> Use parameter changes to model life events like salary increases,
-                lifestyle changes, or economic shifts that might affect your FIRE journey.
+                <strong>Tip:</strong> You can add multiple parameter changes for the same date to model complex life events
+                like getting a promotion (salary increase) and moving to a more expensive city (spending increase) simultaneously.
             </div>
         </div>
     </div>
