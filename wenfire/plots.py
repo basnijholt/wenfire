@@ -11,6 +11,18 @@ def _format_time_from_now(years: float) -> str:
         return f"{years:.1f} yr"
 
 
+def _create_data_point(result, current_date, y_field: str):
+    """Create a standardized data point with date, y-value, age, and time info."""
+    time_years = (result.date - current_date).days / 365.25
+    return {
+        "x": result.date.isoformat(),
+        "y": getattr(result, y_field),
+        "age": result.age,
+        "time_from_now": time_years,
+        "time_from_now_text": _format_time_from_now(time_years),
+    }
+
+
 def _get_theme_colors(theme: str = "light") -> dict:
     """Get theme-appropriate colors for charts."""
     if theme == "dark":
@@ -114,59 +126,26 @@ def _create_base_chart_config(
 
 def plot_age_vs_net_worth(results: list[Results], summary: Summary):
     """Generate complete ApexCharts configuration for net worth chart."""
-    # Prepare data for each series using dates instead of ages
     current_date = results[0].input_data.now
 
-    net_worth_data = [
-        {
-            "x": result.date.isoformat(),
-            "y": result.nw,
-            "age": result.age,
-            "time_from_now": (result.date - current_date).days / 365.25,
-            "time_from_now_text": _format_time_from_now(
-                (result.date - current_date).days / 365.25
-            ),
-        }
-        for result in results
-    ]
-    saved_data = [
-        {
-            "x": result.date.isoformat(),
-            "y": result.total_saved,
-            "age": result.age,
-            "time_from_now": (result.date - current_date).days / 365.25,
-            "time_from_now_text": _format_time_from_now(
-                (result.date - current_date).days / 365.25
-            ),
-        }
-        for result in results
-    ]
-    profits_data = [
-        {
-            "x": result.date.isoformat(),
-            "y": result.total_investment_profits,
-            "age": result.age,
-            "time_from_now": (result.date - current_date).days / 365.25,
-            "time_from_now_text": _format_time_from_now(
-                (result.date - current_date).days / 365.25
-            ),
-        }
-        for result in results
+    # Create data series using the helper function
+    series_data = [
+        ("Net Worth", "nw"),
+        ("Saved", "total_saved"),
+        ("Profits", "total_investment_profits"),
     ]
 
+    series = []
+    for name, field in series_data:
+        data = [_create_data_point(result, current_date, field) for result in results]
+        series.append({"name": name, "data": data})
+
     chart_data = {
-        "series": [
-            {"name": "Net Worth", "data": net_worth_data},
-            {"name": "Saved", "data": saved_data},
-            {"name": "Profits", "data": profits_data},
-        ],
-        "fire_age": summary.fire_age,
+        "series": series,
         "fire_date": summary.fire_date.isoformat(),
-        "nw_at_fi": summary.nw_at_fi,
     }
 
     return {
-        "data": chart_data,
         "config_light": _create_base_chart_config(chart_data, "Amount ($)", "light"),
         "config_dark": _create_base_chart_config(chart_data, "Amount ($)", "dark"),
     }
@@ -224,86 +203,29 @@ def plot_savings_vs_spending(results: list[Results], summary: Summary):
 
 
 def plot_monthly_financial_flows(results: list[Results], summary: Summary):
-    """Generate complete ApexCharts configuration for comprehensive monthly financial flows chart."""
+    """Generate complete ApexCharts configuration for monthly financial flows chart."""
     current_date = results[0].input_data.now
 
-    monthly_safe_withdraw_data = [
-        {
-            "x": result.date.isoformat(),
-            "y": result.safe_withdraw_rule_monthly,
-            "age": result.age,
-            "time_from_now": (result.date - current_date).days / 365.25,
-            "time_from_now_text": _format_time_from_now(
-                (result.date - current_date).days / 365.25
-            ),
-        }
-        for result in results
-    ]
-    spending_data = [
-        {
-            "x": result.date.isoformat(),
-            "y": result.spending,
-            "age": result.age,
-            "time_from_now": (result.date - current_date).days / 365.25,
-            "time_from_now_text": _format_time_from_now(
-                (result.date - current_date).days / 365.25
-            ),
-        }
-        for result in results
-    ]
-    income_data = [
-        {
-            "x": result.date.isoformat(),
-            "y": result.income,
-            "age": result.age,
-            "time_from_now": (result.date - current_date).days / 365.25,
-            "time_from_now_text": _format_time_from_now(
-                (result.date - current_date).days / 365.25
-            ),
-        }
-        for result in results
-    ]
-    savings_data = [
-        {
-            "x": result.date.isoformat(),
-            "y": result.saving,
-            "age": result.age,
-            "time_from_now": (result.date - current_date).days / 365.25,
-            "time_from_now_text": _format_time_from_now(
-                (result.date - current_date).days / 365.25
-            ),
-        }
-        for result in results
-    ]
-    investment_profits_data = [
-        {
-            "x": result.date.isoformat(),
-            "y": result.investment_profits,
-            "age": result.age,
-            "time_from_now": (result.date - current_date).days / 365.25,
-            "time_from_now_text": _format_time_from_now(
-                (result.date - current_date).days / 365.25
-            ),
-        }
-        for result in results
+    # Create data series using the helper function
+    series_data = [
+        ("Monthly Safe Withdraw", "safe_withdraw_rule_monthly"),
+        ("Income", "income"),
+        ("Spending", "spending"),
+        ("Savings", "saving"),
+        ("Investment Profits", "investment_profits"),
     ]
 
+    series = []
+    for name, field in series_data:
+        data = [_create_data_point(result, current_date, field) for result in results]
+        series.append({"name": name, "data": data})
+
     chart_data = {
-        "series": [
-            {"name": "Monthly Safe Withdraw", "data": monthly_safe_withdraw_data},
-            {"name": "Income", "data": income_data},
-            {"name": "Spending", "data": spending_data},
-            {"name": "Savings", "data": savings_data},
-            {"name": "Investment Profits", "data": investment_profits_data},
-        ],
-        "fire_age": summary.fire_age,
+        "series": series,
         "fire_date": summary.fire_date.isoformat(),
-        "spending_at_fi": summary.spending_at_fi,
-        "saving_at_fi": summary.saving_at_fi,
     }
 
     return {
-        "data": chart_data,
         "config_light": _create_base_chart_config(
             chart_data, "Monthly Amount ($)", "light"
         ),

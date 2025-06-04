@@ -392,7 +392,7 @@
             const netWorthPlotData = {{ age_vs_net_worth_plot | tojson | safe }};
             console.log('Net Worth Plot Data:', netWorthPlotData);
 
-            if (netWorthPlotData && netWorthPlotData.data && netWorthPlotData.data.series && netWorthPlotData.data.series.length > 0) {
+            if (netWorthPlotData && netWorthPlotData.config_light) {
                 // Use the pre-generated configuration from Python
                 let netWorthConfig = theme === 'dark' ? netWorthPlotData.config_dark : netWorthPlotData.config_light;
                 netWorthConfig = enhanceChartConfig(netWorthConfig);
@@ -403,7 +403,7 @@
                     // Add double-click to reset zoom
                     netWorthContainer.addEventListener('dblclick', function() {
                         chartInstances.netWorth.resetSeries();
-                        const dates = netWorthPlotData.data.series[0].data.map(d => new Date(d.x).getTime());
+                        const dates = netWorthConfig.series[0].data.map(d => new Date(d.x).getTime());
                         chartInstances.netWorth.zoomX(
                             Math.min(...dates),
                             Math.max(...dates)
@@ -425,7 +425,7 @@
             const flowsPlotData = {{ monthly_financial_flows_plot | tojson | safe }};
             console.log('Monthly Financial Flows Plot Data:', flowsPlotData);
 
-            if (flowsPlotData && flowsPlotData.data && flowsPlotData.data.series && flowsPlotData.data.series.length > 0) {
+            if (flowsPlotData && flowsPlotData.config_light) {
                 // Use the pre-generated configuration from Python
                 let flowsConfig = theme === 'dark' ? flowsPlotData.config_dark : flowsPlotData.config_light;
                 flowsConfig = enhanceChartConfig(flowsConfig);
@@ -436,7 +436,7 @@
                     // Add double-click to reset zoom
                     flowsContainer.addEventListener('dblclick', function() {
                         chartInstances.monthlyFlows.resetSeries();
-                        const dates = flowsPlotData.data.series[0].data.map(d => new Date(d.x).getTime());
+                        const dates = flowsConfig.series[0].data.map(d => new Date(d.x).getTime());
                         chartInstances.monthlyFlows.zoomX(
                             Math.min(...dates),
                             Math.max(...dates)
