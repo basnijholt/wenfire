@@ -1,4 +1,5 @@
 from .fire import Results, Summary
+from datetime import datetime
 
 _PLOT_PROPERTIES = dict(width=360, usermeta={"embedOptions": {"actions": False}})
 
@@ -104,10 +105,14 @@ def _create_base_chart_config(
 
     # Add FIRE date annotation if available
     if chart_data.get("fire_date"):
+        # Convert ISO date string to timestamp (milliseconds since epoch) for ApexCharts
+        fire_date_dt = datetime.fromisoformat(chart_data["fire_date"])
+        fire_date_timestamp = int(fire_date_dt.timestamp() * 1000)
+
         config["annotations"] = {
             "xaxis": [
                 {
-                    "x": chart_data["fire_date"],
+                    "x": fire_date_timestamp,
                     "borderColor": colors["foreground"],
                     "strokeDashArray": 5,
                     "label": {
