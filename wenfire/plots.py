@@ -8,11 +8,112 @@ def _format_time_from_now(years: float) -> str:
     if years < 0.1:
         return "now"
     else:
-        return f"{years:.1f} yr from now"
+        return f"{years:.1f} yr"
+
+
+def _get_theme_colors(theme: str = "light") -> dict:
+    """Get theme-appropriate colors for charts."""
+    if theme == "dark":
+        return {
+            "background": "#2c2c2c",
+            "foreground": "#ecf0f1",
+            "gridColor": "#404040",
+            "tooltipBg": "#404040",
+            "tooltipColor": "#ecf0f1",
+        }
+    else:
+        return {
+            "background": "#ffffff",
+            "foreground": "#2c3e50",
+            "gridColor": "#e9ecef",
+            "tooltipBg": "#ffffff",
+            "tooltipColor": "#2c3e50",
+        }
+
+
+def _create_base_chart_config(
+    chart_data: dict, y_axis_title: str, theme: str = "light"
+) -> dict:
+    """Create base ApexCharts configuration with theme support."""
+    colors = _get_theme_colors(theme)
+
+    config = {
+        "series": chart_data["series"],
+        "chart": {
+            "type": "area",
+            "stacked": False,
+            "height": 350,
+            "background": colors["background"],
+            "foreColor": colors["foreground"],
+            "zoom": {"type": "x", "enabled": True, "autoScaleYaxis": True},
+            "toolbar": {"show": False},
+            "animations": {"enabled": True, "easing": "easeinout", "speed": 800},
+        },
+        "dataLabels": {"enabled": False},
+        "markers": {"size": 0},
+        "fill": {
+            "type": "gradient",
+            "gradient": {
+                "shadeIntensity": 1,
+                "inverseColors": False,
+                "opacityFrom": 0.5,
+                "opacityTo": 0,
+                "stops": [0, 90, 100],
+            },
+        },
+        "colors": ["#ff6b35", "#6c5ce7", "#00b894", "#e17055", "#0984e3"],
+        "stroke": {"curve": "smooth", "width": 2},
+        "grid": {
+            "borderColor": colors["gridColor"],
+            "strokeDashArray": 0,
+            "xaxis": {"lines": {"show": True}},
+            "yaxis": {"lines": {"show": True}},
+        },
+        "xaxis": {
+            "type": "datetime",
+            "title": {"text": "Date", "style": {"color": colors["foreground"]}},
+            "labels": {"style": {"colors": colors["foreground"]}},
+        },
+        "yaxis": {
+            "title": {"text": y_axis_title, "style": {"color": colors["foreground"]}},
+            "labels": {"style": {"colors": colors["foreground"]}},
+        },
+        "tooltip": {
+            "theme": theme,
+            "shared": True,
+            "style": {"fontSize": "12px", "color": colors["tooltipColor"]},
+        },
+        "legend": {
+            "position": "top",
+            "horizontalAlign": "left",
+            "labels": {"colors": colors["foreground"]},
+        },
+    }
+
+    # Add FIRE date annotation if available
+    if chart_data.get("fire_date"):
+        config["annotations"] = {
+            "xaxis": [
+                {
+                    "x": chart_data["fire_date"],
+                    "borderColor": colors["foreground"],
+                    "strokeDashArray": 5,
+                    "label": {
+                        "text": "FIRE Date",
+                        "style": {
+                            "color": colors["foreground"],
+                            "background": colors["background"],
+                        },
+                    },
+                }
+            ]
+        }
+
+    return config
 
 
 def plot_age_vs_net_worth(results: list[Results], summary: Summary):
-    """Generate data for ApexCharts net worth chart."""
+    """Generate complete ApexCharts configuration for net worth chart."""
     # Prepare data for each series using dates instead of ages
     current_date = results[0].input_data.now
 
@@ -53,7 +154,7 @@ def plot_age_vs_net_worth(results: list[Results], summary: Summary):
         for result in results
     ]
 
-    return {
+    chart_data = {
         "series": [
             {"name": "Net Worth", "data": net_worth_data},
             {"name": "Saved", "data": saved_data},
@@ -62,6 +163,12 @@ def plot_age_vs_net_worth(results: list[Results], summary: Summary):
         "fire_age": summary.fire_age,
         "fire_date": summary.fire_date.isoformat(),
         "nw_at_fi": summary.nw_at_fi,
+    }
+
+    return {
+        "data": chart_data,
+        "config_light": _create_base_chart_config(chart_data, "Amount ($)", "light"),
+        "config_dark": _create_base_chart_config(chart_data, "Amount ($)", "dark"),
     }
 
 
@@ -117,7 +224,7 @@ def plot_savings_vs_spending(results: list[Results], summary: Summary):
 
 
 def plot_monthly_financial_flows(results: list[Results], summary: Summary):
-    """Generate data for ApexCharts comprehensive monthly financial flows chart."""
+    """Generate complete ApexCharts configuration for comprehensive monthly financial flows chart."""
     current_date = results[0].input_data.now
 
     monthly_safe_withdraw_data = [
@@ -181,7 +288,7 @@ def plot_monthly_financial_flows(results: list[Results], summary: Summary):
         for result in results
     ]
 
-    return {
+    chart_data = {
         "series": [
             {"name": "Monthly Safe Withdraw", "data": monthly_safe_withdraw_data},
             {"name": "Income", "data": income_data},
@@ -193,4 +300,14 @@ def plot_monthly_financial_flows(results: list[Results], summary: Summary):
         "fire_date": summary.fire_date.isoformat(),
         "spending_at_fi": summary.spending_at_fi,
         "saving_at_fi": summary.saving_at_fi,
+    }
+
+    return {
+        "data": chart_data,
+        "config_light": _create_base_chart_config(
+            chart_data, "Monthly Amount ($)", "light"
+        ),
+        "config_dark": _create_base_chart_config(
+            chart_data, "Monthly Amount ($)", "dark"
+        ),
     }

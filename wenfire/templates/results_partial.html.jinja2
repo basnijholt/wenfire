@@ -314,180 +314,55 @@
         monthlyFlows: null
     };
 
-    // Function to get current theme
-    function getCurrentTheme() {
-        return document.documentElement.getAttribute('data-bs-theme') || 'light';
-    }
+    // Function to enhance config with JavaScript functions
+    function enhanceChartConfig(config) {
+        // Add y-axis formatter
+        if (config.yaxis && config.yaxis.labels) {
+            config.yaxis.labels.formatter = function (val) {
+                return '$' + val.toLocaleString();
+            };
+        }
 
-    // Function to get theme-appropriate colors
-    function getThemeColors(theme) {
-        const isDark = theme === 'dark';
-        return {
-            background: isDark ? '#2c2c2c' : '#ffffff',
-            foreground: isDark ? '#ecf0f1' : '#2c3e50',
-            gridColor: isDark ? '#404040' : '#e9ecef',
-            tooltipBg: isDark ? '#404040' : '#ffffff',
-            tooltipColor: isDark ? '#ecf0f1' : '#2c3e50'
-        };
-    }
+        // Add custom tooltip
+        if (config.tooltip) {
+            config.tooltip.custom = function({series, seriesIndex, dataPointIndex, w}) {
+                const date = new Date(w.globals.seriesX[seriesIndex][dataPointIndex]);
+                const age = w.config.series[seriesIndex].data[dataPointIndex].age;
+                const timeFromNowText = w.config.series[seriesIndex].data[dataPointIndex].time_from_now_text;
 
-    // Function to create ApexCharts configuration
-    function createChartConfig(title, yAxisTitle, chartData, theme) {
-        const colors = getThemeColors(theme);
+                let tooltip = `
+                    <div class="apexcharts-tooltip-title" style="font-family: inherit; font-size: 12px;">
+                        ${date.toLocaleDateString()} (Age: ${age.toFixed(1)}, ${timeFromNowText})
+                    </div>
+                `;
 
-        const config = {
-            series: chartData.series,
-            chart: {
-                type: 'area',
-                stacked: false,
-                height: 350,
-                background: colors.background,
-                foreColor: colors.foreground,
-                zoom: {
-                    type: 'x',
-                    enabled: true,
-                    autoScaleYaxis: true
-                },
-                toolbar: {
-                    show: false
-                },
-                animations: {
-                    enabled: true,
-                    easing: 'easeinout',
-                    speed: 800
-                }
-            },
-            dataLabels: {
-                enabled: false
-            },
-            markers: {
-                size: 0,
-            },
-            fill: {
-                type: 'gradient',
-                gradient: {
-                    shadeIntensity: 1,
-                    inverseColors: false,
-                    opacityFrom: 0.5,
-                    opacityTo: 0,
-                    stops: [0, 90, 100]
-                },
-            },
-            colors: ['#ff6b35', '#6c5ce7', '#00b894', '#e17055', '#0984e3'],
-            stroke: {
-                curve: 'smooth',
-                width: 2
-            },
-            grid: {
-                borderColor: colors.gridColor,
-                strokeDashArray: 0,
-                xaxis: {
-                    lines: {
-                        show: true
-                    }
-                },
-                yaxis: {
-                    lines: {
-                        show: true
-                    }
-                }
-            },
-            xaxis: {
-                type: 'datetime',
-                title: {
-                    text: 'Date',
-                    style: {
-                        color: colors.foreground
-                    }
-                },
-                labels: {
-                    style: {
-                        colors: colors.foreground
-                    }
-                }
-            },
-            yaxis: {
-                title: {
-                    text: yAxisTitle,
-                    style: {
-                        color: colors.foreground
-                    }
-                },
-                labels: {
-                    style: {
-                        colors: colors.foreground
-                    },
-                    formatter: function (val) {
-                        return '$' + val.toLocaleString();
-                    }
-                }
-            },
-            tooltip: {
-                theme: theme,
-                shared: true,
-                style: {
-                    fontSize: '12px',
-                    color: colors.tooltipColor
-                },
-                custom: function({series, seriesIndex, dataPointIndex, w}) {
-                    const date = new Date(w.globals.seriesX[seriesIndex][dataPointIndex]);
-                    const age = w.config.series[seriesIndex].data[dataPointIndex].age;
-                    const timeFromNowText = w.config.series[seriesIndex].data[dataPointIndex].time_from_now_text;
-
-                    let tooltip = `
-                        <div class="apexcharts-tooltip-title" style="font-family: inherit; font-size: 12px;">
-                            ${date.toLocaleDateString()} (Age: ${age.toFixed(1)}, ${timeFromNowText})
-                        </div>
-                    `;
-
-                    series.forEach((s, i) => {
-                        if (s[dataPointIndex] !== undefined) {
-                            const color = w.globals.colors[i];
-                            tooltip += `
-                                <div class="apexcharts-tooltip-series-group apexcharts-active" style="order: 1; display: flex;">
-                                    <span class="apexcharts-tooltip-marker" style="background-color: ${color};"></span>
-                                    <div class="apexcharts-tooltip-text" style="font-family: inherit; font-size: 12px;">
-                                        <div class="apexcharts-tooltip-y-group">
-                                            <span class="apexcharts-tooltip-text-y-label">${w.globals.seriesNames[i]}: </span>
-                                            <span class="apexcharts-tooltip-text-y-value">$${s[dataPointIndex].toLocaleString()}</span>
-                                        </div>
+                series.forEach((s, i) => {
+                    if (s[dataPointIndex] !== undefined) {
+                        const color = w.globals.colors[i];
+                        tooltip += `
+                            <div class="apexcharts-tooltip-series-group apexcharts-active" style="order: 1; display: flex;">
+                                <span class="apexcharts-tooltip-marker" style="background-color: ${color};"></span>
+                                <div class="apexcharts-tooltip-text" style="font-family: inherit; font-size: 12px;">
+                                    <div class="apexcharts-tooltip-y-group">
+                                        <span class="apexcharts-tooltip-text-y-label">${w.globals.seriesNames[i]}: </span>
+                                        <span class="apexcharts-tooltip-text-y-value">$${s[dataPointIndex].toLocaleString()}</span>
                                     </div>
                                 </div>
-                            `;
-                        }
-                    });
-
-                    return tooltip;
-                }
-            },
-            legend: {
-                position: 'top',
-                horizontalAlign: 'left',
-                labels: {
-                    colors: colors.foreground
-                }
-            }
-        };
-
-        // Add FIRE date vertical line if available
-        if (chartData.fire_date) {
-            config.annotations = {
-                xaxis: [{
-                    x: new Date(chartData.fire_date).getTime(),
-                    borderColor: colors.foreground,
-                    strokeDashArray: 5,
-                    label: {
-                        text: 'FIRE Date',
-                        style: {
-                            color: colors.foreground,
-                            background: colors.background
-                        }
+                            </div>
+                        `;
                     }
-                }]
+                });
+
+                return tooltip;
             };
         }
 
         return config;
+    }
+
+    // Function to get current theme
+    function getCurrentTheme() {
+        return document.documentElement.getAttribute('data-bs-theme') || 'light';
     }
 
     // Function to render all charts
@@ -514,18 +389,21 @@
                 chartInstances.netWorth = null;
             }
 
-            const netWorthData = {{ age_vs_net_worth_plot| tojson | safe }};
-            console.log('Net Worth Data:', netWorthData);
+            const netWorthPlotData = {{ age_vs_net_worth_plot | tojson | safe }};
+            console.log('Net Worth Plot Data:', netWorthPlotData);
 
-            if (netWorthData && netWorthData.series && netWorthData.series.length > 0) {
-                const netWorthConfig = createChartConfig('Net Worth Growth', 'Amount ($)', netWorthData, theme);
+            if (netWorthPlotData && netWorthPlotData.data && netWorthPlotData.data.series && netWorthPlotData.data.series.length > 0) {
+                // Use the pre-generated configuration from Python
+                let netWorthConfig = theme === 'dark' ? netWorthPlotData.config_dark : netWorthPlotData.config_light;
+                netWorthConfig = enhanceChartConfig(netWorthConfig);
+
                 chartInstances.netWorth = new ApexCharts(netWorthContainer, netWorthConfig);
                 chartInstances.netWorth.render().then(() => {
                     console.log('Net Worth chart rendered successfully');
                     // Add double-click to reset zoom
                     netWorthContainer.addEventListener('dblclick', function() {
                         chartInstances.netWorth.resetSeries();
-                        const dates = netWorthData.series[0].data.map(d => new Date(d.x).getTime());
+                        const dates = netWorthPlotData.data.series[0].data.map(d => new Date(d.x).getTime());
                         chartInstances.netWorth.zoomX(
                             Math.min(...dates),
                             Math.max(...dates)
@@ -544,18 +422,21 @@
                 chartInstances.monthlyFlows = null;
             }
 
-            const flowsData = {{ monthly_financial_flows_plot| tojson | safe }};
-            console.log('Monthly Financial Flows Data:', flowsData);
+            const flowsPlotData = {{ monthly_financial_flows_plot | tojson | safe }};
+            console.log('Monthly Financial Flows Plot Data:', flowsPlotData);
 
-            if (flowsData && flowsData.series && flowsData.series.length > 0) {
-                const flowsConfig = createChartConfig('Monthly Financial Flows', 'Monthly Amount ($)', flowsData, theme);
+            if (flowsPlotData && flowsPlotData.data && flowsPlotData.data.series && flowsPlotData.data.series.length > 0) {
+                // Use the pre-generated configuration from Python
+                let flowsConfig = theme === 'dark' ? flowsPlotData.config_dark : flowsPlotData.config_light;
+                flowsConfig = enhanceChartConfig(flowsConfig);
+
                 chartInstances.monthlyFlows = new ApexCharts(flowsContainer, flowsConfig);
                 chartInstances.monthlyFlows.render().then(() => {
                     console.log('Monthly Financial Flows chart rendered successfully');
                     // Add double-click to reset zoom
                     flowsContainer.addEventListener('dblclick', function() {
                         chartInstances.monthlyFlows.resetSeries();
-                        const dates = flowsData.series[0].data.map(d => new Date(d.x).getTime());
+                        const dates = flowsPlotData.data.series[0].data.map(d => new Date(d.x).getTime());
                         chartInstances.monthlyFlows.zoomX(
                             Math.min(...dates),
                             Math.max(...dates)
