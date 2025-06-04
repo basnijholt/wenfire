@@ -670,6 +670,38 @@
             // Setup theme monitoring
             setupThemeMonitoring();
         }
+
+        // Parameter change date/years sync with event delegation
+        document.addEventListener('input', function(e) {
+            if (!e.target.matches('.date-input, .years-input')) return;
+
+            const container = e.target.closest('.parameter-change');
+            const dateInput = container.querySelector('.date-input');
+            const yearsInput = container.querySelector('.years-input');
+
+            if (e.target.classList.contains('date-input') && dateInput.value) {
+                const date = new Date(dateInput.value);
+                const today = new Date();
+                const years = Math.max(0, (date - today) / (1000 * 60 * 60 * 24 * 365.25));
+                yearsInput.value = years.toFixed(1);
+            } else if (e.target.classList.contains('years-input') && yearsInput.value) {
+                const today = new Date();
+                const futureDate = new Date(today.getTime() + (parseFloat(yearsInput.value) * 365.25 * 24 * 60 * 60 * 1000));
+                dateInput.value = futureDate.toISOString().split('T')[0];
+            }
+        });
+
+        // Also handle 'change' events for date inputs
+        document.addEventListener('change', function(e) {
+            if (e.target.matches('.date-input') && e.target.value) {
+                const container = e.target.closest('.parameter-change');
+                const yearsInput = container.querySelector('.years-input');
+                const date = new Date(e.target.value);
+                const today = new Date();
+                const years = Math.max(0, (date - today) / (1000 * 60 * 60 * 24 * 365.25));
+                yearsInput.value = years.toFixed(1);
+            }
+        });
     </script>
 </body>
 
