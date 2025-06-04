@@ -438,6 +438,26 @@
                     submitBtn.disabled = false;
                 }, { once: true });
             });
+
+            // Add smooth scrolling to results
+            document.addEventListener('htmx:afterSwap', function(event) {
+                if (event.detail.target.id === 'results-container') {
+                    event.detail.target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+
+                    // Trigger chart rendering after a small delay to ensure DOM is ready
+                    setTimeout(() => {
+                        if (typeof window.renderChartsFromData === 'function') {
+                            window.renderChartsFromData();
+                        }
+                    }, 200);
+                }
+            });
+
+            // Chart rendering setup (runs once, doesn't get re-executed by HTMX)
+            setupChartRendering();
         });
 
         function initializeTheme() {
@@ -470,23 +490,183 @@
             localStorage.setItem('theme', theme);
         }
 
-        // Add smooth scrolling to results
-        document.addEventListener('htmx:afterSwap', function(event) {
-            if (event.detail.target.id === 'results-container') {
-                event.detail.target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
+        function setupChartRendering() {
+            // Store chart instances for theme switching
+            window.chartInstances = {
+                netWorth: null,
+                monthlyFlows: null
+            };
+
+            // Function to format currency values in compact notation
+            function formatCompactCurrency(val) {
+                if (val >= 1000000) {
+                    return '$' + (val / 1000000).toFixed(val >= 10000000 ? 0 : 1) + 'M';
+                } else if (val >= 1000) {
+                    return '$' + (val / 1000).toFixed(val >= 10000 ? 0 : 1) + 'k';
+                } else {
+                    return '$' + val.toFixed(0);
+                }
+            }
+
+            // Function to enhance config with JavaScript functions
+            function enhanceChartConfig(config) {
+                // Add y-axis formatter
+                if (config.yaxis && config.yaxis.labels) {
+                    config.yaxis.labels.formatter = function (val) {
+                        return formatCompactCurrency(val);
+                    };
+                }
+
+                // Add custom tooltip
+                if (config.tooltip) {
+                    config.tooltip.custom = function({series, seriesIndex, dataPointIndex, w}) {
+                        const date = new Date(w.globals.seriesX[seriesIndex][dataPointIndex]);
+                        const age = w.config.series[seriesIndex].data[dataPointIndex].age;
+                        const timeFromNowText = w.config.series[seriesIndex].data[dataPointIndex].time_from_now_text;
+
+                        let tooltip = `
+                            <div class="apexcharts-tooltip-title" style="font-family: inherit; font-size: 12px;">
+                                ${date.toLocaleDateString()} (Age: ${age.toFixed(1)}, ${timeFromNowText})
+                            </div>
+                        `;
+
+                        series.forEach((s, i) => {
+                            if (s[dataPointIndex] !== undefined) {
+                                const color = w.globals.colors[i];
+                                tooltip += `
+                                    <div class="apexcharts-tooltip-series-group apexcharts-active" style="order: 1; display: flex;">
+                                        <span class="apexcharts-tooltip-marker" style="background-color: ${color};"></span>
+                                        <div class="apexcharts-tooltip-text" style="font-family: inherit; font-size: 12px;">
+                                            <div class="apexcharts-tooltip-y-group">
+                                                <span class="apexcharts-tooltip-text-y-label">${w.globals.seriesNames[i]}: </span>
+                                                <span class="apexcharts-tooltip-text-y-value">${formatCompactCurrency(s[dataPointIndex])}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                        });
+
+                        return tooltip;
+                    };
+                }
+
+                return config;
+            }
+
+            // Function to get current theme
+            function getCurrentTheme() {
+                return document.documentElement.getAttribute('data-bs-theme') || 'light';
+            }
+
+            // Function to render charts using data from window.chartData
+            function renderChartsFromData() {
+                const theme = getCurrentTheme();
+
+                try {
+                    // Check if chart data exists
+                    if (!window.chartData) {
+                        return;
+                    }
+
+                    // Check if chart containers exist
+                    const netWorthContainer = document.querySelector("#age-vs-net-worth-plot");
+                    const flowsContainer = document.querySelector("#monthly-financial-flows-plot");
+
+                    if (!netWorthContainer || !flowsContainer) {
+                        console.error('Chart containers not found');
+                        return;
+                    }
+
+                    // Net Worth Chart
+                    if (window.chartInstances.netWorth) {
+                        window.chartInstances.netWorth.destroy();
+                        window.chartInstances.netWorth = null;
+                    }
+
+                    const netWorthPlotData = window.chartData.netWorth;
+
+                    if (netWorthPlotData && netWorthPlotData.config_light) {
+                        let netWorthConfig = theme === 'dark' ? netWorthPlotData.config_dark : netWorthPlotData.config_light;
+                        netWorthConfig = enhanceChartConfig(netWorthConfig);
+
+                        window.chartInstances.netWorth = new ApexCharts(netWorthContainer, netWorthConfig);
+                        window.chartInstances.netWorth.render().then(() => {
+                            // Add double-click to reset zoom
+                            netWorthContainer.addEventListener('dblclick', function() {
+                                window.chartInstances.netWorth.resetSeries();
+                                const dates = netWorthConfig.series[0].data.map(d => new Date(d.x).getTime());
+                                window.chartInstances.netWorth.zoomX(
+                                    Math.min(...dates),
+                                    Math.max(...dates)
+                                );
+                            });
+                        }).catch((error) => {
+                            console.error('Error rendering Net Worth chart:', error);
+                        });
+                    }
+
+                    // Monthly Financial Flows Chart
+                    if (window.chartInstances.monthlyFlows) {
+                        window.chartInstances.monthlyFlows.destroy();
+                        window.chartInstances.monthlyFlows = null;
+                    }
+
+                    const flowsPlotData = window.chartData.monthlyFlows;
+
+                    if (flowsPlotData && flowsPlotData.config_light) {
+                        let flowsConfig = theme === 'dark' ? flowsPlotData.config_dark : flowsPlotData.config_light;
+                        flowsConfig = enhanceChartConfig(flowsConfig);
+
+                        window.chartInstances.monthlyFlows = new ApexCharts(flowsContainer, flowsConfig);
+                        window.chartInstances.monthlyFlows.render().then(() => {
+                            // Add double-click to reset zoom
+                            flowsContainer.addEventListener('dblclick', function() {
+                                window.chartInstances.monthlyFlows.resetSeries();
+                                const dates = flowsConfig.series[0].data.map(d => new Date(d.x).getTime());
+                                window.chartInstances.monthlyFlows.zoomX(
+                                    Math.min(...dates),
+                                    Math.max(...dates)
+                                );
+                            });
+                        }).catch((error) => {
+                            console.error('Error rendering Monthly Financial Flows chart:', error);
+                        });
+                    }
+
+                } catch (error) {
+                    console.error('Error in renderChartsFromData function:', error);
+                }
+            }
+
+            // Expose chart rendering function globally
+            window.renderChartsFromData = renderChartsFromData;
+
+            // Set up theme change monitoring
+            function setupThemeMonitoring() {
+                const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.type === 'attributes' && mutation.attributeName === 'data-bs-theme') {
+                            renderChartsFromData();
+                        }
+                    });
                 });
 
-                // Trigger chart rendering after a small delay to ensure DOM is ready
-                setTimeout(() => {
-                    if (typeof window.renderChartsFromMain === 'function') {
-                        console.log('Triggering chart rendering from main template');
-                        window.renderChartsFromMain();
+                observer.observe(document.documentElement, {
+                    attributes: true,
+                    attributeFilter: ['data-bs-theme']
+                });
+
+                window.addEventListener('storage', function(e) {
+                    if (e.key === 'theme') {
+                        renderChartsFromData();
                     }
-                }, 200);
+                });
             }
-        });
+
+            // Setup theme monitoring
+            setupThemeMonitoring();
+        }
     </script>
 </body>
 
