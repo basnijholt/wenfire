@@ -1,5 +1,6 @@
 // Parameter change date/years sync function
 const DAYS_PER_YEAR = 365.25;
+const MS_PER_YEAR = DAYS_PER_YEAR * 24 * 60 * 60 * 1000; // milliseconds in a year
 
 const syncDateYears = (target) => {
     const container = target.closest('.parameter-change');
@@ -7,14 +8,10 @@ const syncDateYears = (target) => {
     const yearsInput = container.querySelector('.years-input');
 
     if (target.classList.contains('date-input') && dateInput.value) {
-        const date = new Date(dateInput.value);
-        const today = new Date();
-        const years = Math.max(0, (date - today) / (1000 * 60 * 60 * 24 * DAYS_PER_YEAR));
+        const years = Math.max(0, (new Date(dateInput.value) - Date.now()) / MS_PER_YEAR);
         yearsInput.value = years.toFixed(1);
     } else if (target.classList.contains('years-input') && yearsInput.value) {
-        const today = new Date();
-        const futureDate = new Date(today.getTime() + (parseFloat(yearsInput.value) * DAYS_PER_YEAR * 24 * 60 * 60 * 1000));
-        dateInput.value = futureDate.toISOString().split('T')[0];
+        dateInput.value = new Date(Date.now() + parseFloat(yearsInput.value) * MS_PER_YEAR).toISOString().split('T')[0];
     }
 };
 
@@ -30,13 +27,8 @@ const updateHiddenDateInputs = (parameterChange) => {
 
 // Update visibility of remove buttons based on number of rows
 const updateParameterRowVisibility = (container) => {
-    const rows = container.querySelectorAll('.parameter-row');
-    rows.forEach((row, index) => {
-        const removeBtn = row.querySelector('.remove-parameter-row');
-        if (removeBtn) {
-            removeBtn.style.display = rows.length > 1 ? 'block' : 'none';
-        }
-    });
+    const show = container.querySelectorAll('.parameter-row').length > 1 ? 'block' : 'none';
+    container.querySelectorAll('.remove-parameter-row').forEach(btn => btn.style.display = show);
 };
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -57,9 +49,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Initialize parameter row visibility for existing blocks
-    document.querySelectorAll('.parameter-rows-container').forEach(container => {
-        updateParameterRowVisibility(container);
-    });
+    document.querySelectorAll('.parameter-rows-container').forEach(updateParameterRowVisibility);
 
     // Add loading states to form submission
     const form = document.getElementById('calculate-form');
