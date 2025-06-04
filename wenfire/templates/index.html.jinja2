@@ -38,7 +38,13 @@
                 WenFire
             </a>
 
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav"
+                    aria-controls="navbarNav"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
@@ -65,7 +71,7 @@
 
     <!-- Hero Section -->
     <section class="hero-section">
-    <div class="container">
+        <div class="container">
             <div class="hero-content fade-in">
                 <h1 class="hero-title">WenFire 🔥</h1>
                 <h2 class="hero-subtitle">Financial Independence Calculator</h2>
@@ -88,7 +94,12 @@
                 and retire before the traditional retirement age. This calculator will help you visualize your journey towards
                 financial independence, but before you dive in, it's important to understand the methodology and limitations.
             </p>
-            <button class="btn btn-info btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#assumptionsList" aria-expanded="false" aria-controls="assumptionsList">
+            <button class="btn btn-info btn-sm"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#assumptionsList"
+                    aria-expanded="false"
+                    aria-controls="assumptionsList">
                 <i class="fas fa-chart-line me-1"></i>
                 View Assumptions & Limitations
             </button>
@@ -337,14 +348,14 @@
                                         <i class="fas fa-plus-circle me-1"></i>
                                         Extra Monthly Income
                                     </label>
-            <div class="input-group">
+                                    <div class="input-group">
                                         <span class="input-group-text">$</span>
                                         <input type="number" id="extra_income" name="extra_income" value="{{ extra_income }}" class="form-control" placeholder="0">
                                     </div>
                                     <small class="form-help">Side jobs, rental income, dividends, etc. (optional)</small>
                                 </div>
-            </div>
-        </div>
+                            </div>
+                        </div>
 
                         <!-- Advanced Settings -->
                         <div class="mb-4">
@@ -363,7 +374,7 @@
                                         <input type="number" id="safe_withdraw_rate" name="safe_withdraw_rate" value="{{ safe_withdraw_rate }}" step="0.1" required class="form-control" placeholder="4.0">
                                     </div>
                                     <small class="form-help">The famous "4% rule" - percentage you can safely withdraw annually</small>
-            </div>
+                                </div>
 
                                 <div class="form-group">
                                     <label for="extra_spending" class="form-label">
@@ -373,24 +384,30 @@
                                     <div class="input-group">
                                         <span class="input-group-text">$</span>
                                         <input type="number" id="extra_spending" name="extra_spending" value="{{ extra_spending }}" class="form-control" placeholder="0">
-            </div>
+                                    </div>
                                     <small class="form-help">See how a large purchase affects your FIRE date (optional)</small>
-            </div>
-            </div>
-            </div>
+                                </div>
+                            </div>
+                        </div>
 
                         <!-- Parameter Changes Section -->
                         <div id="parameter-changes-container" class="mb-4">
-                {% for change in parameter_changes %}
-                {% with uuid=change.uuid, date=change.date, field=change.field, value=change.value %}
-                {% include 'parameter_change.html.jinja2' %}
-                {% endwith %}
-                {% endfor %}
-            </div>
+                            {% for change in parameter_changes %}
+                                {% with uuid=change.uuid, date=change.date, field=change.field, value=change.value %}
+                                    {% include 'parameter_change.html.jinja2' %}
+                                {% endwith %}
+                            {% endfor %}
+                        </div>
 
                         <!-- Action Buttons -->
                         <div class="d-flex flex-wrap gap-3 justify-content-center">
-                            <button type="button" class="btn btn-secondary" hx-get="/add-parameter-change" hx-target="#parameter-changes-container" hx-swap="beforeend" hx-trigger="click" hx-push-url="false">
+                            <button type="button"
+                                    class="btn btn-secondary"
+                                    hx-get="/add-parameter-change"
+                                    hx-target="#parameter-changes-container"
+                                    hx-swap="beforeend"
+                                    hx-trigger="click"
+                                    hx-push-url="false">
                                 <i class="fas fa-plus me-2"></i>
                                 Add Parameter Change
                             </button>
@@ -403,7 +420,7 @@
                     </form>
                 </div>
             </div>
-            </div>
+        </div>
 
         <!-- Results Container -->
         <div id="results-container" class="fade-in">
@@ -529,7 +546,15 @@
                         const title = `<div class="apexcharts-tooltip-title" style="font-family: inherit; font-size: 12px;">${date.toLocaleDateString()} (Age: ${data.age.toFixed(1)}, ${data.time_from_now_text})</div>`;
 
                         const items = series.map((s, i) => s[dataPointIndex] !== undefined ?
-                            `<div class="apexcharts-tooltip-series-group apexcharts-active" style="order: 1; display: flex;"><span class="apexcharts-tooltip-marker" style="background-color: ${w.globals.colors[i]};"></span><div class="apexcharts-tooltip-text" style="font-family: inherit; font-size: 12px;"><div class="apexcharts-tooltip-y-group"><span class="apexcharts-tooltip-text-y-label">${w.globals.seriesNames[i]}: </span><span class="apexcharts-tooltip-text-y-value">${formatCurrency(s[dataPointIndex])}</span></div></div></div>`
+                            `<div class="apexcharts-tooltip-series-group apexcharts-active" style="order: 1; display: flex;">
+                                <span class="apexcharts-tooltip-marker" style="background-color: ${w.globals.colors[i]};"></span>
+                                <div class="apexcharts-tooltip-text" style="font-family: inherit; font-size: 12px;">
+                                    <div class="apexcharts-tooltip-y-group">
+                                        <span class="apexcharts-tooltip-text-y-label">${w.globals.seriesNames[i]}: </span>
+                                        <span class="apexcharts-tooltip-text-y-value">${formatCurrency(s[dataPointIndex])}</span>
+                                    </div>
+                                </div>
+                            </div>`
                             : ''
                         ).join('');
 
@@ -585,6 +610,7 @@
             });
         }
 
+        // Event listeners for parameter change sync
         ['input', 'change'].forEach(eventType => {
             document.addEventListener(eventType, (e) => {
                 if (e.target.matches('.date-input, .years-input')) {
