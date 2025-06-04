@@ -432,10 +432,11 @@
                 custom: function({series, seriesIndex, dataPointIndex, w}) {
                     const date = new Date(w.globals.seriesX[seriesIndex][dataPointIndex]);
                     const age = w.config.series[seriesIndex].data[dataPointIndex].age;
+                    const timeFromNowText = w.config.series[seriesIndex].data[dataPointIndex].time_from_now_text;
 
                     let tooltip = `
                         <div class="apexcharts-tooltip-title" style="font-family: inherit; font-size: 12px;">
-                            ${date.toLocaleDateString()} (Age: ${age.toFixed(1)})
+                            ${date.toLocaleDateString()} (Age: ${age.toFixed(1)}, ${timeFromNowText})
                         </div>
                     `;
 

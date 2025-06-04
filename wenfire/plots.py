@@ -3,15 +3,41 @@ from .fire import Results, Summary
 _PLOT_PROPERTIES = dict(width=360, usermeta={"embedOptions": {"actions": False}})
 
 
+def _format_time_from_now(years: float) -> str:
+    """Format years from now into readable text."""
+    if years < 0.1:
+        return "now"
+    else:
+        return f"{years:.1f} yr from now"
+
+
 def plot_age_vs_net_worth(results: list[Results], summary: Summary):
     """Generate data for ApexCharts net worth chart."""
     # Prepare data for each series using dates instead of ages
+    current_date = results[0].input_data.now
+
     net_worth_data = [
-        {"x": result.date.isoformat(), "y": result.nw, "age": result.age}
+        {
+            "x": result.date.isoformat(),
+            "y": result.nw,
+            "age": result.age,
+            "time_from_now": (result.date - current_date).days / 365.25,
+            "time_from_now_text": _format_time_from_now(
+                (result.date - current_date).days / 365.25
+            ),
+        }
         for result in results
     ]
     saved_data = [
-        {"x": result.date.isoformat(), "y": result.total_saved, "age": result.age}
+        {
+            "x": result.date.isoformat(),
+            "y": result.total_saved,
+            "age": result.age,
+            "time_from_now": (result.date - current_date).days / 365.25,
+            "time_from_now_text": _format_time_from_now(
+                (result.date - current_date).days / 365.25
+            ),
+        }
         for result in results
     ]
     profits_data = [
@@ -19,6 +45,10 @@ def plot_age_vs_net_worth(results: list[Results], summary: Summary):
             "x": result.date.isoformat(),
             "y": result.total_investment_profits,
             "age": result.age,
+            "time_from_now": (result.date - current_date).days / 365.25,
+            "time_from_now_text": _format_time_from_now(
+                (result.date - current_date).days / 365.25
+            ),
         }
         for result in results
     ]
@@ -88,24 +118,54 @@ def plot_savings_vs_spending(results: list[Results], summary: Summary):
 
 def plot_monthly_financial_flows(results: list[Results], summary: Summary):
     """Generate data for ApexCharts comprehensive monthly financial flows chart."""
+    current_date = results[0].input_data.now
+
     monthly_safe_withdraw_data = [
         {
             "x": result.date.isoformat(),
             "y": result.safe_withdraw_rule_monthly,
             "age": result.age,
+            "time_from_now": (result.date - current_date).days / 365.25,
+            "time_from_now_text": _format_time_from_now(
+                (result.date - current_date).days / 365.25
+            ),
         }
         for result in results
     ]
     spending_data = [
-        {"x": result.date.isoformat(), "y": result.spending, "age": result.age}
+        {
+            "x": result.date.isoformat(),
+            "y": result.spending,
+            "age": result.age,
+            "time_from_now": (result.date - current_date).days / 365.25,
+            "time_from_now_text": _format_time_from_now(
+                (result.date - current_date).days / 365.25
+            ),
+        }
         for result in results
     ]
     income_data = [
-        {"x": result.date.isoformat(), "y": result.income, "age": result.age}
+        {
+            "x": result.date.isoformat(),
+            "y": result.income,
+            "age": result.age,
+            "time_from_now": (result.date - current_date).days / 365.25,
+            "time_from_now_text": _format_time_from_now(
+                (result.date - current_date).days / 365.25
+            ),
+        }
         for result in results
     ]
     savings_data = [
-        {"x": result.date.isoformat(), "y": result.saving, "age": result.age}
+        {
+            "x": result.date.isoformat(),
+            "y": result.saving,
+            "age": result.age,
+            "time_from_now": (result.date - current_date).days / 365.25,
+            "time_from_now_text": _format_time_from_now(
+                (result.date - current_date).days / 365.25
+            ),
+        }
         for result in results
     ]
     investment_profits_data = [
@@ -113,6 +173,10 @@ def plot_monthly_financial_flows(results: list[Results], summary: Summary):
             "x": result.date.isoformat(),
             "y": result.investment_profits,
             "age": result.age,
+            "time_from_now": (result.date - current_date).days / 365.25,
+            "time_from_now_text": _format_time_from_now(
+                (result.date - current_date).days / 365.25
+            ),
         }
         for result in results
     ]
