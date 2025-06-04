@@ -91,15 +91,15 @@ async def remove_parameter_change():
 
 def format_currency(value):
     """Format currency values in compact notation (e.g., $2.5M, $800k)"""
-    if value >= 1000000:
+    if value >= 1_000_000:
         # For millions: show 1 decimal if < $10M, no decimals if >= $10M
-        if value >= 10000000:
-            return f"${value / 1000000:.0f}M"
+        if value >= 10_000_000:
+            return f"${value / 1_000_000:.0f}M"
         else:
-            return f"${value / 1000000:.1f}M"
-    elif value >= 1000:
+            return f"${value / 1_000_000:.1f}M"
+    elif value >= 1_000:
         # For thousands: always no decimals
-        return f"${value / 1000:.0f}k"
+        return f"${value / 1_000:.0f}k"
     else:
         # For values under $1000: show full amount
         return f"${value:.0f}"
