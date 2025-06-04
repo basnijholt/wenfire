@@ -319,7 +319,7 @@
         if (val >= 1000000) {
             return '$' + (val / 1000000).toFixed(val >= 10000000 ? 0 : 1) + 'M';
         } else if (val >= 1000) {
-            return '$' + (val / 1000).toFixed(val >= 10000 ? 0 : 0) + 'k';
+            return '$' + (val / 1000).toFixed(val >= 10000 ? 0 : 1) + 'k';
         } else {
             return '$' + val.toFixed(0);
         }
