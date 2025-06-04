@@ -8,24 +8,9 @@
             </label>
             <select name="change_fields" class="form-control" required>
                 <option value="">Select parameter...</option>
-                <option value="growth_rate" {% if field=="growth_rate" %}selected{% endif %}>
-                    📈 Investment Growth Rate (%)
-                </option>
-                <option value="spending_per_month" {% if field=="spending_per_month" %}selected{% endif %}>
-                    🛒 Monthly Spending ($)
-                </option>
-                <option value="inflation" {% if field=="inflation" %}selected{% endif %}>
-                    💰 Inflation Rate (%)
-                </option>
-                <option value="annual_salary_increase" {% if field=="annual_salary_increase" %}selected{% endif %}>
-                    📊 Annual Salary Increase (%)
-                </option>
-                <option value="income_per_month" {% if field=="income_per_month" %}selected{% endif %}>
-                    💵 Monthly Income ($)
-                </option>
-                <option value="extra_income" {% if field=="extra_income" %}selected{% endif %}>
-                    💎 Extra Monthly Income ($)
-                </option>
+                {% for val, label in parameter_choices %}
+                <option value="{{ val }}" {% if field==val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
             </select>
         </div>
 

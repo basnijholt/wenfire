@@ -38,6 +38,22 @@ DEFAULT_DATE_OF_BIRTH = "1990-01-01"
 DEFAULT_SAFE_WITHDRAW_RATE = 4
 DEFAULT_EXTRA_SPENDING = 0
 
+# Choices for parameter select boxes used across templates
+PARAMETER_CHOICES: list[tuple[str, str]] = [
+    ("growth_rate", "📈 Investment Growth Rate (%)"),
+    ("spending_per_month", "🛒 Monthly Spending ($)"),
+    ("inflation", "💰 Inflation Rate (%)"),
+    ("annual_salary_increase", "📊 Annual Salary Increase (%)"),
+    ("income_per_month", "💵 Monthly Income ($)"),
+    ("extra_income", "💎 Extra Monthly Income ($)"),
+]
+
+# Expose frequently-used helpers & constants to every template once
+# so we don't have to add them to each context dict.
+templates.env.globals.update(
+    parameter_choices=PARAMETER_CHOICES,
+)
+
 
 @app.get("/", response_class=HTMLResponse)
 @htmx("index.html", "index.html")
@@ -278,14 +294,19 @@ async def calculate(
         "parameter_changes": parameter_changes,
         "age_vs_net_worth_plot": age_vs_net_worth_plot,
         "monthly_financial_flows_plot": monthly_financial_flows_plot,
-        "format_currency": format_currency,
-        "interpolate_color": interpolate_color,
         "time_difference": time_difference,
         "summary_with_extra": summary_with_extra,
         "url_params": url_params,
     }
 
     return context
+
+
+# Register helper functions once they are defined so templates can access them
+templates.env.globals.update(
+    format_currency=format_currency,
+    interpolate_color=interpolate_color,
+)
 
 
 if __name__ == "__main__":

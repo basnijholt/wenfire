@@ -1,4 +1,6 @@
 // Parameter change date/years sync function
+const DAYS_PER_YEAR = 365.25;
+
 const syncDateYears = (target) => {
     const container = target.closest('.parameter-change');
     const dateInput = container.querySelector('.date-input');
@@ -7,11 +9,11 @@ const syncDateYears = (target) => {
     if (target.classList.contains('date-input') && dateInput.value) {
         const date = new Date(dateInput.value);
         const today = new Date();
-        const years = Math.max(0, (date - today) / (1000 * 60 * 60 * 24 * 365.25));
+        const years = Math.max(0, (date - today) / (1000 * 60 * 60 * 24 * DAYS_PER_YEAR));
         yearsInput.value = years.toFixed(1);
     } else if (target.classList.contains('years-input') && yearsInput.value) {
         const today = new Date();
-        const futureDate = new Date(today.getTime() + (parseFloat(yearsInput.value) * 365.25 * 24 * 60 * 60 * 1000));
+        const futureDate = new Date(today.getTime() + (parseFloat(yearsInput.value) * DAYS_PER_YEAR * 24 * 60 * 60 * 1000));
         dateInput.value = futureDate.toISOString().split('T')[0];
     }
 };
@@ -64,14 +66,15 @@ document.addEventListener('DOMContentLoaded', function () {
     const submitBtn = form.querySelector('button[type="submit"]');
     submitBtn.dataset.original = submitBtn.innerHTML; // Store original on page load
 
-    form.addEventListener('htmx:beforeRequest', e => {
-        submitBtn.innerHTML = '<span class="loading me-2"></span>Calculating...';
-        submitBtn.disabled = true;
-    });
-    form.addEventListener('htmx:afterRequest', e => {
-        submitBtn.innerHTML = submitBtn.dataset.original;
-        submitBtn.disabled = false;
-    });
+    const toggleLoading = (isLoading) => {
+        submitBtn.disabled = isLoading;
+        submitBtn.innerHTML = isLoading
+            ? '<span class="loading me-2"></span>Calculating...'
+            : submitBtn.dataset.original;
+    };
+
+    form.addEventListener('htmx:beforeRequest', () => toggleLoading(true));
+    form.addEventListener('htmx:afterRequest', () => toggleLoading(false));
 
     // Add smooth scrolling to results
     document.addEventListener('htmx:afterSwap', function (event) {
