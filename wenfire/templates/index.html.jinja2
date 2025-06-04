@@ -499,12 +499,16 @@
 
             // Function to format currency values in compact notation
             function formatCompactCurrency(val) {
-                if (val >= 1000000) {
-                    return '$' + (val / 1000000).toFixed(val >= 10000000 ? 0 : 1) + 'M';
-                } else if (val >= 1000) {
-                    return '$' + (val / 1000).toFixed(val >= 10000 ? 0 : 1) + 'k';
-                } else {
+                if (val < 1_000) {
                     return '$' + val.toFixed(0);
+                } else if (val < 10_000) {
+                    return '$' + (val / 1_000).toFixed(1) + 'k';
+                } else if (val < 1_000_000) {
+                    return '$' + (val / 1_000).toFixed(0) + 'k';
+                } else if (val < 10_000_000) {
+                    return '$' + (val / 1_000_000).toFixed(1) + 'M';
+                } else {
+                    return '$' + (val / 1_000_000).toFixed(0) + 'M';
                 }
             }
 
