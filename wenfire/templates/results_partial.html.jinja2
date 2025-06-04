@@ -26,7 +26,7 @@
     </div>
 
     <div class="stat-card">
-        <div class="stat-value">${{ (summary.nw_at_fi / 1e6) | round(2) }}M</div>
+        <div class="stat-value">{{ format_currency(summary.nw_at_fi) }}</div>
         <div class="stat-label">
             <i class="fas fa-piggy-bank me-1"></i>
             Net Worth at FIRE
@@ -63,7 +63,7 @@
                     <br><small class="text-muted">Amount you'll save by FIRE</small>
                 </td>
                 <td>
-                    <span class="text-success fw-bold">${{ (summary.total_saved / 1e6) | round(2) }}M</span>
+                    <span class="text-success fw-bold">{{ format_currency(summary.total_saved) }}</span>
                 </td>
             </tr>
             <tr>
@@ -72,7 +72,7 @@
                     <br><small class="text-muted">Growth from investments</small>
                 </td>
                 <td>
-                    <span class="text-info fw-bold">${{ (summary.total_investment_profits / 1e6) | round(2) }}M</span>
+                    <span class="text-info fw-bold">{{ format_currency(summary.total_investment_profits) }}</span>
                 </td>
             </tr>
             <tr>
@@ -81,7 +81,7 @@
                     <br><small class="text-muted">What you can withdraw monthly at FIRE</small>
                 </td>
                 <td>
-                    <span class="text-warning fw-bold">${{ (summary.safe_withdraw_at_fi / 1000) | int }}k</span>
+                    <span class="text-warning fw-bold">{{ format_currency(summary.safe_withdraw_at_fi) }}</span>
                 </td>
             </tr>
             <tr>
@@ -90,7 +90,7 @@
                     <br><small class="text-muted">Your expenses at retirement (inflation-adjusted)</small>
                 </td>
                 <td>
-                    <span class="text-secondary fw-bold">${{ (summary.spending_at_fi / 1000) | int }}k</span>
+                    <span class="text-secondary fw-bold">{{ format_currency(summary.spending_at_fi) }}</span>
                 </td>
             </tr>
         </tbody>
