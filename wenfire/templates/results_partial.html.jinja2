@@ -235,7 +235,7 @@
                 <div class="chart-title">Net Worth Growth Over Time</div>
                 <small class="text-muted mb-2 d-block text-center">
                     <i class="fas fa-info-circle me-1"></i>
-                    Scroll to zoom • Drag to select range • Double-click or use reset button to restore view
+                    Drag to select range • Double-click to reset zoom
                 </small>
                 <div id="age-vs-net-worth-plot"></div>
             </div>
@@ -246,7 +246,7 @@
                 <div class="chart-title">Monthly Financial Flows</div>
                 <small class="text-muted mb-2 d-block text-center">
                     <i class="fas fa-info-circle me-1"></i>
-                    Scroll to zoom • Drag to select range • Double-click or use reset button to restore view
+                    Drag to select range • Double-click to reset zoom
                 </small>
                 <div id="monthly-financial-flows-plot"></div>
             </div>
@@ -343,46 +343,7 @@
                 background: colors.background,
                 foreColor: colors.foreground,
                 toolbar: {
-                    show: true,
-                    tools: {
-                        download: false,
-                        selection: false,
-                        zoom: false,
-                        zoomin: false,
-                        zoomout: false,
-                        pan: false,
-                        reset: true
-                    }
-                },
-                zoom: {
-                    enabled: true,
-                    type: 'x',
-                    autoScaleYaxis: true,
-                    zoomedArea: {
-                        fill: {
-                            color: colors.foreground,
-                            opacity: 0.1
-                        },
-                        stroke: {
-                            color: colors.foreground,
-                            opacity: 0.4,
-                            width: 1
-                        }
-                    },
-                    selection: {
-                        enabled: true,
-                        type: 'x',
-                        fill: {
-                            color: colors.foreground,
-                            opacity: 0.1
-                        },
-                        stroke: {
-                            color: colors.foreground,
-                            opacity: 0.4,
-                            width: 2,
-                            dashArray: 4
-                        }
-                    }
+                    show: false
                 },
                 animations: {
                     enabled: true,
