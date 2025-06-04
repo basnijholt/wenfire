@@ -93,7 +93,7 @@ def format_currency(value):
     """Format currency values in compact notation (e.g., $2.5M, $800k)"""
     if value < 1_000:
         return f"${value:.0f}"
-    elif value < 10_000:
+    elif value < 100_000:
         return f"${value / 1_000:.1f}k"
     elif value < 1_000_000:
         return f"${value / 1_000:.0f}k"

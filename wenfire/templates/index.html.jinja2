@@ -501,7 +501,7 @@
             function formatCompactCurrency(val) {
                 if (val < 1_000) {
                     return '$' + val.toFixed(0);
-                } else if (val < 10_000) {
+                } else if (val < 100_000) {
                     return '$' + (val / 1_000).toFixed(1) + 'k';
                 } else if (val < 1_000_000) {
                     return '$' + (val / 1_000).toFixed(0) + 'k';
