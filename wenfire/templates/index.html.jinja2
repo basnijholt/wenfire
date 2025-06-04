@@ -450,17 +450,16 @@
 
             // Add loading states to form submission
             const form = document.getElementById('calculate-form');
-            form.addEventListener('htmx:beforeRequest', function() {
-                const submitBtn = form.querySelector('button[type="submit"]');
-                const originalContent = submitBtn.innerHTML;
-                submitBtn.innerHTML = '<span class="loading me-2"></span>Calculating...';
-                submitBtn.disabled = true;
-
-                // Re-enable after request
-                form.addEventListener('htmx:afterRequest', function() {
-                    submitBtn.innerHTML = originalContent;
-                    submitBtn.disabled = false;
-                }, { once: true });
+            form.addEventListener('htmx:beforeRequest', e => {
+                const btn = e.target.querySelector('button[type="submit"]');
+                btn.dataset.original = btn.innerHTML;
+                btn.innerHTML = '<span class="loading me-2"></span>Calculating...';
+                btn.disabled = true;
+            });
+            form.addEventListener('htmx:afterRequest', e => {
+                const btn = e.target.querySelector('button[type="submit"]');
+                btn.innerHTML = btn.dataset.original;
+                btn.disabled = false;
             });
 
             // Add smooth scrolling to results
@@ -527,24 +526,14 @@
                         const data = w.config.series[seriesIndex].data[dataPointIndex];
                         const date = new Date(w.globals.seriesX[seriesIndex][dataPointIndex]);
 
-                        let tooltip = `<div class="apexcharts-tooltip-title" style="font-family: inherit; font-size: 12px;">
-                            ${date.toLocaleDateString()} (Age: ${data.age.toFixed(1)}, ${data.time_from_now_text})
-                        </div>`;
+                        const title = `<div class="apexcharts-tooltip-title" style="font-family: inherit; font-size: 12px;">${date.toLocaleDateString()} (Age: ${data.age.toFixed(1)}, ${data.time_from_now_text})</div>`;
 
-                        series.forEach((s, i) => {
-                            if (s[dataPointIndex] !== undefined) {
-                                tooltip += `<div class="apexcharts-tooltip-series-group apexcharts-active" style="order: 1; display: flex;">
-                                    <span class="apexcharts-tooltip-marker" style="background-color: ${w.globals.colors[i]};"></span>
-                                    <div class="apexcharts-tooltip-text" style="font-family: inherit; font-size: 12px;">
-                                        <div class="apexcharts-tooltip-y-group">
-                                            <span class="apexcharts-tooltip-text-y-label">${w.globals.seriesNames[i]}: </span>
-                                            <span class="apexcharts-tooltip-text-y-value">${formatCurrency(s[dataPointIndex])}</span>
-                                        </div>
-                                    </div>
-                                </div>`;
-                            }
-                        });
-                        return tooltip;
+                        const items = series.map((s, i) => s[dataPointIndex] !== undefined ?
+                            `<div class="apexcharts-tooltip-series-group apexcharts-active" style="order: 1; display: flex;"><span class="apexcharts-tooltip-marker" style="background-color: ${w.globals.colors[i]};"></span><div class="apexcharts-tooltip-text" style="font-family: inherit; font-size: 12px;"><div class="apexcharts-tooltip-y-group"><span class="apexcharts-tooltip-text-y-label">${w.globals.seriesNames[i]}: </span><span class="apexcharts-tooltip-text-y-value">${formatCurrency(s[dataPointIndex])}</span></div></div></div>`
+                            : ''
+                        ).join('');
+
+                        return title + items;
                     };
                 }
                 return config;
