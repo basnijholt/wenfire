@@ -477,6 +477,14 @@
                     behavior: 'smooth',
                     block: 'start'
                 });
+
+                // Trigger chart rendering after a small delay to ensure DOM is ready
+                setTimeout(() => {
+                    if (typeof window.renderChartsFromMain === 'function') {
+                        console.log('Triggering chart rendering from main template');
+                        window.renderChartsFromMain();
+                    }
+                }, 200);
             }
         });
     </script>

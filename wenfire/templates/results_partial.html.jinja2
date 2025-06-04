@@ -439,43 +439,85 @@
         console.log('Rendering charts with theme:', theme);
 
         try {
+            // Check if chart containers exist
+            const netWorthContainer = document.querySelector("#age-vs-net-worth-plot");
+            const flowsContainer = document.querySelector("#monthly-financial-flows-plot");
+
+            if (!netWorthContainer || !flowsContainer) {
+                console.error('Chart containers not found:', {
+                    netWorth: !!netWorthContainer,
+                    flows: !!flowsContainer
+                });
+                return;
+            }
+
             // Net Worth Chart
             if (chartInstances.netWorth) {
                 chartInstances.netWorth.destroy();
+                chartInstances.netWorth = null;
             }
+
             const netWorthData = {{ age_vs_net_worth_plot| tojson | safe }};
+            console.log('Net Worth Data:', netWorthData);
+
             if (netWorthData && netWorthData.series && netWorthData.series.length > 0) {
                 const netWorthConfig = createChartConfig('Net Worth Growth', 'Amount ($)', netWorthData, theme);
-                chartInstances.netWorth = new ApexCharts(document.querySelector("#age-vs-net-worth-plot"), netWorthConfig);
-                chartInstances.netWorth.render();
-                console.log('Net Worth chart rendered successfully');
+                chartInstances.netWorth = new ApexCharts(netWorthContainer, netWorthConfig);
+                chartInstances.netWorth.render().then(() => {
+                    console.log('Net Worth chart rendered successfully');
+                }).catch((error) => {
+                    console.error('Error rendering Net Worth chart:', error);
+                });
+            } else {
+                console.warn('Net Worth chart data is invalid or empty');
             }
 
             // Monthly Financial Flows Chart
             if (chartInstances.monthlyFlows) {
                 chartInstances.monthlyFlows.destroy();
+                chartInstances.monthlyFlows = null;
             }
+
             const flowsData = {{ monthly_financial_flows_plot| tojson | safe }};
+            console.log('Monthly Financial Flows Data:', flowsData);
+
             if (flowsData && flowsData.series && flowsData.series.length > 0) {
                 const flowsConfig = createChartConfig('Monthly Financial Flows', 'Monthly Amount ($)', flowsData, theme);
-                chartInstances.monthlyFlows = new ApexCharts(document.querySelector("#monthly-financial-flows-plot"), flowsConfig);
-                chartInstances.monthlyFlows.render();
-                console.log('Monthly Financial Flows chart rendered successfully');
+                chartInstances.monthlyFlows = new ApexCharts(flowsContainer, flowsConfig);
+                chartInstances.monthlyFlows.render().then(() => {
+                    console.log('Monthly Financial Flows chart rendered successfully');
+                }).catch((error) => {
+                    console.error('Error rendering Monthly Financial Flows chart:', error);
+                });
+            } else {
+                console.warn('Monthly Financial Flows chart data is invalid or empty');
             }
 
         } catch (error) {
-            console.error('Error rendering charts:', error);
+            console.error('Error in renderCharts function:', error);
         }
     }
 
-    // Initial chart rendering
-    renderCharts();
+    // Expose chart rendering function globally
+    window.renderChartsFromMain = renderCharts;
+
+    // Function to safely render charts with retry mechanism
+    function safeRenderCharts() {
+        // Wait a bit for the DOM to be fully ready
+        setTimeout(() => {
+            renderCharts();
+        }, 100);
+    }
+
+    // Initial chart rendering with delay for HTMX content
+    safeRenderCharts();
 
     // Set up theme change monitoring
     function setupThemeMonitoring() {
         const observer = new MutationObserver(function(mutations) {
             mutations.forEach(function(mutation) {
                 if (mutation.type === 'attributes' && mutation.attributeName === 'data-bs-theme') {
+                    console.log('Theme changed, re-rendering charts');
                     renderCharts();
                 }
             });
@@ -488,15 +530,15 @@
 
         window.addEventListener('storage', function(e) {
             if (e.key === 'theme') {
+                console.log('Theme changed via storage, re-rendering charts');
                 renderCharts();
             }
         });
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', setupThemeMonitoring);
-    } else {
-        setupThemeMonitoring();
-    }
+    // Setup theme monitoring immediately
+    setupThemeMonitoring();
+
+    console.log('Chart rendering script loaded');
 </script>
 {% endif %}
