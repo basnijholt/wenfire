@@ -26,24 +26,6 @@ const updateHiddenDateInputs = (parameterChange) => {
     });
 };
 
-// Set date for newly added parameter rows
-const setDateForNewParameterRow = (newRow, parameterChange) => {
-    const mainDateInput = parameterChange.querySelector('.date-input');
-    if (mainDateInput && mainDateInput.value) {
-        const hiddenDateInput = newRow.querySelector('input[name="change_dates"]');
-        if (hiddenDateInput) {
-            hiddenDateInput.value = mainDateInput.value;
-        } else {
-            // If no hidden input exists, create one
-            const newHiddenInput = document.createElement('input');
-            newHiddenInput.type = 'hidden';
-            newHiddenInput.name = 'change_dates';
-            newHiddenInput.value = mainDateInput.value;
-            newRow.appendChild(newHiddenInput);
-        }
-    }
-};
-
 // Update visibility of remove buttons based on number of rows
 const updateParameterRowVisibility = (container) => {
     const rows = container.querySelectorAll('.parameter-row');
@@ -115,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const newRow = container.lastElementChild;
             if (newRow && newRow.classList.contains('parameter-row')) {
                 const parameterChange = newRow.closest('.parameter-change');
-                setDateForNewParameterRow(newRow, parameterChange);
+                updateHiddenDateInputs(parameterChange);
             }
 
             // Update remove button visibility for this container

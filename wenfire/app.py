@@ -83,17 +83,16 @@ async def add_parameter_change(request: Request):
 
 
 @app.get("/add-parameter-row/{uuid}", response_class=HTMLResponse)
-async def add_parameter_row(request: Request, uuid: str):
+async def add_parameter_row(request: Request, uuid: str, date: str = ""):
     """Add a new parameter row to an existing parameter change block"""
     return templates.TemplateResponse(
         "parameter_row.html.jinja2",
         {
             "request": request,
             "uuid": uuid,
-            "row_index": 0,  # Will be updated by JavaScript
             "field": "",
             "value": "",
-            "date": "",  # Will be set by JavaScript from the main date input
+            "date": date,
             "is_first_row": False,
         },
     )
