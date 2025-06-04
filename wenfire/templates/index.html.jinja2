@@ -450,16 +450,16 @@
 
             // Add loading states to form submission
             const form = document.getElementById('calculate-form');
+            const submitBtn = form.querySelector('button[type="submit"]');
+            submitBtn.dataset.original = submitBtn.innerHTML; // Store original on page load
+
             form.addEventListener('htmx:beforeRequest', e => {
-                const btn = e.target.querySelector('button[type="submit"]');
-                btn.dataset.original = btn.innerHTML;
-                btn.innerHTML = '<span class="loading me-2"></span>Calculating...';
-                btn.disabled = true;
+                submitBtn.innerHTML = '<span class="loading me-2"></span>Calculating...';
+                submitBtn.disabled = true;
             });
             form.addEventListener('htmx:afterRequest', e => {
-                const btn = e.target.querySelector('button[type="submit"]');
-                btn.innerHTML = btn.dataset.original;
-                btn.disabled = false;
+                submitBtn.innerHTML = submitBtn.dataset.original;
+                submitBtn.disabled = false;
             });
 
             // Add smooth scrolling to results
