@@ -7,13 +7,19 @@ def plot_age_vs_net_worth(results: list[Results], summary: Summary):
     """Generate data for ApexCharts net worth chart."""
     # Prepare data for each series using dates instead of ages
     net_worth_data = [
-        {"x": result.date.isoformat(), "y": result.nw} for result in results
+        {"x": result.date.isoformat(), "y": result.nw, "age": result.age}
+        for result in results
     ]
     saved_data = [
-        {"x": result.date.isoformat(), "y": result.total_saved} for result in results
+        {"x": result.date.isoformat(), "y": result.total_saved, "age": result.age}
+        for result in results
     ]
     profits_data = [
-        {"x": result.date.isoformat(), "y": result.total_investment_profits}
+        {
+            "x": result.date.isoformat(),
+            "y": result.total_investment_profits,
+            "age": result.age,
+        }
         for result in results
     ]
 
@@ -83,20 +89,31 @@ def plot_savings_vs_spending(results: list[Results], summary: Summary):
 def plot_monthly_financial_flows(results: list[Results], summary: Summary):
     """Generate data for ApexCharts comprehensive monthly financial flows chart."""
     monthly_safe_withdraw_data = [
-        {"x": result.date.isoformat(), "y": result.safe_withdraw_rule_monthly}
+        {
+            "x": result.date.isoformat(),
+            "y": result.safe_withdraw_rule_monthly,
+            "age": result.age,
+        }
         for result in results
     ]
     spending_data = [
-        {"x": result.date.isoformat(), "y": result.spending} for result in results
+        {"x": result.date.isoformat(), "y": result.spending, "age": result.age}
+        for result in results
     ]
     income_data = [
-        {"x": result.date.isoformat(), "y": result.income} for result in results
+        {"x": result.date.isoformat(), "y": result.income, "age": result.age}
+        for result in results
     ]
     savings_data = [
-        {"x": result.date.isoformat(), "y": result.saving} for result in results
+        {"x": result.date.isoformat(), "y": result.saving, "age": result.age}
+        for result in results
     ]
     investment_profits_data = [
-        {"x": result.date.isoformat(), "y": result.investment_profits}
+        {
+            "x": result.date.isoformat(),
+            "y": result.investment_profits,
+            "age": result.age,
+        }
         for result in results
     ]
 
