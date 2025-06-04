@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import datetime
+import uuid
 
 from dateutil.relativedelta import relativedelta
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 def _today() -> datetime.date:
@@ -14,6 +15,7 @@ class ParameterChange(BaseModel):
     date: datetime.date
     field: str
     value: float
+    uuid: str = Field(default_factory=lambda: uuid.uuid4().hex[:8])
 
 
 class InputData(BaseModel):
