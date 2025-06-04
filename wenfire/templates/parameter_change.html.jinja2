@@ -77,8 +77,11 @@
                         Parameters to Change
                     </h6>
                     <button type="button"
-                            class="btn btn-outline-primary btn-sm add-parameter-row"
-                            data-uuid="{{ uuid }}"
+                            class="btn btn-outline-primary btn-sm"
+                            hx-get="/add-parameter-row/{{ uuid }}"
+                            hx-target=".parameter-rows-container[data-uuid='{{ uuid }}']"
+                            hx-swap="beforeend"
+                            hx-push-url="false"
                             title="Add another parameter change for the same date">
                         <i class="fas fa-plus me-1"></i>
                         Add Parameter
@@ -87,62 +90,12 @@
 
                 <div class="parameter-rows-container" data-uuid="{{ uuid }}">
                     <!-- Initial parameter row -->
-                    <div class="parameter-row mb-3" data-row-index="0">
-                        <div class="row g-3">
-                            <div class="col-md-5">
-                                <label class="form-label">
-                                    <i class="fas fa-list me-1"></i>
-                                    Parameter to Change
-                                </label>
-                                <select name="change_fields"
-                                        class="form-control"
-                                        required>
-                                    <option value="">Select parameter...</option>
-                                    <option value="growth_rate" {% if field=="growth_rate" %}selected{% endif %}>
-                                        📈 Investment Growth Rate (%)
-                                    </option>
-                                    <option value="spending_per_month" {% if field=="spending_per_month" %}selected{% endif %}>
-                                        🛒 Monthly Spending ($)
-                                    </option>
-                                    <option value="inflation" {% if field=="inflation" %}selected{% endif %}>
-                                        💰 Inflation Rate (%)
-                                    </option>
-                                    <option value="annual_salary_increase" {% if field=="annual_salary_increase" %}selected{% endif %}>
-                                        📊 Annual Salary Increase (%)
-                                    </option>
-                                    <option value="income_per_month" {% if field=="income_per_month" %}selected{% endif %}>
-                                        💵 Monthly Income ($)
-                                    </option>
-                                    <option value="extra_income" {% if field=="extra_income" %}selected{% endif %}>
-                                        💎 Extra Monthly Income ($)
-                                    </option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-5">
-                                <label class="form-label">
-                                    <i class="fas fa-edit me-1"></i>
-                                    New Value
-                                </label>
-                                <input type="number"
-                                       step="0.1"
-                                       name="change_values"
-                                       value="{{ value }}"
-                                       class="form-control"
-                                       required
-                                       placeholder="Enter new value">
-                            </div>
-
-                            <div class="col-md-2 d-flex align-items-end">
-                                <button type="button"
-                                        class="btn btn-outline-danger btn-sm remove-parameter-row"
-                                        title="Remove this parameter"
-                                        style="display: none;">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    {% set is_first_row = True %}
+                    {% set row_index = 0 %}
+                    {% set date = date if date else "" %}
+                    {% set field = field if field else "" %}
+                    {% set value = value if value else "" %}
+                    {% include "parameter_row.html.jinja2" %}
                 </div>
             </div>
 

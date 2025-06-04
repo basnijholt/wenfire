@@ -82,8 +82,33 @@ async def add_parameter_change(request: Request):
     )
 
 
+@app.get("/add-parameter-row/{uuid}", response_class=HTMLResponse)
+async def add_parameter_row(request: Request, uuid: str):
+    """Add a new parameter row to an existing parameter change block"""
+    return templates.TemplateResponse(
+        "parameter_row.html.jinja2",
+        {
+            "request": request,
+            "uuid": uuid,
+            "row_index": 0,  # Will be updated by JavaScript
+            "field": "",
+            "value": "",
+            "date": "",  # Will be set by JavaScript from the main date input
+            "is_first_row": False,
+        },
+    )
+
+
 @app.delete("/remove-parameter-change", response_class=HTMLResponse)
 async def remove_parameter_change():
+    # Since htmx handles the removal on the client side using hx-target and hx-swap,
+    # the server doesn't need to perform any action. Just return an empty response.
+    return Response("", status_code=200)
+
+
+@app.delete("/remove-parameter-row", response_class=HTMLResponse)
+async def remove_parameter_row():
+    """Remove a parameter row from a parameter change block"""
     # Since htmx handles the removal on the client side using hx-target and hx-swap,
     # the server doesn't need to perform any action. Just return an empty response.
     return Response("", status_code=200)

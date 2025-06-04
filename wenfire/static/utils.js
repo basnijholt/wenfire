@@ -16,68 +16,32 @@ const syncDateYears = (target) => {
     }
 };
 
-// Add parameter row functionality
-const addParameterRow = (button) => {
-    const uuid = button.dataset.uuid;
-    const container = document.querySelector(`.parameter-rows-container[data-uuid="${uuid}"]`);
-    const existingRows = container.querySelectorAll('.parameter-row');
-    const newIndex = existingRows.length;
+// Update hidden date inputs when main date changes
+const updateHiddenDateInputs = (parameterChange) => {
+    const mainDateInput = parameterChange.querySelector('.date-input');
+    const hiddenDateInputs = parameterChange.querySelectorAll('input[name="change_dates"][type="hidden"]');
 
-    const newRow = document.createElement('div');
-    newRow.className = 'parameter-row mb-3';
-    newRow.setAttribute('data-row-index', newIndex);
-    newRow.innerHTML = `
-        <div class="row g-3">
-            <div class="col-md-5">
-                <label class="form-label">
-                    <i class="fas fa-list me-1"></i>
-                    Parameter to Change
-                </label>
-                <select name="change_fields" class="form-control" required>
-                    <option value="">Select parameter...</option>
-                    <option value="growth_rate">📈 Investment Growth Rate (%)</option>
-                    <option value="spending_per_month">🛒 Monthly Spending ($)</option>
-                    <option value="inflation">💰 Inflation Rate (%)</option>
-                    <option value="annual_salary_increase">📊 Annual Salary Increase (%)</option>
-                    <option value="income_per_month">💵 Monthly Income ($)</option>
-                    <option value="extra_income">💎 Extra Monthly Income ($)</option>
-                </select>
-            </div>
-            <div class="col-md-5">
-                <label class="form-label">
-                    <i class="fas fa-edit me-1"></i>
-                    New Value
-                </label>
-                <input type="number" step="0.1" name="change_values" class="form-control" required placeholder="Enter new value">
-            </div>
-            <div class="col-md-2 d-flex align-items-end">
-                <button type="button" class="btn btn-outline-danger btn-sm remove-parameter-row" title="Remove this parameter">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-        </div>
-    `;
-
-    container.appendChild(newRow);
-    updateParameterRowVisibility(container);
-
-    // Add hidden date input for each additional parameter
-    const dateInput = container.closest('.parameter-change').querySelector('.date-input');
-    if (dateInput && dateInput.value) {
-        const hiddenDateInput = document.createElement('input');
-        hiddenDateInput.type = 'hidden';
-        hiddenDateInput.name = 'change_dates';
-        hiddenDateInput.value = dateInput.value;
-        newRow.appendChild(hiddenDateInput);
-    }
+    hiddenDateInputs.forEach(hiddenInput => {
+        hiddenInput.value = mainDateInput.value;
+    });
 };
 
-// Remove parameter row functionality
-const removeParameterRow = (button) => {
-    const row = button.closest('.parameter-row');
-    const container = row.closest('.parameter-rows-container');
-    row.remove();
-    updateParameterRowVisibility(container);
+// Set date for newly added parameter rows
+const setDateForNewParameterRow = (newRow, parameterChange) => {
+    const mainDateInput = parameterChange.querySelector('.date-input');
+    if (mainDateInput && mainDateInput.value) {
+        const hiddenDateInput = newRow.querySelector('input[name="change_dates"]');
+        if (hiddenDateInput) {
+            hiddenDateInput.value = mainDateInput.value;
+        } else {
+            // If no hidden input exists, create one
+            const newHiddenInput = document.createElement('input');
+            newHiddenInput.type = 'hidden';
+            newHiddenInput.name = 'change_dates';
+            newHiddenInput.value = mainDateInput.value;
+            newRow.appendChild(newHiddenInput);
+        }
+    }
 };
 
 // Update visibility of remove buttons based on number of rows
@@ -88,16 +52,6 @@ const updateParameterRowVisibility = (container) => {
         if (removeBtn) {
             removeBtn.style.display = rows.length > 1 ? 'block' : 'none';
         }
-    });
-};
-
-// Update hidden date inputs when main date changes
-const updateHiddenDateInputs = (parameterChange) => {
-    const mainDateInput = parameterChange.querySelector('.date-input');
-    const hiddenDateInputs = parameterChange.querySelectorAll('input[name="change_dates"][type="hidden"]');
-
-    hiddenDateInputs.forEach(hiddenInput => {
-        hiddenInput.value = mainDateInput.value;
     });
 };
 
@@ -153,6 +107,21 @@ document.addEventListener('DOMContentLoaded', function () {
             }, 200);
         }
 
+        // Handle newly added parameter rows via HTMX
+        if (event.detail.target.classList.contains('parameter-rows-container')) {
+            const container = event.detail.target;
+
+            // Newly inserted row is the last child of the container
+            const newRow = container.lastElementChild;
+            if (newRow && newRow.classList.contains('parameter-row')) {
+                const parameterChange = newRow.closest('.parameter-change');
+                setDateForNewParameterRow(newRow, parameterChange);
+            }
+
+            // Update remove button visibility for this container
+            updateParameterRowVisibility(container);
+        }
+
         // Initialize new parameter change blocks added via HTMX
         if (event.detail.target.classList.contains('parameter-change')) {
             const container = event.detail.target.querySelector('.parameter-rows-container');
@@ -162,21 +131,25 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    // Handle parameter row removal via HTMX - use beforeSwap to catch removal
+    document.addEventListener('htmx:beforeSwap', function (event) {
+        // Check if this is a parameter row removal request
+        if (event.detail.xhr && event.detail.xhr.responseURL && event.detail.xhr.responseURL.includes('/remove-parameter-row')) {
+            // The target element is about to be removed, so find its container now
+            const rowToRemove = event.detail.target;
+            const container = rowToRemove.closest('.parameter-rows-container');
+
+            // Update visibility after the DOM change (use setTimeout to ensure removal is complete)
+            if (container) {
+                setTimeout(() => {
+                    updateParameterRowVisibility(container);
+                }, 10);
+            }
+        }
+    });
+
     // Chart rendering setup (runs once, doesn't get re-executed by HTMX)
     setupChartRendering();
-});
-
-// Event listeners for parameter change functionality
-document.addEventListener('click', (e) => {
-    if (e.target.closest('.add-parameter-row')) {
-        e.preventDefault();
-        addParameterRow(e.target.closest('.add-parameter-row'));
-    }
-
-    if (e.target.closest('.remove-parameter-row')) {
-        e.preventDefault();
-        removeParameterRow(e.target.closest('.remove-parameter-row'));
-    }
 });
 
 // Event listeners for parameter change sync
