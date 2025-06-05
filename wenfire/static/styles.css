@@ -384,6 +384,14 @@ body {
   border-radius: 4px;
 }
 
+/* Sticky table headers inside scrollable tables */
+.scrollable-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2; /* keep above table rows */
+  background: var(--bg-gradient); /* reapply background to cover when stuck */
+}
+
 /* Summary Stats Cards */
 .stats-grid {
   display: grid;
