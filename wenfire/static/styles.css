@@ -326,21 +326,26 @@ body {
   color: var(--text-primary);
 }
 
-/* Enhanced Tables */
+/* === Data Tables ===================================================== */
+
+/* Wrapper that gives the table "card" aesthetics and clips overflowing rows */
 .table-container {
   background: var(--bg-card);
   border-radius: var(--border-radius-lg);
   overflow: hidden;
   box-shadow: var(--shadow-md);
-  margin: 2rem 0;
+  margin: 2rem 0; /* vertical spacing */
 }
 
+/* Base table element – override Bootstrap defaults we don't need */
 .table {
-  margin: 0;
-  background: transparent;
+  margin: 0;               /* remove extra space */
+  background: transparent; /* let container background show through */
 }
 
+/* Header cells: gradient look + sticky so they stay visible while scrolling */
 .table thead th {
+  /* visual style */
   background: var(--bg-gradient);
   color: white;
   font-weight: 600;
@@ -349,8 +354,14 @@ body {
   font-size: 0.85rem;
   padding: 1rem;
   border: none;
+
+  /* sticky behaviour for scrollable tables */
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }
 
+/* Body rows – add a subtle highlight on hover for readability */
 .table tbody tr {
   transition: var(--transition);
 }
@@ -359,18 +370,20 @@ body {
   background-color: rgba(255, 107, 53, 0.05);
 }
 
+/* Data cells */
 .table td {
   padding: 0.75rem 1rem;
   border-color: var(--border-color);
   color: var(--text-primary);
 }
 
+/* Scroll wrapper around the table body */
 .scrollable-table {
   max-height: 600px;
   overflow-y: auto;
-  border-radius: var(--border-radius-lg);
 }
 
+/* Custom scrollbar (WebKit/Blink) – purely cosmetic */
 .scrollable-table::-webkit-scrollbar {
   width: 8px;
 }
@@ -382,14 +395,6 @@ body {
 .scrollable-table::-webkit-scrollbar-thumb {
   background: var(--primary-color);
   border-radius: 4px;
-}
-
-/* Sticky table headers inside scrollable tables */
-.scrollable-table thead th {
-  position: sticky;
-  top: 0;
-  z-index: 2; /* keep above table rows */
-  background: var(--bg-gradient); /* reapply background to cover when stuck */
 }
 
 /* Summary Stats Cards */
