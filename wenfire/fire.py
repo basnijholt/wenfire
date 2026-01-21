@@ -29,6 +29,9 @@ class InputData(BaseModel):
     current_nw: float
     date_of_birth: datetime.date
     safe_withdraw_rate: float = 4
+    target_spending_per_month: float | None = (
+        None  # Post-FIRE spending target (e.g., for moving to cheaper country)
+    )
     parameter_changes: list[ParameterChange] = []
 
     @property
@@ -70,6 +73,9 @@ class Results(BaseModel):
     income: float
     extra_income: float  # fixed extra income per month
     spending: float
+    target_spending: float | None = (
+        None  # Post-FIRE target spending (inflation-adjusted)
+    )
     delta_nw: float
     total_saved: float
     input_data: InputData
@@ -99,8 +105,16 @@ class Results(BaseModel):
         return self.nw * self.input_data.safe_withdraw_rate / 100
 
     @property
+    def fire_target_spending(self) -> float:
+        """The spending amount used to determine FIRE (target if set, else current)."""
+        return (
+            self.target_spending if self.target_spending is not None else self.spending
+        )
+
+    @property
     def safe_withdraw_minus_spending(self) -> float:
-        return self.safe_withdraw_rule_monthly - self.spending
+        """Difference between safe withdrawal and FIRE target spending."""
+        return self.safe_withdraw_rule_monthly - self.fire_target_spending
 
     @property
     def investment_profits(self) -> float:
@@ -132,6 +146,11 @@ class Results(BaseModel):
         new_nw = self.nw + self.investment_profits + self.saving
         new_months = self.months + 1
         new_spending = self.spending * self.input_data.monthly_inflation
+        new_target_spending = (
+            self.target_spending * self.input_data.monthly_inflation
+            if self.target_spending is not None
+            else None
+        )
         new_income = self.income * self.input_data.monthly_salary_increase_rate
         new_delta_nw = new_nw - self.nw
         new_saved = self.total_saved + self.saving
@@ -141,6 +160,7 @@ class Results(BaseModel):
             income=new_income,
             extra_income=self.extra_income,
             spending=new_spending,
+            target_spending=new_target_spending,
             delta_nw=new_delta_nw,
             total_saved=new_saved,
             input_data=self.input_data,
@@ -185,12 +205,18 @@ class Summary(BaseModel):
 
         interpolated_months = interpolate(second_last.months, last.months, fraction)
 
+        target_spending: float | None = None
+        if second_last.target_spending is not None and last.target_spending is not None:
+            target_spending = interpolate(
+                second_last.target_spending, last.target_spending, fraction
+            )
         return Results(
             months=interpolated_months,
             nw=interpolate(second_last.nw, last.nw, fraction),
             income=interpolate(second_last.income, last.income, fraction),
             extra_income=second_last.extra_income,
             spending=interpolate(second_last.spending, last.spending, fraction),
+            target_spending=target_spending,
             delta_nw=interpolate(second_last.delta_nw, last.delta_nw, fraction),
             total_saved=interpolate(
                 second_last.total_saved, last.total_saved, fraction
@@ -249,6 +275,7 @@ def calculate_results_for_month(
         income=data.income_per_month,
         extra_income=data.extra_income,
         spending=data.spending_per_month,
+        target_spending=data.target_spending_per_month,
         total_saved=data.current_nw,
         input_data=data,
     )
