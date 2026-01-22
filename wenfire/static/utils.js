@@ -1,18 +1,3 @@
-// Toggle post-FIRE spending mode visibility
-function togglePostFireSpending() {
-    const checkbox = document.getElementById('enable_post_fire_spending');
-    const group = document.getElementById('post_fire_spending_group');
-    const input = document.getElementById('post_fire_spending_per_month');
-
-    if (checkbox.checked) {
-        group.style.display = 'block';
-        input.disabled = false;
-    } else {
-        group.style.display = 'none';
-        input.disabled = true;  // Disabled inputs aren't submitted; server uses default 0
-    }
-}
-
 // Parameter change date/years sync function
 const DAYS_PER_YEAR = 365.25;
 const MS_PER_YEAR = DAYS_PER_YEAR * 24 * 60 * 60 * 1000; // milliseconds in a year
