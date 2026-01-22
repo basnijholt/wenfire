@@ -188,6 +188,7 @@ class Summary(BaseModel):
     saving_at_fi: float
     safe_withdraw_at_fi: float
     spending_at_fi: float
+    post_fire_spending_at_fi: float | None  # Post-FIRE spending target at FIRE (if set)
     nw_at_fi: float
     total_investment_profits: float
     total_saved: float
@@ -249,6 +250,7 @@ class Summary(BaseModel):
             years_till_fi=r.years,
             safe_withdraw_at_fi=r.safe_withdraw_rule_monthly,
             spending_at_fi=r.spending,
+            post_fire_spending_at_fi=r.post_fire_spending,
             saving_at_fi=r.saving,
             nw_at_fi=r.nw,
             total_investment_profits=r.total_investment_profits,

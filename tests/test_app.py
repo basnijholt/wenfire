@@ -241,7 +241,7 @@ def test_interpolate_fraction_out_of_bounds() -> None:
     assert interpolate(0, 10, 1.5) == 15.0, "Interpolation failed for fraction >1"
 
 
-# Tests for target spending feature
+# Tests for post-FIRE spending feature
 def test_post_fire_spending_uses_lower_target_for_fire() -> None:
     """Test that FIRE is calculated based on post_fire_spending when set."""
     # Create input where current spending is high but target spending is low
