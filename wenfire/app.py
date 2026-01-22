@@ -37,7 +37,7 @@ DEFAULT_EXTRA_INCOME = 0
 DEFAULT_DATE_OF_BIRTH = "1990-01-01"
 DEFAULT_SAFE_WITHDRAW_RATE = 4
 DEFAULT_EXTRA_SPENDING = 0
-DEFAULT_TARGET_SPENDING_PER_MONTH = 0  # 0 means use current spending
+DEFAULT_POST_FIRE_SPENDING_PER_MONTH = 0  # 0 means use current spending
 
 # Choices for parameter select boxes used across templates
 PARAMETER_CHOICES: list[tuple[str, str]] = [
@@ -70,7 +70,9 @@ async def index(
     date_of_birth: Optional[str] = DEFAULT_DATE_OF_BIRTH,
     safe_withdraw_rate: Optional[float] = DEFAULT_SAFE_WITHDRAW_RATE,
     extra_spending: Optional[float] = DEFAULT_EXTRA_SPENDING,
-    target_spending_per_month: Optional[float] = DEFAULT_TARGET_SPENDING_PER_MONTH,
+    post_fire_spending_per_month: Optional[
+        float
+    ] = DEFAULT_POST_FIRE_SPENDING_PER_MONTH,
     change_dates: list[str] = Query(default=[]),
     change_fields: list[str] = Query(default=[]),
     change_values: list[str] = Query(default=[]),
@@ -88,7 +90,7 @@ async def index(
         "date_of_birth": date_of_birth,
         "safe_withdraw_rate": safe_withdraw_rate,
         "extra_spending": extra_spending,
-        "target_spending_per_month": target_spending_per_month,
+        "post_fire_spending_per_month": post_fire_spending_per_month,
         "parameter_changes": parameter_changes,
     }
 
@@ -218,16 +220,18 @@ async def calculate(
     date_of_birth: str = Query(default=DEFAULT_DATE_OF_BIRTH),
     safe_withdraw_rate: float = Query(default=DEFAULT_SAFE_WITHDRAW_RATE),
     extra_spending: float = Query(default=DEFAULT_EXTRA_SPENDING),
-    target_spending_per_month: float = Query(default=DEFAULT_TARGET_SPENDING_PER_MONTH),
+    post_fire_spending_per_month: float = Query(
+        default=DEFAULT_POST_FIRE_SPENDING_PER_MONTH
+    ),
     change_dates: list[str] = Query(default=[]),
     change_fields: list[str] = Query(default=[]),
     change_values: list[str] = Query(default=[]),
 ):
     parameter_changes = _parameter_changes(change_dates, change_fields, change_values)
     dob = _date_str_to_date(date_of_birth)
-    # Convert target_spending_per_month: 0 or empty means use current spending (None)
-    target_spending = (
-        target_spending_per_month if target_spending_per_month > 0 else None
+    # Convert post_fire_spending_per_month: 0 or empty means use current spending (None)
+    post_fire_spending = (
+        post_fire_spending_per_month if post_fire_spending_per_month > 0 else None
     )
     input_data = InputData(
         growth_rate=growth_rate,
@@ -239,7 +243,7 @@ async def calculate(
         extra_income=extra_income,
         date_of_birth=dob,
         safe_withdraw_rate=safe_withdraw_rate,
-        target_spending_per_month=target_spending,
+        post_fire_spending_per_month=post_fire_spending,
         parameter_changes=parameter_changes,
     )
     input_data_with_extra = input_data.model_copy(
@@ -280,7 +284,7 @@ async def calculate(
             "date_of_birth": date_of_birth,
             "safe_withdraw_rate": safe_withdraw_rate,
             "extra_spending": extra_spending,
-            "target_spending_per_month": target_spending_per_month,
+            "post_fire_spending_per_month": post_fire_spending_per_month,
             "change_dates": change_dates,
             "change_fields": change_fields,
             "change_values": change_values,
@@ -301,7 +305,7 @@ async def calculate(
         "date_of_birth": dob.strftime("%Y-%m-%d"),
         "safe_withdraw_rate": safe_withdraw_rate,
         "extra_spending": extra_spending,
-        "target_spending_per_month": target_spending_per_month,
+        "post_fire_spending_per_month": post_fire_spending_per_month,
         "parameter_changes": parameter_changes,
         "age_vs_net_worth_plot": age_vs_net_worth_plot,
         "monthly_financial_flows_plot": monthly_financial_flows_plot,

@@ -1,4 +1,22 @@
 {% if summary %}
+<!-- Post-FIRE Spending Mode Indicator -->
+{% if post_fire_spending_per_month and post_fire_spending_per_month > 0 %}
+<div class="alert alert-info fade-in mb-4" role="alert">
+    <div class="d-flex align-items-center">
+        <i class="fas fa-plane-departure fs-4 me-3"></i>
+        <div>
+            <h6 class="mb-1"><strong>Post-FIRE Spending Mode Active</strong></h6>
+            <p class="mb-0">
+                FIRE is calculated based on your post-FIRE spending target of
+                <strong class="text-primary">${{ "{:,.0f}".format(post_fire_spending_per_month) }}/month</strong>
+                (current: ${{ "{:,.0f}".format(spending_per_month) }}/month).
+                This assumes you'll reduce expenses after retiring, e.g., by moving to a cheaper location.
+            </p>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <!-- Key Metrics Summary Cards -->
 <div class="stats-grid fade-in">
     <div class="stat-card">
@@ -93,6 +111,17 @@
                     <span class="text-secondary fw-bold">{{ format_currency(summary.spending_at_fi) }}</span>
                 </td>
             </tr>
+            {% if post_fire_spending_per_month and post_fire_spending_per_month > 0 %}
+            <tr class="table-info">
+                <td>
+                    <strong><i class="fas fa-plane-departure me-1"></i>Post-FIRE Target Spending</strong>
+                    <br><small class="text-muted">Your planned reduced spending after FIRE (inflation-adjusted)</small>
+                </td>
+                <td>
+                    <span class="text-primary fw-bold">{{ format_currency(results[0].post_fire_spending * (1 + inflation/100) ** summary.years_till_fi) }}</span>
+                </td>
+            </tr>
+            {% endif %}
         </tbody>
     </table>
 </div>

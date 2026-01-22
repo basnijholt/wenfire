@@ -242,8 +242,8 @@ def test_interpolate_fraction_out_of_bounds() -> None:
 
 
 # Tests for target spending feature
-def test_target_spending_uses_lower_target_for_fire() -> None:
-    """Test that FIRE is calculated based on target_spending when set."""
+def test_post_fire_spending_uses_lower_target_for_fire() -> None:
+    """Test that FIRE is calculated based on post_fire_spending when set."""
     # Create input where current spending is high but target spending is low
     input_data = InputData(
         growth_rate=7.0,
@@ -255,17 +255,17 @@ def test_target_spending_uses_lower_target_for_fire() -> None:
         extra_income=0.0,
         date_of_birth=datetime.date(1990, 1, 1),
         safe_withdraw_rate=4.0,
-        target_spending_per_month=2000.0,  # $2k/month target (cheaper country)
+        post_fire_spending_per_month=2000.0,  # $2k/month target (cheaper country)
     )
 
     results = calculate_results_for_month(input_data)
     first_result = results[0]
 
-    # Verify target_spending is set
-    assert first_result.target_spending == 2000.0
+    # Verify post_fire_spending is set
+    assert first_result.post_fire_spending == 2000.0
 
-    # fire_target_spending should return target_spending when set
-    assert first_result.fire_target_spending == 2000.0
+    # fire_spending_target should return post_fire_spending when set
+    assert first_result.fire_spending_target == 2000.0
 
     # safe_withdraw_minus_spending should compare against target, not current
     # With $500k and 4% SWR: yearly = $20k, monthly = $1666.67
@@ -275,8 +275,8 @@ def test_target_spending_uses_lower_target_for_fire() -> None:
     assert abs(first_result.safe_withdraw_minus_spending - expected_diff) < 0.01
 
 
-def test_target_spending_none_uses_current_spending() -> None:
-    """Test that without target_spending, current spending is used for FIRE."""
+def test_post_fire_spending_none_uses_current_spending() -> None:
+    """Test that without post_fire_spending, current spending is used for FIRE."""
     input_data = InputData(
         growth_rate=7.0,
         current_nw=500000.0,
@@ -287,17 +287,17 @@ def test_target_spending_none_uses_current_spending() -> None:
         extra_income=0.0,
         date_of_birth=datetime.date(1990, 1, 1),
         safe_withdraw_rate=4.0,
-        target_spending_per_month=None,  # No target - use current spending
+        post_fire_spending_per_month=None,  # No target - use current spending
     )
 
     results = calculate_results_for_month(input_data)
     first_result = results[0]
 
-    # Verify target_spending is None
-    assert first_result.target_spending is None
+    # Verify post_fire_spending is None
+    assert first_result.post_fire_spending is None
 
-    # fire_target_spending should fall back to current spending
-    assert first_result.fire_target_spending == 3000.0
+    # fire_spending_target should fall back to current spending
+    assert first_result.fire_spending_target == 3000.0
 
     # safe_withdraw_minus_spending should compare against current spending
     expected_swr_monthly = 500000.0 * 0.04 / 12
@@ -305,8 +305,8 @@ def test_target_spending_none_uses_current_spending() -> None:
     assert abs(first_result.safe_withdraw_minus_spending - expected_diff) < 0.01
 
 
-def test_target_spending_earlier_fire_date() -> None:
-    """Test that lower target_spending leads to earlier FIRE date."""
+def test_post_fire_spending_earlier_fire_date() -> None:
+    """Test that lower post_fire_spending leads to earlier FIRE date."""
     base_input = InputData(
         growth_rate=7.0,
         current_nw=200000.0,
@@ -325,7 +325,7 @@ def test_target_spending_earlier_fire_date() -> None:
 
     # Calculate with lower target spending
     input_with_target = base_input.model_copy(
-        update={"target_spending_per_month": 2500.0}
+        update={"post_fire_spending_per_month": 2500.0}
     )
     results_target = calculate_results_for_month(input_with_target)
     summary_target = Summary.from_results(results_target)
@@ -339,8 +339,8 @@ def test_target_spending_earlier_fire_date() -> None:
     assert summary_target.years_till_fi < summary_current.years_till_fi
 
 
-def test_target_spending_inflation_adjusted() -> None:
-    """Test that target_spending is adjusted for inflation over time."""
+def test_post_fire_spending_inflation_adjusted() -> None:
+    """Test that post_fire_spending is adjusted for inflation over time."""
     input_data = InputData(
         growth_rate=7.0,
         current_nw=100000.0,
@@ -351,16 +351,16 @@ def test_target_spending_inflation_adjusted() -> None:
         extra_income=0.0,
         date_of_birth=datetime.date(1990, 1, 1),
         safe_withdraw_rate=4.0,
-        target_spending_per_month=2000.0,
+        post_fire_spending_per_month=2000.0,
     )
 
     results = calculate_results_for_month(input_data, target=12)
 
-    # Check that target_spending increases with inflation
+    # Check that post_fire_spending increases with inflation
     first = results[0]
     last = results[-1]
 
-    assert first.target_spending == 2000.0
+    assert first.post_fire_spending == 2000.0
     # After 12 months with 2% annual inflation, target should increase
     expected_target_after_12_months = 2000.0 * (input_data.monthly_inflation**12)
-    assert abs(last.target_spending - expected_target_after_12_months) < 0.01
+    assert abs(last.post_fire_spending - expected_target_after_12_months) < 0.01
