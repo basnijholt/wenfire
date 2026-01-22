@@ -212,10 +212,11 @@ def plot_monthly_financial_flows(results: list[Results], summary: Summary):
     current_date = results[0].input_data.now
 
     # Create data series using the helper function
+    # Use actual_spending which switches to post-FIRE spending after FIRE is reached
     series_data = [
         ("Monthly Safe Withdraw", "safe_withdraw_rule_monthly"),
         ("Income", "income"),
-        ("Spending", "spending"),
+        ("Spending", "actual_spending"),
         ("Savings", "saving"),
         ("Investment Profits", "investment_profits"),
     ]

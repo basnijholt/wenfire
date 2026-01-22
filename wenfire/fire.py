@@ -119,6 +119,18 @@ class Results(BaseModel):
         return self.safe_withdraw_rule_monthly - self.fire_spending_target
 
     @property
+    def is_fire_reached(self) -> bool:
+        """Whether FIRE has been reached at this point."""
+        return self.safe_withdraw_minus_spending >= 0
+
+    @property
+    def actual_spending(self) -> float:
+        """Actual spending for display - switches to post-FIRE spending after FIRE."""
+        if self.is_fire_reached and self.post_fire_spending is not None:
+            return self.post_fire_spending
+        return self.spending
+
+    @property
     def investment_profits(self) -> float:
         return self.nw * self.input_data.monthly_growth_rate - self.nw
 
