@@ -14,12 +14,12 @@ jobs:
       matrix:
         python-version: ["3.12", "3.13"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.4.0
         with:
           fetch-depth: 0
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v6.8.0
         with:
           enable-cache: true
           cache-dependency-glob: "uv.lock"
@@ -34,7 +34,7 @@ jobs:
         run: uv run pytest --cov=wenfire --cov-report=term --cov-report=xml
 
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v4.6.0
         if: matrix.python-version == '3.12'
         continue-on-error: true
         env:
